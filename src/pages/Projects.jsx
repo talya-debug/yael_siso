@@ -451,17 +451,15 @@ function ClientCard({ project }) {
   }
 
   async function updateCard(field, value) {
-    if (card?.id) {
-      await supabase.from('project_client_cards')
-        .update({ [field]: value, updated_at: new Date().toISOString() })
-        .eq('id', card.id)
-      setCard(prev => ({ ...prev, [field]: value }))
-    } else {
-      const { data } = await supabase.from('project_client_cards')
-        .insert({ project_id: project.id, [field]: value })
-        .select().single()
-      setCard(data || { [field]: value })
-    }
+    // עדכון local state מיידי למניעת race condition
+    const updated = { ...card, [field]: value, project_id: project.id, updated_at: new Date().toISOString() }
+    setCard(updated)
+    // upsert — insert אם לא קיים, update אם קיים, לפי project_id
+    const { data } = await supabase
+      .from('project_client_cards')
+      .upsert(updated, { onConflict: 'project_id' })
+      .select().single()
+    if (data) setCard(data)
   }
 
   async function addContact() {
