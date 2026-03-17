@@ -18,16 +18,18 @@ CREATE TABLE IF NOT EXISTS project_client_cards (
   updated_at     TIMESTAMPTZ DEFAULT now()
 );
 
--- אנשי קשר — כמה לכל פרויקט
+-- אנשי קשר — כמה לכל פרויקט (כולל ת"ז/דרכון לכל איש קשר)
 CREATE TABLE IF NOT EXISTS project_contacts (
-  id         UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
-  name       TEXT NOT NULL DEFAULT '',
-  phone      TEXT DEFAULT '',
-  email      TEXT DEFAULT '',
-  role       TEXT DEFAULT '',
-  sort_order INT  DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT now()
+  id           UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  project_id   UUID REFERENCES projects(id) ON DELETE CASCADE,
+  name         TEXT NOT NULL DEFAULT '',
+  phone        TEXT DEFAULT '',
+  email        TEXT DEFAULT '',
+  role         TEXT DEFAULT '',
+  id_number    TEXT DEFAULT '',
+  id_photo_url TEXT DEFAULT '',
+  sort_order   INT  DEFAULT 0,
+  created_at   TIMESTAMPTZ DEFAULT now()
 );
 
 -- RLS

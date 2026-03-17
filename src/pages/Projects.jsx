@@ -435,9 +435,9 @@ function GanttView({ tasks, project, onSelectTask }) {
 
 // ── כרטיס לקוח ──
 function ClientCard({ project }) {
-  const [card, setCard]         = useState(null)
-  const [contacts, setContacts] = useState([])
-  const [uploading, setUploading] = useState(false)
+  const [card, setCard]           = useState(null)
+  const [contacts, setContacts]   = useState([])
+  const [uploading, setUploading] = useState({}) // { contactId: true/false }
 
   useEffect(() => { fetchCard() }, [project.id])
 
@@ -465,10 +465,11 @@ function ClientCard({ project }) {
   }
 
   async function addContact() {
-    const { data } = await supabase.from('project_contacts')
+    const { data, error } = await supabase.from('project_contacts')
       .insert({ project_id: project.id, name: 'איש קשר חדש', sort_order: contacts.length })
       .select().single()
     if (data) setContacts(prev => [...prev, data])
+    if (error) alert('שגיאה — ודאי שהרצת את ה-Migration ב-Supabase')
   }
 
   async function updateContact(id, field, value) {
@@ -481,17 +482,17 @@ function ClientCard({ project }) {
     setContacts(prev => prev.filter(c => c.id !== id))
   }
 
-  async function uploadIdPhoto(file) {
+  async function uploadContactPhoto(contactId, file) {
     if (!file) return
-    setUploading(true)
+    setUploading(prev => ({ ...prev, [contactId]: true }))
     const ext  = file.name.split('.').pop()
-    const path = `id-photos/${project.id}-${Date.now()}.${ext}`
+    const path = `id-photos/${project.id}-${contactId}-${Date.now()}.${ext}`
     const { error } = await supabase.storage.from('documents').upload(path, file, { upsert: true })
     if (!error) {
       const { data: { publicUrl } } = supabase.storage.from('documents').getPublicUrl(path)
-      await updateCard('id_photo_url', publicUrl)
+      await updateContact(contactId, 'id_photo_url', publicUrl)
     }
-    setUploading(false)
+    setUploading(prev => ({ ...prev, [contactId]: false }))
   }
 
   const inp = "w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition"
@@ -525,12 +526,14 @@ function ClientCard({ project }) {
                 <Trash2 size={12} />
               </button>
               <div className="grid grid-cols-2 gap-3">
+                {/* שם */}
                 <div>
                   <label className={lbl}>שם</label>
                   <input defaultValue={ct.name}
                     onBlur={e => updateContact(ct.id, 'name', e.target.value)}
                     className={inp} />
                 </div>
+                {/* תפקיד */}
                 <div>
                   <label className={lbl}>תפקיד</label>
                   <input defaultValue={ct.role}
@@ -538,54 +541,49 @@ function ClientCard({ project }) {
                     placeholder="בעל הדירה, בן/בת זוג..."
                     className={inp} />
                 </div>
+                {/* טלפון */}
                 <div>
                   <label className={lbl}>טלפון</label>
                   <input defaultValue={ct.phone}
                     onBlur={e => updateContact(ct.id, 'phone', e.target.value)}
                     placeholder="050-0000000" className={inp} />
                 </div>
+                {/* מייל */}
                 <div>
                   <label className={lbl}>מייל</label>
                   <input defaultValue={ct.email}
                     onBlur={e => updateContact(ct.id, 'email', e.target.value)}
                     placeholder="email@example.com" className={inp} />
                 </div>
+                {/* ת"ז / דרכון */}
+                <div>
+                  <label className={lbl}>ת"ז / דרכון</label>
+                  <input defaultValue={ct.id_number || ''}
+                    onBlur={e => updateContact(ct.id, 'id_number', e.target.value)}
+                    placeholder="000000000" className={inp} />
+                </div>
+                {/* צילום ת"ז */}
+                <div>
+                  <label className={lbl}>צילום ת"ז / דרכון</label>
+                  <div className="flex gap-2">
+                    <input type="file" accept="image/*,application/pdf"
+                      onChange={e => uploadContactPhoto(ct.id, e.target.files?.[0])}
+                      className="hidden" id={`id-photo-ct-${ct.id}`} />
+                    <label htmlFor={`id-photo-ct-${ct.id}`}
+                      className="flex-1 border border-dashed border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-400 cursor-pointer hover:border-indigo-400 hover:text-indigo-500 transition text-center">
+                      {uploading[ct.id] ? '⏳ מעלה...' : ct.id_photo_url ? '✓ קיים — החלפה' : '+ העלה'}
+                    </label>
+                    {ct.id_photo_url && (
+                      <a href={ct.id_photo_url} target="_blank" rel="noopener noreferrer"
+                        className="px-2.5 border border-slate-200 rounded-xl text-slate-500 hover:text-indigo-600 transition flex items-center">
+                        <ExternalLink size={13} />
+                      </a>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           ))}
-        </div>
-      </div>
-
-      {/* ── פרטי זיהוי ── */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-        <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
-          <FileText size={16} className="text-indigo-400" /> פרטי זיהוי
-        </h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className={lbl}>מספר ת"ז / דרכון</label>
-            <input key={`id-${card.id}`} defaultValue={card.id_number || ''}
-              onBlur={e => updateCard('id_number', e.target.value)}
-              placeholder="000000000" className={inp} />
-          </div>
-          <div>
-            <label className={lbl}>צילום ת"ז / דרכון</label>
-            <div className="flex gap-2">
-              <input type="file" accept="image/*,application/pdf"
-                onChange={e => uploadIdPhoto(e.target.files?.[0])}
-                className="hidden" id={`id-photo-${project.id}`} />
-              <label htmlFor={`id-photo-${project.id}`}
-                className="flex-1 border border-dashed border-slate-300 rounded-xl px-3 py-2.5 text-sm text-slate-400 cursor-pointer hover:border-indigo-400 hover:text-indigo-500 transition text-center">
-                {uploading ? '⏳ מעלה...' : card.id_photo_url ? '✓ קיים — החלפה' : '+ העלה קובץ'}
-              </label>
-              {card.id_photo_url && (
-                <a href={card.id_photo_url} target="_blank" rel="noopener noreferrer"
-                  className="px-3 py-2.5 border border-slate-200 rounded-xl text-slate-500 hover:text-indigo-600 transition flex items-center">
-                  <ExternalLink size={14} />
-                </a>
-              )}
-            </div>
-          </div>
         </div>
       </div>
 
