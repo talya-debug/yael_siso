@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { LayoutDashboard, Users, FolderKanban, Boxes, Wallet, CalendarDays, BookOpen, LogOut, BookUser } from 'lucide-react'
+import { LayoutDashboard, Users, FolderKanban, Boxes, Wallet, CalendarDays, BookOpen, LogOut, BookUser, Receipt } from 'lucide-react'
 import Home from './Home'
 import Clients from './Clients'
 import Projects from './Projects'
@@ -9,16 +9,18 @@ import Billing from './Billing'
 import WorkLog from './WorkLog'
 import Knowledge from './Knowledge'
 import Suppliers from './Suppliers'
+import SupplierBilling from './SupplierBilling'
 
 const modules = [
-  { id: 'home',      label: 'דשבורד',      Icon: LayoutDashboard },
-  { id: 'clients',   label: 'לקוחות',      Icon: Users },
-  { id: 'projects',  label: 'פרויקטים',    Icon: FolderKanban },
-  { id: 'contents',  label: 'תכולות',      Icon: Boxes },
-  { id: 'billing',   label: 'גבייה',       Icon: Wallet },
-  { id: 'suppliers', label: 'ספר ספקים',   Icon: BookUser },
-  { id: 'worklog',   label: 'יומן עבודה',  Icon: CalendarDays },
-  { id: 'knowledge', label: 'ריכוז ידע',   Icon: BookOpen },
+  { id: 'home',             label: 'דשבורד',        Icon: LayoutDashboard },
+  { id: 'clients',          label: 'לקוחות',        Icon: Users },
+  { id: 'projects',         label: 'פרויקטים',      Icon: FolderKanban },
+  { id: 'contents',         label: 'תכולות',        Icon: Boxes },
+  { id: 'billing',          label: 'גבייה',         Icon: Wallet },
+  { id: 'suppliers',        label: 'ספר ספקים',     Icon: BookUser },
+  { id: 'supplierbilling',  label: 'גבייה מספקים',  Icon: Receipt },
+  { id: 'worklog',          label: 'יומן עבודה',    Icon: CalendarDays },
+  { id: 'knowledge',        label: 'ריכוז ידע',     Icon: BookOpen },
 ]
 
 export default function Dashboard({ session }) {
@@ -33,8 +35,9 @@ export default function Dashboard({ session }) {
       case 'projects':  return <Projects />
       case 'contents':  return <Contents />
       case 'billing':    return <Billing />
-      case 'suppliers':  return <Suppliers />
-      case 'worklog':    return <WorkLog />
+      case 'suppliers':       return <Suppliers />
+      case 'supplierbilling': return <SupplierBilling />
+      case 'worklog':         return <WorkLog />
       case 'knowledge': return <Knowledge />
       default:          return <Home onNavigate={setActive} />
     }
