@@ -437,7 +437,8 @@ function GanttView({ tasks, project, onSelectTask }) {
 function ClientCard({ project }) {
   const [card, setCard]           = useState(null)
   const [contacts, setContacts]   = useState([])
-  const [uploading, setUploading] = useState({}) // { contactId: true/false }
+  const [uploading, setUploading] = useState({})
+  const [saved, setSaved]         = useState(false) // אינדיקטור "נשמר ✓"
 
   useEffect(() => { fetchCard() }, [project.id])
 
@@ -460,6 +461,18 @@ function ClientCard({ project }) {
       .upsert(updated, { onConflict: 'project_id' })
       .select().single()
     if (data) setCard(data)
+  }
+
+  async function saveAll() {
+    // שמירה מלאה של כל הכרטיס
+    const updated = { ...card, project_id: project.id, updated_at: new Date().toISOString() }
+    const { data } = await supabase
+      .from('project_client_cards')
+      .upsert(updated, { onConflict: 'project_id' })
+      .select().single()
+    if (data) setCard(data)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2500)
   }
 
   async function addContact() {
@@ -500,6 +513,19 @@ function ClientCard({ project }) {
 
   return (
     <div className="space-y-4 pb-6">
+
+      {/* ── סרגל שמירה ── */}
+      <div className="flex items-center justify-between bg-white rounded-2xl border border-slate-100 shadow-sm px-5 py-3 sticky top-0 z-10">
+        <span className="text-sm text-slate-400">כרטיס לקוח — {project.name}</span>
+        <button onClick={saveAll}
+          className={`px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 ${
+            saved
+              ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+              : 'bg-indigo-600 text-white hover:bg-indigo-700'
+          }`}>
+          {saved ? '✓ נשמר' : 'שמור'}
+        </button>
+      </div>
 
       {/* ── אנשי קשר ── */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
