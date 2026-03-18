@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
-import { LayoutDashboard, Users, FolderKanban, Boxes, Wallet, CalendarDays, BookOpen, LogOut, BookUser, Receipt } from 'lucide-react'
+import { LayoutDashboard, Users, FolderKanban, Boxes, Wallet, CalendarDays, BookOpen, LogOut, BookUser, Receipt, FileBarChart } from 'lucide-react'
 import Home from './Home'
 import Clients from './Clients'
 import Projects from './Projects'
@@ -10,6 +10,7 @@ import WorkLog from './WorkLog'
 import Knowledge from './Knowledge'
 import Suppliers from './Suppliers'
 import SupplierBilling from './SupplierBilling'
+import MonthlyReport from './MonthlyReport'
 
 const modules = [
   { id: 'home',             label: 'דשבורד',        Icon: LayoutDashboard },
@@ -19,6 +20,7 @@ const modules = [
   { id: 'billing',          label: 'גבייה',         Icon: Wallet },
   { id: 'suppliers',        label: 'ספר ספקים',     Icon: BookUser },
   { id: 'supplierbilling',  label: 'גבייה מספקים',  Icon: Receipt },
+  { id: 'monthlyreport',    label: 'דוח חודשי',     Icon: FileBarChart },
   { id: 'worklog',          label: 'יומן עבודה',    Icon: CalendarDays },
   { id: 'knowledge',        label: 'ריכוז ידע',     Icon: BookOpen },
 ]
@@ -37,6 +39,7 @@ export default function Dashboard({ session }) {
       case 'billing':    return <Billing />
       case 'suppliers':       return <Suppliers />
       case 'supplierbilling': return <SupplierBilling />
+      case 'monthlyreport':   return <MonthlyReport />
       case 'worklog':         return <WorkLog />
       case 'knowledge': return <Knowledge />
       default:          return <Home onNavigate={setActive} />
