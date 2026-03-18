@@ -32,6 +32,7 @@ function SupplierModal({ supplier, onClose, onSaved }) {
     address: '',
     website: '',
     notes: '',
+    commission_pct: '',
     ...supplier,
   })
   const [saving, setSaving] = useState(false)
@@ -51,6 +52,7 @@ function SupplierModal({ supplier, onClose, onSaved }) {
       address: form.address.trim(),
       website: form.website.trim(),
       notes: form.notes.trim(),
+      commission_pct: form.commission_pct !== '' ? parseFloat(form.commission_pct) : null,
       updated_at: new Date().toISOString(),
     }
 
@@ -118,11 +120,18 @@ function SupplierModal({ supplier, onClose, onSaved }) {
               placeholder="רחוב, עיר" className={inp} />
           </div>
 
-          {/* אתר */}
-          <div>
-            <label className={lbl}>אתר / קישור</label>
-            <input value={form.website} onChange={e => set('website', e.target.value)}
-              placeholder="https://..." className={inp} />
+          {/* אתר + עמלה */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={lbl}>אתר / קישור</label>
+              <input value={form.website} onChange={e => set('website', e.target.value)}
+                placeholder="https://..." className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>עמלה (%)</label>
+              <input type="number" value={form.commission_pct} onChange={e => set('commission_pct', e.target.value)}
+                placeholder="10" min="0" max="100" className={inp} />
+            </div>
           </div>
 
           {/* הערות */}
@@ -159,9 +168,16 @@ function SupplierCard({ supplier, onEdit, onDelete }) {
       <div className="flex items-start justify-between mb-3">
         <div>
           <h3 className="font-semibold text-slate-800 text-base leading-tight">{supplier.name}</h3>
-          <span className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-medium mt-1 inline-block">
-            {supplier.category}
-          </span>
+          <div className="flex items-center gap-2 mt-1 flex-wrap">
+            <span className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
+              {supplier.category}
+            </span>
+            {supplier.commission_pct != null && (
+              <span className="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-medium">
+                עמלה {supplier.commission_pct}%
+              </span>
+            )}
+          </div>
         </div>
         {/* כפתורי עריכה/מחיקה */}
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">

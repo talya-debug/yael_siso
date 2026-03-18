@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
+import PublicWorkLog from './pages/PublicWorkLog'
 
 function App() {
   const [session, setSession] = useState(null)
@@ -32,6 +33,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* דף ציבורי — ללא התחברות */}
+        <Route path="/worklog-public" element={<PublicWorkLog />} />
         <Route path="/login" element={!session ? <Login /> : <Navigate to="/" />} />
         <Route path="/*" element={session ? <Dashboard session={session} /> : <Navigate to="/login" />} />
       </Routes>

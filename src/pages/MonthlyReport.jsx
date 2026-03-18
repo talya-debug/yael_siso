@@ -45,11 +45,11 @@ export default function MonthlyReport() {
     // טעינת משימות + תשלומים
     const [{ data: tasks }, { data: payments }] = await Promise.all([
       supabase.from('tasks')
-        .select('id,title,status,due_date,phase')
+        .select('id,name,status,due_date,phase_name')
         .eq('project_id', projectId)
-        .order('phase').order('sort_order'),
+        .order('sort_order'),
       supabase.from('payments')
-        .select('id,title,amount,status,due_date')
+        .select('id,name,amount,status,due_date')
         .eq('project_id', projectId)
         .order('due_date'),
     ])
@@ -87,7 +87,7 @@ export default function MonthlyReport() {
       body += `━━━━━━━━━━━━━━━━━━━━━━━━━\n`
       body += `✅ הושלם החודש\n`
       body += `━━━━━━━━━━━━━━━━━━━━━━━━━\n`
-      report.doneTasks.forEach(t => { body += `• ${t.title}\n` })
+      report.doneTasks.forEach(t => { body += `• ${t.name}\n` })
       body += '\n'
     }
 
@@ -95,7 +95,7 @@ export default function MonthlyReport() {
       body += `━━━━━━━━━━━━━━━━━━━━━━━━━\n`
       body += `🔄 בתהליך\n`
       body += `━━━━━━━━━━━━━━━━━━━━━━━━━\n`
-      report.activeTasks.forEach(t => { body += `• ${t.title}\n` })
+      report.activeTasks.forEach(t => { body += `• ${t.name}\n` })
       body += '\n'
     }
 
@@ -105,7 +105,7 @@ export default function MonthlyReport() {
       body += `━━━━━━━━━━━━━━━━━━━━━━━━━\n`
       report.pending$.forEach(p => {
         const due = p.due_date ? `(${new Date(p.due_date).toLocaleDateString('he-IL')})` : ''
-        body += `• ${p.title} — ₪${p.amount?.toLocaleString('he-IL')} ${due}\n`
+        body += `• ${p.name} — ₪${p.amount?.toLocaleString('he-IL')} ${due}\n`
       })
       body += '\n'
     }
@@ -254,8 +254,8 @@ export default function MonthlyReport() {
                     {report.doneTasks.map(t => (
                       <div key={t.id} className="flex items-center gap-2 text-sm text-slate-600 bg-emerald-50/50 rounded-lg px-3 py-1.5">
                         <CheckCircle2 size={13} className="text-emerald-400 shrink-0" />
-                        <span>{t.title}</span>
-                        {t.phase && <span className="text-xs text-slate-400 mr-auto">{t.phase}</span>}
+                        <span>{t.name}</span>
+                        {t.phase_name && <span className="text-xs text-slate-400 mr-auto">{t.phase_name}</span>}
                       </div>
                     ))}
                   </div>
@@ -272,8 +272,8 @@ export default function MonthlyReport() {
                     {report.activeTasks.map(t => (
                       <div key={t.id} className="flex items-center gap-2 text-sm text-slate-600 bg-blue-50/50 rounded-lg px-3 py-1.5">
                         {statusIcon(t.status)}
-                        <span>{t.title}</span>
-                        {t.phase && <span className="text-xs text-slate-400 mr-auto">{t.phase}</span>}
+                        <span>{t.name}</span>
+                        {t.phase_name && <span className="text-xs text-slate-400 mr-auto">{t.phase_name}</span>}
                       </div>
                     ))}
                   </div>
@@ -289,7 +289,7 @@ export default function MonthlyReport() {
                   <div className="space-y-1">
                     {report.pending$.map(p => (
                       <div key={p.id} className="flex items-center justify-between text-sm text-slate-600 bg-amber-50/50 rounded-lg px-3 py-1.5">
-                        <span>{p.title}</span>
+                        <span>{p.name}</span>
                         <span className="font-semibold text-amber-700">₪{p.amount?.toLocaleString('he-IL')}</span>
                       </div>
                     ))}

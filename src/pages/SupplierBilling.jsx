@@ -70,9 +70,17 @@ function EntryModal({ entry, suppliers, projects, onClose, onSaved }) {
           {/* ספק */}
           <div>
             <label className={lbl}>ספק *</label>
-            <select value={form.supplier_id} onChange={e => set('supplier_id', e.target.value)} className={inp}>
+            <select value={form.supplier_id} onChange={e => {
+              const sup = suppliers.find(s => s.id === e.target.value)
+              setForm(p => ({
+                ...p,
+                supplier_id: e.target.value,
+                // מילוי אוטומטי של עמלה% מכרטיס הספק
+                commission_pct: sup?.commission_pct != null ? sup.commission_pct : p.commission_pct,
+              }))
+            }} className={inp}>
               <option value="">— בחר ספק —</option>
-              {suppliers.map(s => <option key={s.id} value={s.id}>{s.name} ({s.category})</option>)}
+              {suppliers.map(s => <option key={s.id} value={s.id}>{s.name} ({s.category}){s.commission_pct != null ? ` · ${s.commission_pct}%` : ''}</option>)}
             </select>
           </div>
 
@@ -198,7 +206,7 @@ export default function SupplierBilling() {
     async function load() {
       const [{ data: pay }, { data: sup }, { data: proj }] = await Promise.all([
         supabase.from('supplier_payments').select('*').order('created_at', { ascending: false }),
-        supabase.from('suppliers').select('id,name,category').order('name'),
+        supabase.from('suppliers').select('id,name,category,commission_pct').order('name'),
         supabase.from('projects').select('id,name').order('name'),
       ])
       setPayments(pay || [])
