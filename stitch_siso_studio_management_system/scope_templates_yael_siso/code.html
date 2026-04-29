@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Scope Templates | Curated Canvas</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#e1dfff",
+                        "surface-container-low": "#f3f3f3",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed": "#111c2d",
+                        "inverse-on-surface": "#f0f1f1",
+                        "surface": "#f9f9f9",
+                        "secondary": "#7b5800",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#75777d",
+                        "tertiary-container": "#100092",
+                        "secondary-fixed-dim": "#f7bd48",
+                        "on-secondary-fixed": "#271900",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#bcc7de",
+                        "on-surface": "#1a1c1c",
+                        "on-background": "#1a1c1c",
+                        "secondary-fixed": "#ffdea6",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed-variant": "#3c475a",
+                        "surface-bright": "#f9f9f9",
+                        "primary-fixed": "#d8e3fb",
+                        "on-tertiary-container": "#8082ff",
+                        "on-surface-variant": "#45474c",
+                        "secondary-container": "#fdc34d",
+                        "inverse-surface": "#2f3131",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed-variant": "#5d4200",
+                        "on-tertiary-fixed-variant": "#2c24ce",
+                        "primary": "#091426",
+                        "tertiary-fixed-dim": "#c1c1ff",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#1e293b",
+                        "outline-variant": "#c5c6cd",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-primary-container": "#8590a6",
+                        "tertiary": "#060056",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#545f73",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed": "#09006b",
+                        "surface-container-high": "#e8e8e8",
+                        "primary-fixed-dim": "#bcc7de",
+                        "surface-dim": "#dadada",
+                        "surface-container": "#eeeeee",
+                        "surface-variant": "#e2e2e2",
+                        "on-secondary-container": "#715000",
+                        "background": "#f9f9f9"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Manrope', sans-serif; background-color: #f9f9f9; }
+        .label-text { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- SideNavBar Shell -->
+<aside class="bg-[#091426] h-screen w-64 fixed left-0 top-0 shadow-2xl flex flex-col py-8 px-4 overflow-y-auto z-50">
+<div class="flex items-center gap-3 px-2 mb-10">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-secondary to-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-white" data-icon="vignette">vignette</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tighter text-white leading-none">The Studio</h1>
+<p class="text-[10px] uppercase tracking-widest text-on-primary-container font-semibold mt-1">Interior Excellence</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all duration-300 rounded-xl font-medium font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all duration-300 rounded-xl font-medium font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span>Clients</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all duration-300 rounded-xl font-medium font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="architecture">architecture</span>
+<span>Projects</span>
+</a>
+<!-- ACTIVE TAB -->
+<a class="flex items-center gap-3 px-4 py-3 text-white bg-[#1E293B] rounded-xl font-bold font-['Manrope'] text-sm tracking-tight scale-[1.02]" href="#">
+<span class="material-symbols-outlined text-secondary-fixed-dim" data-icon="tactic">tactic</span>
+<span>Scope Templates</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all duration-300 rounded-xl font-medium font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span>Client Billing</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all duration-300 rounded-xl font-medium font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span>Supplier Billing</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all duration-300 rounded-xl font-medium font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="store">store</span>
+<span>Supplier Directory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all duration-300 rounded-xl font-medium font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span>Monthly Report</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all duration-300 rounded-xl font-medium font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span>Finance Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all duration-300 rounded-xl font-medium font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="history_edu">history_edu</span>
+<span>Work Log</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all duration-300 rounded-xl font-medium font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span>Knowledge Base</span>
+</a>
+</nav>
+<div class="mt-auto pt-8 border-t border-slate-800/50">
+<div class="flex items-center gap-3 px-2">
+<div class="w-8 h-8 rounded-full overflow-hidden bg-slate-700">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="professional headshot of an interior designer in a minimalist studio setting with warm natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0IOn5iDD9COIOmwNQWstmlsZJIP5okXkWcbLV_tFA-unYKUPHxFpGv60KCS_F3Aa7kqOWkmE7auYxVrWS3jyYzdgOxo57JCq55chzG-MFgbOc727CtQvcxy97P5_TaY2BS0cMQ_ezcZu3rpQ1Tp92_A844maPNBVlb2BDLqZnQity7dm0EqBsO6DKc6sOKE2kUwoEMi3ss4tW5xw84XcGEs_F35AsBsU7XPqegY0EMGpRVLsSR-3dBsMEc65B39dFbyScyrpN9cE"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<p class="text-xs font-bold text-white truncate">Julian Alexander</p>
+<p class="text-[10px] text-slate-500 truncate">Lead Architect</p>
+</div>
+<span class="material-symbols-outlined text-slate-400 text-sm" data-icon="settings">settings</span>
+</div>
+</div>
+</aside>
+<!-- TopNavBar Shell -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-40 bg-[#F9F9F9]/80 backdrop-blur-xl flex justify-between items-center px-8">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-secondary/20 placeholder:text-slate-400 font-['Manrope']" placeholder="Search templates..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-low rounded-full">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-[11px] font-bold text-primary tracking-tight">STUDIO PREMIUM</span>
+</div>
+<div class="flex items-center gap-4 text-slate-600">
+<button class="hover:text-secondary transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="hover:text-secondary transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-64 pt-24 pb-12 px-8 min-h-screen">
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-10">
+<div>
+<nav class="flex items-center gap-2 text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-2 label-text">
+<span>Templates</span>
+<span class="material-symbols-outlined text-[14px]" data-icon="chevron_right">chevron_right</span>
+<span class="text-secondary">Project Scopes</span>
+</nav>
+<h2 class="text-4xl font-extrabold text-primary tracking-tighter">English Scope Templates</h2>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-5 py-2.5 bg-surface-container-low text-primary font-bold rounded-xl hover:bg-surface-container-high transition-all active:scale-95 text-sm">
+<span class="material-symbols-outlined text-xl" data-icon="unfold_less">unfold_less</span>
+                    Collapse All
+                </button>
+<button class="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-b from-primary to-primary-container text-white font-bold rounded-xl hover:scale-[1.02] transition-all active:scale-95 shadow-lg text-sm">
+<span class="material-symbols-outlined text-xl" data-icon="download">download</span>
+                    Import Default Template
+                </button>
+</div>
+</div>
+<!-- Hierarchical Tree View -->
+<div class="space-y-6">
+<!-- Phase Card: Conceptual Design -->
+<section class="bg-surface-container-low rounded-2xl overflow-hidden shadow-sm">
+<!-- Phase Header -->
+<div class="px-6 py-5 flex items-center justify-between border-b border-white/40">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined font-bold" data-icon="architecture">architecture</span>
+</div>
+<div>
+<h3 class="text-lg font-extrabold text-primary tracking-tight leading-none">Phase 01: Conceptual Design</h3>
+<p class="text-xs text-slate-500 font-medium mt-1 label-text">Initial spatial planning and aesthetic direction</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest label-text leading-none mb-1">Est. Duration</p>
+<p class="text-sm font-extrabold text-primary">14-21 Days</p>
+</div>
+<button class="p-2 hover:bg-white rounded-lg transition-colors text-slate-400">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Phase Content (Tasks & Subtasks) -->
+<div class="p-4 space-y-3">
+<!-- Task 1 -->
+<div class="bg-white rounded-xl shadow-sm overflow-hidden">
+<div class="px-5 py-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" data-icon="arrow_drop_down">arrow_drop_down</span>
+<span class="text-sm font-bold text-primary">Spatial Layout Exploration</span>
+</div>
+<div class="flex items-center gap-8">
+<span class="text-xs font-bold text-slate-400 label-text">5 Days</span>
+<div class="flex gap-2">
+<button class="p-1.5 hover:bg-surface-container-low rounded-lg text-slate-300 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="edit">edit</span>
+</button>
+<button class="p-1.5 hover:bg-surface-container-low rounded-lg text-slate-300 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Subtasks -->
+<div class="px-5 pb-4 pl-12 space-y-2">
+<div class="flex items-center justify-between py-2 px-3 hover:bg-surface-container-low rounded-lg transition-colors group">
+<div class="flex items-center gap-3">
+<span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+<span class="text-xs font-medium text-slate-600">Drafting of current state floorplans</span>
+</div>
+<div class="flex items-center gap-6">
+<span class="text-[11px] font-semibold text-slate-400 label-text italic opacity-0 group-hover:opacity-100 transition-opacity">Auto-assigned to Architect</span>
+<span class="text-[11px] font-bold text-slate-400 label-text">2 Days</span>
+</div>
+</div>
+<div class="flex items-center justify-between py-2 px-3 hover:bg-surface-container-low rounded-lg transition-colors group">
+<div class="flex items-center gap-3">
+<span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+<span class="text-xs font-medium text-slate-600">Three alternative furniture layouts</span>
+</div>
+<div class="flex items-center gap-6">
+<span class="text-[11px] font-bold text-slate-400 label-text">3 Days</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Task 2 -->
+<div class="bg-white rounded-xl shadow-sm">
+<div class="px-5 py-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-300" data-icon="arrow_right">arrow_right</span>
+<span class="text-sm font-bold text-primary">Moodboard &amp; Material Palette</span>
+</div>
+<div class="flex items-center gap-8">
+<span class="text-xs font-bold text-slate-400 label-text">8 Days</span>
+<div class="flex gap-2">
+<button class="p-1.5 hover:bg-surface-container-low rounded-lg text-slate-300 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Add Task Trigger -->
+<button class="w-full py-3 border-2 border-dashed border-white/60 rounded-xl flex items-center justify-center gap-2 text-slate-400 hover:text-secondary hover:border-secondary/40 transition-all text-xs font-bold uppercase tracking-wider label-text">
+<span class="material-symbols-outlined text-lg" data-icon="add_circle">add_circle</span>
+                        Add New Task
+                    </button>
+</div>
+</section>
+<!-- Phase Card: Sourcing & Specification -->
+<section class="bg-surface-container-low rounded-2xl overflow-hidden shadow-sm">
+<div class="px-6 py-5 flex items-center justify-between border-b border-white/40">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined font-bold" data-icon="shopping_basket">shopping_basket</span>
+</div>
+<div>
+<h3 class="text-lg font-extrabold text-primary tracking-tight leading-none">Phase 02: Sourcing &amp; Specification</h3>
+<p class="text-xs text-slate-500 font-medium mt-1 label-text">FF&amp;E procurement and artisan selection</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest label-text leading-none mb-1">Est. Duration</p>
+<p class="text-sm font-extrabold text-primary">30-45 Days</p>
+</div>
+<button class="p-2 hover:bg-white rounded-lg transition-colors text-slate-400">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+<div class="p-4 space-y-3">
+<div class="bg-white rounded-xl shadow-sm">
+<div class="px-5 py-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-300" data-icon="arrow_right">arrow_right</span>
+<span class="text-sm font-bold text-primary">Custom Furniture Design</span>
+</div>
+<div class="flex items-center gap-8">
+<span class="text-xs font-bold text-slate-400 label-text">12 Days</span>
+<button class="p-1.5 hover:bg-surface-container-low rounded-lg text-slate-300 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="add">add</span>
+</button>
+</div>
+</div>
+</div>
+<button class="w-full py-3 border-2 border-dashed border-white/60 rounded-xl flex items-center justify-center gap-2 text-slate-400 hover:text-secondary hover:border-secondary/40 transition-all text-xs font-bold uppercase tracking-wider label-text">
+<span class="material-symbols-outlined text-lg" data-icon="add_circle">add_circle</span>
+                        Add New Task
+                    </button>
+</div>
+</section>
+<!-- Final Phase Hook -->
+<button class="w-full group py-8 rounded-2xl border-2 border-dashed border-slate-200 hover:border-secondary/30 transition-all flex flex-col items-center justify-center gap-3 bg-white/50">
+<div class="w-12 h-12 rounded-full bg-surface-container-low group-hover:bg-secondary/10 flex items-center justify-center text-slate-400 group-hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-2xl" data-icon="playlist_add">playlist_add</span>
+</div>
+<div class="text-center">
+<p class="text-sm font-extrabold text-primary uppercase tracking-widest label-text">Append New Phase</p>
+<p class="text-[11px] text-slate-400 font-medium">Define a new milestone in your project workflow</p>
+</div>
+</button>
+</div>
+<!-- Sidebar (Right - Mini Stats/Bento) -->
+<div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest label-text">Total Project Lead</span>
+<span class="material-symbols-outlined text-secondary" data-icon="schedule">schedule</span>
+</div>
+<div class="flex items-end gap-2">
+<span class="text-3xl font-black text-primary">~72</span>
+<span class="text-sm font-bold text-slate-400 mb-1">Working Days</span>
+</div>
+<div class="h-1 w-full bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-2/3"></div>
+</div>
+</div>
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest label-text">Phases Identified</span>
+<span class="material-symbols-outlined text-secondary" data-icon="layers">layers</span>
+</div>
+<div class="flex items-end gap-2">
+<span class="text-3xl font-black text-primary">05</span>
+<span class="text-sm font-bold text-slate-400 mb-1">Core Milestones</span>
+</div>
+<div class="flex -space-x-2 overflow-hidden">
+<img alt="Team 1" class="inline-block h-6 w-6 rounded-full ring-2 ring-white" data-alt="interior design associate looking through blueprints with soft office lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJqY1RDwhYOrinnNZgiNmszUo8atkUTSDPDOzEfy4qjVEe8IX03pt74VoDp8a6DsCb13b9ak6iX9oD4GccDJPwGvU--9yE0tw_iIj_bOfbJsilmL_nlyG_bzltonHlZUB3cr_bMXxn4D68mXnOGK1mepURxp1C7eBUqxj8-29678NcWctGGurJryuvp_tgMLwPt7O91YILUv9QFMFatj-O5lsklQnP3Tibtt9TzECfnp1RcB6omxqwU9DhZFJ111G1zBmV-UN10kY"/>
+<img alt="Team 2" class="inline-block h-6 w-6 rounded-full ring-2 ring-white" data-alt="male project manager in a clean white studio with minimal architectural elements" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANi8AZMEbB_NyUeppMVD1VugS6RbRaUOuAXOUWJ_LgMUZPeiRSNYTftQ_e157DYTQBTyu7ucHwCc9IKk4luaKzg28CtV1AARfOBcnUB8SsIjxi4LyNVyeC9wtTDfxjE6ZyamnR1kic9RgpH22O-q9sgZXcNz7d3rEbLWP75VMuxNr4LCuhUSlEqHrWxsCXR9oI6OxTkW3XopomK1E26Fa27s5pZmB_g8lpZ391-EuVvHV6keBK-M648Eo1zmvKhnzFI6IQe85a82o"/>
+<div class="inline-block h-6 w-6 rounded-full ring-2 ring-white bg-surface-container-high flex items-center justify-center">
+<span class="text-[10px] font-bold text-primary">+2</span>
+</div>
+</div>
+</div>
+<div class="bg-primary p-6 rounded-2xl shadow-xl flex flex-col justify-between relative overflow-hidden group">
+<div class="relative z-10">
+<span class="text-[10px] font-bold text-on-primary-container uppercase tracking-widest label-text">Efficiency Rating</span>
+<h4 class="text-white text-xl font-bold mt-2">Optimized Workflow</h4>
+<p class="text-on-primary-container text-xs mt-1 leading-relaxed">This template saves an average of 4.5 hours per project setup.</p>
+</div>
+<button class="relative z-10 mt-4 text-xs font-bold text-secondary-fixed-dim flex items-center gap-2 group-hover:gap-3 transition-all">
+                    View performance logs
+                    <span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+</button>
+<!-- Decorative background icon -->
+<span class="material-symbols-outlined absolute -bottom-4 -right-4 text-8xl text-white/5 rotate-12" data-icon="verified">verified</span>
+</div>
+</div>
+</main>
+<!-- FAB -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-secondary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined" data-icon="chat_bubble" style="font-variation-settings: 'FILL' 1;">chat_bubble</span>
+</button>
+</body></html>

@@ -1,443 +1,490 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { ChevronDown, ChevronRight, Plus, X, Save, Pencil, Target } from 'lucide-react'
+import { TrendingUp, TrendingDown, DollarSign, CheckCircle2, Clock, Plus, X, Save, Pencil, Trash2, Target, ChevronDown, ChevronRight } from 'lucide-react'
 
 function fmt(n) {
   if (!n && n !== 0) return '—'
-  return Number(n).toLocaleString('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 })
+  return '₪' + Math.round(Number(n)).toLocaleString('en-US')
 }
 
-// ── מודאל תעריפי עובדים ──
-function RatesModal({ project, workers, rates, onClose, onSave }) {
-  const [localRates, setLocalRates] = useState(
-    workers.map(w => ({
-      worker_name: w,
-      hourly_rate: rates.find(r => r.worker_name === w)?.hourly_rate || ''
-    }))
-  )
+export default function FinanceDashboard() {
+  const [projects, setProjects]       = useState([])
+  const [payments, setPayments]       = useState([])
+  const [supplierPay, setSupplierPay] = useState([])
+  const [expenses, setExpenses]       = useState([])
+  const [workLogs, setWorkLogs]       = useState([])
+  const [rates, setRates]             = useState([])
+  const [loading, setLoading]         = useState(true)
+  const [filter, setFilter]           = useState('active')
+  const [expanded, setExpanded]       = useState({})
+  const [editPrice, setEditPrice]     = useState(null)
+  const [priceVal, setPriceVal]       = useState('')
+  const [showExpenseForm, setShowExpenseForm] = useState(null)
+  const [expForm, setExpForm]         = useState({ name: '', amount: '', category: 'general', notes: '' })
+  const [showRates, setShowRates]     = useState(false)
+  const [rateOverrides, setRateOverrides] = useState([])
+  const [showProjectRates, setShowProjectRates] = useState(null)
 
-  return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-          <h2 className="font-semibold text-slate-800">תעריפי עובדים — {project.name}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100"><X size={16} /></button>
-        </div>
-        <div className="px-6 py-5 space-y-3">
-          {workers.length === 0 && (
-            <p className="text-sm text-slate-400 text-center py-4">אין עובדים עם שעות רשומות לפרויקט זה</p>
-          )}
-          {localRates.map((r, i) => (
-            <div key={r.worker_name} className="flex items-center gap-3">
-              <span className="flex-1 text-sm font-medium text-slate-700">{r.worker_name}</span>
-              <div className="flex items-center gap-1.5">
-                <input
-                  type="number"
-                  value={r.hourly_rate}
-                  onChange={e => setLocalRates(prev => prev.map((x, idx) => idx === i ? { ...x, hourly_rate: e.target.value } : x))}
-                  className="w-28 border border-slate-200 rounded-xl px-3 py-2 text-sm text-left focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition"
-                  placeholder="0"
-                />
-                <span className="text-slate-400 text-xs">₪/שעה</span>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="flex gap-2 px-6 py-4 border-t border-slate-100">
-          <button onClick={() => onSave(localRates)}
-            className="flex-1 bg-indigo-600 text-white py-2.5 rounded-xl text-sm font-medium hover:bg-indigo-700 transition flex items-center justify-center gap-2">
-            <Save size={14} /> שמור תעריפים
-          </button>
-          <button onClick={onClose} className="px-4 py-2.5 rounded-xl text-sm text-slate-600 hover:bg-slate-50 border border-slate-200 transition">ביטול</button>
-        </div>
-      </div>
-    </div>
-  )
-}
+  useEffect(() => { fetchAll() }, [])
 
-// ── כרטיס פרויקט פיננסי ──
-function ProjectFinanceCard({ project, onPriceUpdate }) {
-  const [expanded,        setExpanded]        = useState(false)
-  const [data,            setData]            = useState(null)
-  const [loading,         setLoading]         = useState(false)
-  const [showRates,       setShowRates]       = useState(false)
-  const [editPrice,       setEditPrice]       = useState(false)
-  const [priceInput,      setPriceInput]      = useState(project.project_price || '')
-  const [showExpenseForm, setShowExpenseForm] = useState(false)
-  const [newExpense,      setNewExpense]      = useState({ description: '', amount: '' })
-
-  async function loadData() {
-    setLoading(true)
+  async function fetchAll() {
     const [
-      { data: payments },
-      { data: workLogs },
-      { data: rates },
-      { data: expenses },
+      { data: proj },
+      { data: pay },
+      { data: sp },
+      { data: exp },
+      { data: wl },
+      { data: hr },
     ] = await Promise.all([
-      supabase.from('payments').select('amount, status').eq('project_id', project.id),
-      supabase.from('work_log').select('worker_name, hours').eq('project_id', project.id),
-      supabase.from('project_rates').select('*').eq('project_id', project.id),
-      supabase.from('project_expenses').select('*').eq('project_id', project.id).order('created_at'),
+      supabase.from('projects').select('id, name, status, project_price, profit_target_pct, adi_pct').order('created_at', { ascending: false }),
+      supabase.from('payments').select('id, project_id, amount, status'),
+      supabase.from('supplier_payments').select('id, project_id, amount, commission_pct'),
+      supabase.from('project_expenses').select('*').order('created_at'),
+      supabase.from('work_log').select('id, project_id, worker_name, hours, role'),
+      supabase.from('hourly_rates').select('*'),
     ])
-
-    // הכנסות
-    const totalRevenue = (payments || [])
-      .filter(p => p.status === 'paid')
-      .reduce((s, p) => s + Number(p.amount || 0), 0)
-
-    // שעות לפי עובד
-    const workerHours = {}
-    ;(workLogs || []).forEach(l => {
-      if (!l.worker_name) return
-      workerHours[l.worker_name] = (workerHours[l.worker_name] || 0) + Number(l.hours || 0)
-    })
-
-    // עלויות שעות
-    const rateMap = Object.fromEntries((rates || []).map(r => [r.worker_name, Number(r.hourly_rate)]))
-    const workerCosts = Object.entries(workerHours).map(([name, hours]) => ({
-      name, hours,
-      rate: rateMap[name] || 0,
-      cost: hours * (rateMap[name] || 0),
-    }))
-    const totalWorkCost = workerCosts.reduce((s, w) => s + w.cost, 0)
-
-    // הוצאות ישירות
-    const totalDirectExpenses = (expenses || []).reduce((s, e) => s + Number(e.amount || 0), 0)
-    const totalExpenses = totalWorkCost + totalDirectExpenses
-
-    // חלק עדי
-    const price     = Number(project.project_price || 0)
-    const adiPct    = Number(project.adi_pct || 30) / 100
-    const adiShare  = Math.max(0, (price * adiPct) - (totalExpenses * adiPct))
-
-    // רווח גלמי
-    const grossProfit  = price - totalExpenses - adiShare
-    const targetPct    = Number(project.profit_target_pct || 40) / 100
-    const targetAmount = price * targetPct
-    const metTarget    = grossProfit >= targetAmount
-
-    setData({
-      totalRevenue, workerCosts,
-      workers: Object.keys(workerHours),
-      rates: rates || [],
-      totalWorkCost,
-      expenses: expenses || [],
-      totalDirectExpenses, totalExpenses,
-      adiShare, adiPct: adiPct * 100,
-      grossProfit, targetAmount,
-      targetPct: targetPct * 100,
-      metTarget, price,
-    })
+    setProjects(proj || [])
+    setPayments(pay || [])
+    setSupplierPay(sp || [])
+    // Separate rate overrides from regular expenses
+    const allExp = exp || []
+    setRateOverrides(allExp.filter(e => e.category === 'rate_override'))
+    setExpenses(allExp.filter(e => e.category !== 'rate_override'))
+    setWorkLogs(wl || [])
+    setRates(hr || [])
     setLoading(false)
   }
 
-  async function saveRates(localRates) {
-    for (const r of localRates) {
-      if (!r.hourly_rate) continue
-      await supabase.from('project_rates').upsert({
-        project_id: project.id,
-        worker_name: r.worker_name,
-        hourly_rate: Number(r.hourly_rate),
-      }, { onConflict: 'project_id,worker_name' })
+  function getRate(role, projectId) {
+    // Check for project-specific rate override first
+    if (projectId) {
+      const override = rateOverrides.find(o => o.project_id === projectId && o.name === `RATE:${role}`)
+      if (override) return Number(override.amount)
     }
-    setShowRates(false)
-    loadData()
+    const r = rates.find(r => r.role === role)
+    return r ? Number(r.rate) : 0
   }
 
-  async function savePrice() {
-    await supabase.from('projects').update({ project_price: Number(priceInput) }).eq('id', project.id)
-    setEditPrice(false)
-    onPriceUpdate(project.id, Number(priceInput))
-    loadData()
+  // Save per-project rate override
+  async function saveProjectRate(projectId, role, newRate) {
+    const existing = rateOverrides.find(o => o.project_id === projectId && o.name === `RATE:${role}`)
+    if (existing) {
+      await supabase.from('project_expenses').update({ amount: Number(newRate) }).eq('id', existing.id)
+    } else {
+      await supabase.from('project_expenses').insert({
+        project_id: projectId,
+        name: `RATE:${role}`,
+        amount: Number(newRate),
+        category: 'rate_override',
+        notes: 'Per-project hourly rate override',
+      })
+    }
+    fetchAll()
   }
 
-  async function addExpense() {
-    if (!newExpense.description || !newExpense.amount) return
-    await supabase.from('project_expenses').insert({
-      project_id: project.id,
-      description: newExpense.description,
-      amount: Number(newExpense.amount),
+  // Reset project rate to global
+  async function resetProjectRate(projectId, role) {
+    const existing = rateOverrides.find(o => o.project_id === projectId && o.name === `RATE:${role}`)
+    if (existing) {
+      await supabase.from('project_expenses').delete().eq('id', existing.id)
+      fetchAll()
+    }
+  }
+
+  // חישוב פיננסי מלא לפרויקט
+  function projectFinance(p) {
+    const price = Number(p.project_price || 0)
+    const adiPct = Number(p.adi_pct || 30) / 100
+    const targetPct = Number(p.profit_target_pct || 40) / 100
+
+    // הכנסות — אבני דרך ששולמו
+    const pPay = payments.filter(pm => pm.project_id === p.id)
+    const revenue = pPay.filter(pm => pm.status === 'paid').reduce((s, pm) => s + Number(pm.amount || 0), 0)
+    const pendingRev = pPay.filter(pm => pm.status !== 'paid').reduce((s, pm) => s + Number(pm.amount || 0), 0)
+
+    // הוצאות שעתיות
+    const logs = workLogs.filter(l => l.project_id === p.id)
+    const hoursByRole = {}
+    logs.forEach(l => {
+      const role = l.role || 'Other'
+      if (!hoursByRole[role]) hoursByRole[role] = { hours: 0, rate: getRate(role, p.id) }
+      hoursByRole[role].hours += Number(l.hours || 0)
     })
-    setNewExpense({ description: '', amount: '' })
-    setShowExpenseForm(false)
-    loadData()
+    const hoursCost = Object.values(hoursByRole).reduce((s, r) => s + (r.hours * r.rate), 0)
+
+    // הוצאות ישירות
+    const projExpenses = expenses.filter(e => e.project_id === p.id)
+    const directCost = projExpenses.reduce((s, e) => s + Number(e.amount || 0), 0)
+
+    // עמלות ספקים (הוצאה לא ישירה — זה הכנסה ליעל, לא הוצאה)
+    const supplierCommissions = supplierPay
+      .filter(sp => sp.project_id === p.id && sp.commission_pct)
+      .reduce((s, sp) => s + (Number(sp.amount || 0) * Number(sp.commission_pct || 0) / 100), 0)
+
+    // סה"כ הוצאות
+    const totalExpenses = hoursCost + directCost
+
+    // חלק עדי: 30% מההכנסות פחות 30% מההוצאות
+    const adiFromRevenue = price * adiPct
+    const adiExpenseShare = totalExpenses * adiPct
+    const adiPayment = price === 0 ? 0 : adiFromRevenue - adiExpenseShare
+
+    // רווח גולמי: הכנסות - הוצאות - חלק עדי
+    const grossProfit = price === 0 ? -totalExpenses : price - totalExpenses - adiPayment
+
+    // יעד רווחיות
+    const profitTarget = price * targetPct
+    const metTarget = grossProfit >= profitTarget
+
+    return {
+      price, revenue, pendingRev,
+      hoursCost, hoursByRole, directCost, projExpenses,
+      totalExpenses, supplierCommissions,
+      adiPct: p.adi_pct || 30, adiFromRevenue, adiExpenseShare, adiPayment,
+      grossProfit, profitTarget, targetPct: p.profit_target_pct || 40, metTarget,
+    }
+  }
+
+  // שמירת מחיר פרויקט
+  async function savePrice(projectId) {
+    await supabase.from('projects').update({ project_price: Number(priceVal) || 0 }).eq('id', projectId)
+    setEditPrice(null)
+    fetchAll()
+  }
+
+  // הוספת הוצאה ישירה
+  async function addExpense(projectId) {
+    if (!expForm.name.trim() || !expForm.amount) return
+    await supabase.from('project_expenses').insert({
+      project_id: projectId,
+      name: expForm.name,
+      amount: Number(expForm.amount),
+      category: expForm.category,
+      notes: expForm.notes,
+    })
+    setShowExpenseForm(null)
+    setExpForm({ name: '', amount: '', category: 'general', notes: '' })
+    fetchAll()
   }
 
   async function deleteExpense(id) {
+    if (!confirm('Delete this expense?')) return
     await supabase.from('project_expenses').delete().eq('id', id)
-    loadData()
+    fetchAll()
   }
 
-  function handleExpand() {
-    setExpanded(!expanded)
-    if (!expanded && !data) loadData()
+  // שמירת תעריף
+  async function saveRate(id, newRate) {
+    await supabase.from('hourly_rates').update({ rate: Number(newRate) }).eq('id', id)
+    fetchAll()
   }
 
-  const price = Number(project.project_price || 0)
-  const inp = "border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition"
+  // KPIs כלליים
+  const allFinance = projects.map(p => projectFinance(p))
+  const totalRevenue = allFinance.reduce((s, f) => s + f.revenue, 0)
+  const totalExpensesAll = allFinance.reduce((s, f) => s + f.totalExpenses, 0)
+  const totalProfit = allFinance.reduce((s, f) => s + f.grossProfit, 0)
+  const totalPrices = allFinance.reduce((s, f) => s + f.price, 0)
+
+  const filtered = projects.filter(p => filter === 'all' || p.status === filter)
+
+  const inp = "w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 transition"
+  const lbl = "text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5"
+
+  if (loading) return <div className="flex items-center justify-center p-8"><div className="w-6 h-6 border-2 border-[#091426] border-t-transparent rounded-full animate-spin" /></div>
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-[#091426] font-[Manrope] tracking-tight">Finance Dashboard</h1>
+          <p className="text-sm text-[#6B7A90] mt-0.5">Project profitability and cost tracking</p>
+        </div>
+        <button onClick={() => setShowRates(!showRates)}
+          className="bg-[#F3F3F3] text-[#091426] px-4 py-2 rounded-xl text-sm font-medium hover:bg-[#091426] hover:text-white transition-all">
+          Hourly Rates
+        </button>
+      </div>
 
-      {/* כותרת */}
-      <button onClick={handleExpand}
-        className="w-full flex items-center gap-3 px-5 py-4 hover:bg-slate-50 transition text-right">
-        {expanded
-          ? <ChevronDown  size={16} className="text-slate-400 shrink-0" />
-          : <ChevronRight size={16} className="text-slate-400 shrink-0" />}
-        <span className="flex-1 font-semibold text-slate-800">{project.name}</span>
-        {price > 0 && <span className="text-sm text-slate-400">{fmt(price)}</span>}
-        {data && (
-          <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-            data.metTarget ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'
-          }`}>
-            {data.metTarget ? '✓ עומד ביעד' : '✗ חורג מיעד'}
-          </span>
-        )}
-      </button>
-
-      {/* תוכן */}
-      {expanded && (
-        <div className="border-t border-slate-100 px-5 py-5 space-y-5">
-          {loading ? (
-            <div className="text-slate-400 text-sm text-center py-8">טוען...</div>
-          ) : data && (
-            <>
-              {/* מחיר פרויקט */}
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-slate-500">מחיר הפרויקט</span>
-                {editPrice ? (
-                  <div className="flex items-center gap-2">
-                    <input type="number" value={priceInput}
-                      onChange={e => setPriceInput(e.target.value)}
-                      className={inp + ' w-36 text-left'} placeholder="0" />
-                    <button onClick={savePrice}
-                      className="bg-indigo-600 text-white px-3 py-2 rounded-xl text-xs font-medium hover:bg-indigo-700 transition">שמור</button>
-                    <button onClick={() => setEditPrice(false)} className="text-slate-400 hover:text-slate-600 p-1"><X size={14} /></button>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-800 text-lg">{price > 0 ? fmt(price) : 'לא הוזן'}</span>
-                    <button onClick={() => setEditPrice(true)}
-                      className="text-slate-300 hover:text-indigo-500 p-1 rounded-lg hover:bg-indigo-50 transition">
-                      <Pencil size={13} />
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* הכנסות */}
-              <div className="bg-emerald-50/60 rounded-xl p-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-emerald-700">הכנסות שהתקבלו</span>
-                  <span className="font-bold text-emerald-700 text-lg">{fmt(data.totalRevenue)}</span>
+      {/* Hourly Rates Editor */}
+      {showRates && (
+        <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-5">
+          <h3 className="font-semibold text-[#091426] font-[Manrope] tracking-tight mb-3">Hourly Rates by Role</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {rates.map(r => (
+              <div key={r.id} className="bg-[#F9F9F9] rounded-xl p-3">
+                <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mb-1.5">{r.role}</p>
+                <div className="flex items-center gap-1">
+                  <span className="text-sm text-[#6B7A90]">₪</span>
+                  <input type="number" defaultValue={r.rate}
+                    onBlur={e => saveRate(r.id, e.target.value)}
+                    className="w-full bg-white rounded-lg px-2 py-1.5 text-sm font-semibold text-[#091426] border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+                  <span className="text-xs text-[#6B7A90]">/hr</span>
                 </div>
-                <p className="text-xs text-slate-400 mt-1">אבני דרך ששולמו בפועל</p>
               </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-              {/* הוצאות שעות */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-semibold text-slate-700">הוצאות שעות עבודה</span>
-                  <button onClick={() => setShowRates(true)}
-                    className="text-xs text-indigo-600 font-medium border border-indigo-200 px-2.5 py-1 rounded-lg hover:bg-indigo-50 transition">
-                    עריכת תעריפים
-                  </button>
-                </div>
-                {data.workerCosts.length === 0 ? (
-                  <p className="text-xs text-slate-400 text-center py-3">אין שעות עבודה רשומות לפרויקט זה</p>
-                ) : (
-                  <div className="space-y-1.5">
-                    {data.workerCosts.map(w => (
-                      <div key={w.name} className="flex items-center justify-between text-sm bg-slate-50 rounded-xl px-3 py-2.5">
-                        <span className="text-slate-600 font-medium">{w.name}</span>
-                        <div className="flex items-center gap-3 text-xs text-slate-400">
-                          <span>{w.hours}ש'</span>
-                          <span>×</span>
-                          <span>{w.rate ? `₪${w.rate}/ש'` : <span className="text-amber-500">ללא תעריף</span>}</span>
-                          <span className="font-semibold text-slate-700 text-sm min-w-[60px] text-left">
-                            {w.rate ? fmt(w.cost) : '—'}
-                          </span>
+      {/* KPIs */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: 'TOTAL PROJECT VALUE', value: fmt(totalPrices), icon: DollarSign, iconBg: 'bg-[#F3F3F3]', iconColor: 'text-[#091426]' },
+          { label: 'REVENUE COLLECTED', value: fmt(totalRevenue), icon: TrendingUp, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600' },
+          { label: 'TOTAL EXPENSES', value: fmt(totalExpensesAll), icon: TrendingDown, iconBg: 'bg-red-50', iconColor: 'text-red-500' },
+          { label: 'GROSS PROFIT', value: fmt(totalProfit), icon: Target, iconBg: totalProfit >= 0 ? 'bg-emerald-50' : 'bg-red-50', iconColor: totalProfit >= 0 ? 'text-emerald-600' : 'text-red-500' },
+        ].map(k => (
+          <div key={k.label} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-5">
+            <div className={`w-8 h-8 rounded-xl ${k.iconBg} flex items-center justify-center mb-2`}>
+              <k.icon size={16} className={k.iconColor} strokeWidth={1.8} />
+            </div>
+            <p className="text-2xl font-bold text-[#091426] font-[Manrope] tracking-tight">{k.value}</p>
+            <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-1">{k.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Filter */}
+      <div className="flex gap-2">
+        {['active', 'completed', 'all'].map(f => (
+          <button key={f} onClick={() => setFilter(f)}
+            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
+              filter === f ? 'bg-[#091426] text-white' : 'bg-white text-[#6B7A90] hover:bg-[#F3F3F3]'
+            }`}>
+            {f.charAt(0).toUpperCase() + f.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      {/* Project cards */}
+      {filtered.length === 0 ? (
+        <div className="text-center py-16 text-[#6B7A90] text-sm">No projects</div>
+      ) : (
+        <div className="space-y-4">
+          {filtered.map(p => {
+            const f = projectFinance(p)
+            const isOpen = expanded[p.id]
+            return (
+              <div key={p.id} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] overflow-hidden">
+                {/* Header row */}
+                <button onClick={() => setExpanded(prev => ({ ...prev, [p.id]: !prev[p.id] }))}
+                  className="w-full px-4 md:px-6 py-4 flex items-center gap-3 md:gap-4 hover:bg-[#F9F9F9] transition-colors text-left">
+                  {isOpen ? <ChevronDown size={16} className="text-[#6B7A90] shrink-0" /> : <ChevronRight size={16} className="text-[#6B7A90] shrink-0" />}
+                  <div className="flex-1 min-w-0">
+                    <span className="font-semibold text-[#091426] font-[Manrope] tracking-tight text-sm md:text-base">{p.name}</span>
+                  </div>
+                  <div className="hidden sm:flex items-center gap-6 shrink-0 text-sm">
+                    <div className="text-right">
+                      <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Price</p>
+                      <p className="font-bold text-[#091426]">{f.price ? fmt(f.price) : '—'}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Profit</p>
+                      <p className={`font-bold ${f.grossProfit >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>{f.price ? fmt(f.grossProfit) : '—'}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Target</p>
+                      {f.price ? (
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold tracking-wider ${f.metTarget ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'}`}>
+                          {f.metTarget ? '✓ MET' : '✗ BELOW'}
+                        </span>
+                      ) : <span className="text-[#6B7A90]">—</span>}
+                    </div>
+                  </div>
+                </button>
+
+                {/* Expanded detail */}
+                {isOpen && (
+                  <div className="px-4 md:px-6 pb-6 border-t border-[#F3F3F3]">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-5">
+
+                      {/* Left — Revenue breakdown */}
+                      <div className="space-y-4">
+                        {/* Project Price */}
+                        <div className="bg-[#F9F9F9] rounded-xl p-4">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Project Price</span>
+                            {editPrice === p.id ? (
+                              <div className="flex gap-1">
+                                <input type="number" value={priceVal} onChange={e => setPriceVal(e.target.value)}
+                                  className="w-28 bg-white rounded-lg px-2 py-1 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" autoFocus />
+                                <button onClick={() => savePrice(p.id)} className="text-emerald-600 p-1"><Save size={14} /></button>
+                                <button onClick={() => setEditPrice(null)} className="text-[#6B7A90] p-1"><X size={14} /></button>
+                              </div>
+                            ) : (
+                              <button onClick={() => { setEditPrice(p.id); setPriceVal(p.project_price || '') }}
+                                className="text-[#6B7A90] hover:text-[#091426] p-1 rounded-lg hover:bg-white transition"><Pencil size={13} /></button>
+                            )}
+                          </div>
+                          <p className="text-2xl font-bold text-[#091426] font-[Manrope]">{f.price ? fmt(f.price) : 'Set price →'}</p>
+                        </div>
+
+                        {/* Revenue */}
+                        <div>
+                          <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mb-2">Revenue (Milestones Paid)</p>
+                          <div className="flex items-center justify-between">
+                            <span className="text-lg font-bold text-emerald-600">{fmt(f.revenue)}</span>
+                            {f.pendingRev > 0 && <span className="text-xs text-amber-600 font-medium">{fmt(f.pendingRev)} pending</span>}
+                          </div>
+                          {f.price > 0 && (
+                            <div className="h-2 bg-[#F3F3F3] rounded-full mt-2 overflow-hidden">
+                              <div className="h-full bg-emerald-400 rounded-full transition-all" style={{ width: `${Math.min(100, f.revenue / f.price * 100)}%` }} />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Adi's Share */}
+                        <div className="bg-amber-50/50 rounded-xl p-4">
+                          <p className="text-[10px] font-semibold tracking-widest uppercase text-amber-700 mb-2">Adi's Share ({f.adiPct}%)</p>
+                          <div className="space-y-1 text-sm">
+                            <div className="flex justify-between"><span className="text-[#6B7A90]">{f.adiPct}% of project price</span><span className="text-[#091426]">{fmt(f.adiFromRevenue)}</span></div>
+                            <div className="flex justify-between"><span className="text-[#6B7A90]">- {f.adiPct}% of expenses</span><span className="text-red-500">-{fmt(f.adiExpenseShare)}</span></div>
+                            <div className="flex justify-between font-bold border-t border-amber-200 pt-1 mt-1"><span className="text-[#091426]">Payment to Adi</span><span className="text-[#091426]">{fmt(f.adiPayment)}</span></div>
+                          </div>
                         </div>
                       </div>
-                    ))}
-                    <div className="flex items-center justify-between text-sm font-semibold pt-1 border-t border-slate-100 px-1">
-                      <span className="text-slate-500">סה"כ שעות</span>
-                      <span className="text-slate-800">{fmt(data.totalWorkCost)}</span>
+
+                      {/* Right — Expenses */}
+                      <div className="space-y-4">
+                        {/* Hours Cost */}
+                        <div>
+                          <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mb-2">Labor Cost (from Work Log)</p>
+                          {Object.keys(f.hoursByRole).length === 0 ? (
+                            <p className="text-sm text-[#6B7A90]">No hours logged</p>
+                          ) : (
+                            <div className="space-y-1.5">
+                              {Object.entries(f.hoursByRole).map(([role, data]) => (
+                                <div key={role} className="flex items-center justify-between bg-[#F9F9F9] rounded-lg px-3 py-2 text-sm">
+                                  <div>
+                                    <span className="text-[#091426] font-medium">{role}</span>
+                                    <span className="text-[#6B7A90] ml-2">{data.hours}h × ₪{data.rate}</span>
+                                  </div>
+                                  <span className="font-semibold text-[#091426]">{fmt(data.hours * data.rate)}</span>
+                                </div>
+                              ))}
+                              <div className="flex justify-between px-3 py-1 text-sm font-bold">
+                                <span className="text-[#6B7A90]">Total Labor</span>
+                                <span className="text-[#091426]">{fmt(f.hoursCost)}</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Direct Expenses */}
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Direct Expenses</p>
+                            <button onClick={() => { setShowExpenseForm(p.id); setExpForm({ name: '', amount: '', category: 'general', notes: '' }) }}
+                              className="text-xs text-[#7B5800] hover:text-[#B8960B] font-medium flex items-center gap-1">
+                              <Plus size={12} /> Add
+                            </button>
+                          </div>
+                          {f.projExpenses.length === 0 && showExpenseForm !== p.id && (
+                            <p className="text-sm text-[#6B7A90]">No direct expenses</p>
+                          )}
+                          {f.projExpenses.map(e => (
+                            <div key={e.id} className="flex items-center justify-between bg-[#F9F9F9] rounded-lg px-3 py-2 text-sm mb-1.5 group">
+                              <span className="text-[#091426]">{e.name}</span>
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold text-[#091426]">{fmt(e.amount)}</span>
+                                <button onClick={() => deleteExpense(e.id)}
+                                  className="opacity-0 group-hover:opacity-100 text-[#6B7A90] hover:text-red-500 transition p-0.5">
+                                  <Trash2 size={12} />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                          {showExpenseForm === p.id && (
+                            <div className="bg-[#F9F9F9] rounded-xl p-3 space-y-2 mt-2">
+                              <input value={expForm.name} onChange={e => setExpForm({...expForm, name: e.target.value})}
+                                placeholder="Expense name (e.g. Carpentry plans)" className={inp} />
+                              <div className="flex gap-2">
+                                <input type="number" value={expForm.amount} onChange={e => setExpForm({...expForm, amount: e.target.value})}
+                                  placeholder="Amount" className={inp} />
+                                <button onClick={() => addExpense(p.id)}
+                                  className="shrink-0 bg-[#091426] text-white px-3 py-2 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all">Add</button>
+                              </div>
+                            </div>
+                          )}
+                          {f.directCost > 0 && (
+                            <div className="flex justify-between px-3 py-1 text-sm font-bold mt-1">
+                              <span className="text-[#6B7A90]">Total Direct</span>
+                              <span className="text-[#091426]">{fmt(f.directCost)}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Per-Project Hourly Rates */}
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Project Hourly Rates</p>
+                            <button onClick={() => setShowProjectRates(showProjectRates === p.id ? null : p.id)}
+                              className="text-xs text-[#7B5800] hover:text-[#B8960B] font-medium">
+                              {showProjectRates === p.id ? 'Hide' : 'Customize'}
+                            </button>
+                          </div>
+                          {showProjectRates === p.id && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {rates.map(r => {
+                                const override = rateOverrides.find(o => o.project_id === p.id && o.name === `RATE:${r.role}`)
+                                const isOverridden = !!override
+                                return (
+                                  <div key={r.id} className={`rounded-xl p-2.5 ${isOverridden ? 'bg-amber-50' : 'bg-[#F9F9F9]'}`}>
+                                    <div className="flex items-center justify-between mb-1">
+                                      <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">{r.role}</p>
+                                      {isOverridden && (
+                                        <button onClick={() => resetProjectRate(p.id, r.role)}
+                                          className="text-[10px] text-amber-600 hover:text-amber-800 font-medium">Reset</button>
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <span className="text-sm text-[#6B7A90]">₪</span>
+                                      <input type="number" defaultValue={isOverridden ? override.amount : r.rate}
+                                        key={`${p.id}-${r.role}-${isOverridden ? override.amount : r.rate}`}
+                                        onBlur={e => {
+                                          const val = Number(e.target.value)
+                                          if (val !== Number(r.rate)) saveProjectRate(p.id, r.role, val)
+                                          else if (isOverridden && val === Number(r.rate)) resetProjectRate(p.id, r.role)
+                                        }}
+                                        className="w-full bg-white rounded-lg px-2 py-1.5 text-sm font-semibold text-[#091426] border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+                                      <span className="text-xs text-[#6B7A90]">/hr</span>
+                                    </div>
+                                    {!isOverridden && <p className="text-[9px] text-[#6B7A90] mt-0.5">Global rate</p>}
+                                    {isOverridden && <p className="text-[9px] text-amber-600 mt-0.5">Custom (global: ₪{r.rate})</p>}
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Summary */}
+                        <div className="bg-[#091426] rounded-xl p-4 text-white">
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between"><span className="text-[#6B7A90]">Total Expenses</span><span>{fmt(f.totalExpenses)}</span></div>
+                            <div className="flex justify-between"><span className="text-[#6B7A90]">Adi's Payment</span><span>{fmt(f.adiPayment)}</span></div>
+                            <div className="flex justify-between font-bold text-base border-t border-white/20 pt-2 mt-1">
+                              <span>Gross Profit (Yael)</span>
+                              <span className={f.grossProfit >= 0 ? 'text-emerald-400' : 'text-red-400'}>{fmt(f.grossProfit)}</span>
+                            </div>
+                            {f.price > 0 && (
+                              <div className="flex justify-between text-xs mt-1">
+                                <span className="text-[#6B7A90]">Target: {f.targetPct}% = {fmt(f.profitTarget)}</span>
+                                <span className={f.metTarget ? 'text-emerald-400' : 'text-red-400'}>
+                                  {f.metTarget ? '✓ Target met' : '✗ Below target'}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
               </div>
-
-              {/* הוצאות ישירות */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-semibold text-slate-700">הוצאות ישירות</span>
-                  <button onClick={() => setShowExpenseForm(!showExpenseForm)}
-                    className="text-xs text-indigo-600 font-medium border border-indigo-200 px-2.5 py-1 rounded-lg hover:bg-indigo-50 transition flex items-center gap-1">
-                    <Plus size={12} /> הוסף
-                  </button>
-                </div>
-                {showExpenseForm && (
-                  <div className="flex gap-2 mb-3">
-                    <input value={newExpense.description}
-                      onChange={e => setNewExpense(p => ({ ...p, description: e.target.value }))}
-                      className={inp + ' flex-1'} placeholder="תיאור (תוכניות נגרות...)" />
-                    <input type="number" value={newExpense.amount}
-                      onChange={e => setNewExpense(p => ({ ...p, amount: e.target.value }))}
-                      className={inp + ' w-28 text-left'} placeholder="₪" />
-                    <button onClick={addExpense}
-                      className="bg-indigo-600 text-white px-3 py-2 rounded-xl text-xs font-medium hover:bg-indigo-700 transition">הוסף</button>
-                  </div>
-                )}
-                {data.expenses.length === 0 && !showExpenseForm ? (
-                  <p className="text-xs text-slate-400 text-center py-3">אין הוצאות ישירות</p>
-                ) : (
-                  <div className="space-y-1.5">
-                    {data.expenses.map(e => (
-                      <div key={e.id} className="flex items-center justify-between text-sm bg-slate-50 rounded-xl px-3 py-2.5 group">
-                        <span className="text-slate-600">{e.description}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-slate-700">{fmt(e.amount)}</span>
-                          <button onClick={() => deleteExpense(e.id)}
-                            className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition">
-                            <X size={13} />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                    {data.expenses.length > 0 && (
-                      <div className="flex items-center justify-between text-sm font-semibold pt-1 border-t border-slate-100 px-1">
-                        <span className="text-slate-500">סה"כ ישירות</span>
-                        <span className="text-slate-800">{fmt(data.totalDirectExpenses)}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* חלק עדי */}
-              <div className="bg-indigo-50/60 rounded-xl p-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-indigo-700">חלק עדי ({data.adiPct}%)</span>
-                  <span className="font-bold text-indigo-700 text-lg">{fmt(data.adiShare)}</span>
-                </div>
-                <p className="text-xs text-slate-400 mt-1">
-                  {fmt(data.price * data.adiPct / 100)} ממחיר הפרויקט
-                  {' '}פחות{' '}
-                  {fmt(data.totalExpenses * data.adiPct / 100)} מהוצאות
-                </p>
-              </div>
-
-              {/* סיכום רווח */}
-              <div className="border-t border-slate-100 pt-4 space-y-2">
-                <div className="flex items-center justify-between text-sm text-slate-500">
-                  <span>סה"כ הוצאות</span>
-                  <span className="font-medium text-red-500">- {fmt(data.totalExpenses + data.adiShare)}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm text-slate-400">
-                  <span className="flex items-center gap-1"><Target size={13} /> יעד רווח ({data.targetPct}%)</span>
-                  <span>{fmt(data.targetAmount)}</span>
-                </div>
-                <div className={`flex items-center justify-between rounded-xl p-4 mt-1 ${
-                  data.metTarget ? 'bg-emerald-50 border border-emerald-100' : 'bg-red-50 border border-red-100'
-                }`}>
-                  <span className={`font-semibold ${data.metTarget ? 'text-emerald-700' : 'text-red-600'}`}>
-                    רווח גלמי
-                  </span>
-                  <div className="flex items-center gap-3">
-                    <span className={`text-xl font-bold ${data.metTarget ? 'text-emerald-700' : 'text-red-600'}`}>
-                      {fmt(data.grossProfit)}
-                    </span>
-                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                      data.metTarget ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'
-                    }`}>
-                      {data.metTarget ? '✓ עומד ביעד' : '✗ חורג מיעד'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-      )}
-
-      {showRates && data && (
-        <RatesModal
-          project={project}
-          workers={data.workers}
-          rates={data.rates}
-          onClose={() => setShowRates(false)}
-          onSave={saveRates}
-        />
-      )}
-    </div>
-  )
-}
-
-// ── דף ראשי ──
-export default function FinanceDashboard() {
-  const [projects, setProjects] = useState([])
-  const [loading,  setLoading]  = useState(true)
-  const [filter,   setFilter]   = useState('active')
-
-  useEffect(() => { fetchProjects() }, [])
-
-  async function fetchProjects() {
-    const { data } = await supabase
-      .from('projects')
-      .select('id, name, status, project_price, profit_target_pct, adi_pct')
-      .order('created_at', { ascending: false })
-    setProjects(data || [])
-    setLoading(false)
-  }
-
-  function handlePriceUpdate(id, price) {
-    setProjects(prev => prev.map(p => p.id === id ? { ...p, project_price: price } : p))
-  }
-
-  const filtered = projects.filter(p => filter === 'all' || p.status === filter)
-
-  if (loading) return <div className="text-slate-400 text-sm p-8">טוען...</div>
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">דשבורד ניהולי</h1>
-        <p className="text-sm text-slate-400 mt-0.5">מעקב פיננסי לפרויקטים — לשימוש פנימי בלבד</p>
-      </div>
-
-      {/* פילטר */}
-      <div className="flex gap-2">
-        {[
-          { value: 'active',    label: 'פעילים'   },
-          { value: 'completed', label: 'הושלמו'   },
-          { value: 'all',       label: 'הכל'      },
-        ].map(f => (
-          <button key={f.value} onClick={() => setFilter(f.value)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium border transition ${
-              filter === f.value
-                ? 'bg-indigo-600 text-white border-indigo-600'
-                : 'bg-white text-slate-500 border-slate-200 hover:border-indigo-300'
-            }`}>
-            {f.label}
-          </button>
-        ))}
-        <span className="text-sm text-slate-400 self-center mr-2">{filtered.length} פרויקטים</span>
-      </div>
-
-      {/* רשימה */}
-      {filtered.length === 0 ? (
-        <div className="text-center py-16 text-slate-400 text-sm">אין פרויקטים להצגה</div>
-      ) : (
-        <div className="space-y-3">
-          {filtered.map(p => (
-            <ProjectFinanceCard
-              key={p.id}
-              project={p}
-              onPriceUpdate={handlePriceUpdate}
-            />
-          ))}
+            )
+          })}
         </div>
       )}
     </div>

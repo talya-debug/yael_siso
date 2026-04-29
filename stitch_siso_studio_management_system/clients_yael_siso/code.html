@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Clients | The Studio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Inter:wght@300..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#e1dfff",
+                    "surface-container-low": "#f3f3f3",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed": "#111c2d",
+                    "inverse-on-surface": "#f0f1f1",
+                    "surface": "#f9f9f9",
+                    "secondary": "#7b5800",
+                    "on-tertiary": "#ffffff",
+                    "outline": "#75777d",
+                    "tertiary-container": "#100092",
+                    "secondary-fixed-dim": "#f7bd48",
+                    "on-secondary-fixed": "#271900",
+                    "on-error-container": "#93000a",
+                    "inverse-primary": "#bcc7de",
+                    "on-surface": "#1a1c1c",
+                    "on-background": "#1a1c1c",
+                    "secondary-fixed": "#ffdea6",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed-variant": "#3c475a",
+                    "surface-bright": "#f9f9f9",
+                    "primary-fixed": "#d8e3fb",
+                    "on-tertiary-container": "#8082ff",
+                    "on-surface-variant": "#45474c",
+                    "secondary-container": "#fdc34d",
+                    "inverse-surface": "#2f3131",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-fixed-variant": "#5d4200",
+                    "on-tertiary-fixed-variant": "#2c24ce",
+                    "primary": "#091426",
+                    "tertiary-fixed-dim": "#c1c1ff",
+                    "on-primary": "#ffffff",
+                    "primary-container": "#1e293b",
+                    "outline-variant": "#c5c6cd",
+                    "surface-container-highest": "#e2e2e2",
+                    "on-primary-container": "#8590a6",
+                    "tertiary": "#060056",
+                    "error-container": "#ffdad6",
+                    "surface-tint": "#545f73",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed": "#09006b",
+                    "surface-container-high": "#e8e8e8",
+                    "primary-fixed-dim": "#bcc7de",
+                    "surface-dim": "#dadada",
+                    "surface-container": "#eeeeee",
+                    "surface-variant": "#e2e2e2",
+                    "on-secondary-container": "#715000",
+                    "background": "#f9f9f9"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Manrope"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- SideNavBar (Predicted Component) -->
+<nav class="h-screen w-64 fixed left-0 top-0 bg-[#091426] flex flex-col py-8 px-4 overflow-y-auto shadow-2xl z-50">
+<div class="flex items-center gap-3 px-2 mb-10">
+<div class="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white" data-icon="vignette">vignette</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tighter text-white leading-none">The Studio</h1>
+<p class="font-['Manrope'] text-xs tracking-tight font-medium text-on-primary-container">Interior Excellence</p>
+</div>
+</div>
+<div class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-medium font-['Manrope'] text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 text-white bg-[#1E293B] rounded-xl font-bold font-['Manrope'] text-sm transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span> Clients
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-medium font-['Manrope'] text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="architecture">architecture</span> Projects
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-medium font-['Manrope'] text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="tactic">tactic</span> Scope Templates
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-medium font-['Manrope'] text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span> Client Billing
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-medium font-['Manrope'] text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span> Supplier Billing
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-medium font-['Manrope'] text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="store">store</span> Supplier Directory
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-medium font-['Manrope'] text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span> Monthly Report
+            </a>
+</div>
+<div class="mt-auto pt-6 border-t border-slate-800/50">
+<div class="flex items-center gap-3 px-3 py-2 bg-[#1E293B]/40 rounded-xl">
+<img class="w-8 h-8 rounded-full border border-secondary/30" data-alt="professional headshot of a mature architect with glasses and a friendly expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXi8UjV4nGWV5O6tl5bQeQGHRrQNLTMLvNZj5LSzFJcUSyfiT884k1ygD_1jEmLy30LoIwd5uyS7xWg7ycngkAibelAcLxsGjcXqIRDeY4etFY2XXTZtoCse4vtlk9MOC8kfiIwaBy_sRhomD3Rk8ZwqFKHhhgwDjPJbazPDUF6vXc5QmtOng8f4vpCLpHD20o_QQcTJ7ZpCv8DTdZKwq8sURQwRtL3TSqT3C421_nbEdNmocD03Mcyy8_EkKgZ7RzfMHaSThrTck"/>
+<div class="overflow-hidden">
+<p class="text-xs font-bold text-white truncate">Marcus Sterling</p>
+<p class="text-[10px] text-slate-500 truncate">Senior Principal</p>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Shell -->
+<main class="ml-64 min-h-screen">
+<!-- TopNavBar (Predicted Component) -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-40 bg-[#F9F9F9]/80 backdrop-blur-xl flex justify-between items-center px-8">
+<div class="flex-1 max-w-md">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-2 pl-10 pr-4 text-sm font-['Inter'] focus:ring-1 focus:ring-secondary/50 placeholder:text-on-surface-variant/60 transition-all" placeholder="Search clients, addresses, or projects..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-slate-600">
+<button class="hover:text-secondary transition-colors"><span class="material-symbols-outlined" data-icon="notifications">notifications</span></button>
+<button class="hover:text-secondary transition-colors"><span class="material-symbols-outlined" data-icon="settings">settings</span></button>
+</div>
+<button class="bg-primary text-white px-5 py-2 rounded-xl text-sm font-bold flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                    New Client
+                </button>
+</div>
+</header>
+<section class="pt-24 pb-12 px-8">
+<!-- Header Section -->
+<div class="mb-10">
+<div class="flex items-end justify-between mb-2">
+<h2 class="text-3xl font-black text-primary tracking-tight">Active Client Portfolio</h2>
+<div class="flex items-center gap-2 text-on-surface-variant text-sm font-['Inter']">
+<span class="font-bold text-primary">24</span> Total Clients
+                        <span class="mx-2 text-outline-variant">•</span>
+<span class="font-bold text-secondary">8</span> Active Projects
+                    </div>
+</div>
+<p class="text-on-surface-variant font-['Manrope'] max-w-2xl">Manage your high-value partnerships and interior design project pipelines with architectural precision.</p>
+</div>
+<!-- Client Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Client Card 1 -->
+<div class="bg-surface-container-lowest rounded-3xl p-8 flex flex-col shadow-[0_20px_40px_rgba(26,28,28,0.04)] hover:shadow-[0_20px_40px_rgba(26,28,28,0.08)] transition-shadow group relative overflow-hidden">
+<div class="absolute top-0 right-0 w-24 h-24 bg-surface-container-low rounded-bl-[100px] -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+<div class="flex items-start justify-between relative mb-6">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-high flex items-center justify-center text-primary overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="portrait of a sophisticated female luxury client in a minimalist studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDulxxlTUqTYRDfVYU8XJq7rjNdlfBwMvjmsXr6lkkIuTtIMH5CN-FSb3IaHkw_3wwp7ZSSR4NEg8Og98CEjwF79k36QWx0bhVA5GAJiMcTLrMQoa15OEa5i2XBsZZgv0Q3gDl4nu_79tTz4Fou9jMzV_CPtEkSb7E9ZyDRoFUhZjhZFmsjo6F5MZZVRRIZ2G-phCjYAQw7Vayu-V2jy7_9QhClBnqf1UNfAbiYYBL5ZwoLgW8AGChEXGOhqXG39ko4UPMT_DcfJFc"/>
+</div>
+<span class="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase font-['Inter']">Approved</span>
+</div>
+<div class="mb-6">
+<h3 class="text-xl font-extrabold text-primary mb-1">Eleanor Vance</h3>
+<p class="text-xs text-on-surface-variant font-['Inter'] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> 
+                            Mayfair Residences, Penthouse 4
+                        </p>
+</div>
+<div class="space-y-3 mb-8 flex-1">
+<div class="flex items-center justify-between text-sm">
+<span class="text-on-surface-variant font-['Inter'] text-xs">Primary Phone</span>
+<span class="text-primary font-semibold">+44 20 7946 0128</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<span class="text-on-surface-variant font-['Inter'] text-xs">Email</span>
+<span class="text-primary font-semibold">e.vance@vancemedia.com</span>
+</div>
+<div class="pt-4 border-t border-surface-container-low flex items-center gap-2">
+<div class="px-3 py-1 bg-primary-container/10 rounded-lg">
+<p class="text-[10px] font-bold text-primary-container uppercase">3 Active Projects</p>
+</div>
+</div>
+</div>
+<div class="flex gap-3 pt-4 border-t border-surface-container-low">
+<button class="flex-1 bg-surface-container-low text-primary py-3 rounded-xl text-xs font-bold hover:bg-surface-container-high transition-colors">Details</button>
+<button class="w-12 h-12 flex items-center justify-center text-primary bg-surface-container-low rounded-xl hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined">mail</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center text-primary bg-surface-container-low rounded-xl hover:bg-secondary hover:text-white transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Client Card 2 -->
+<div class="bg-surface-container-lowest rounded-3xl p-8 flex flex-col shadow-[0_20px_40px_rgba(26,28,28,0.04)] hover:shadow-[0_20px_40px_rgba(26,28,28,0.08)] transition-shadow group relative overflow-hidden">
+<div class="absolute top-0 right-0 w-24 h-24 bg-secondary/5 rounded-bl-[100px] -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+<div class="flex items-start justify-between relative mb-6">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-high flex items-center justify-center text-primary overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="professional male client profile photo with warm lighting and a modern architectural background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCB31JyUvi_yyGQI12__KoSCbup6r0chMhS54N_N7lIMS0LsmmKlluDvyw9lk_Ekd5CwJ5MEz6R2NgjYSeidde7OXAVPhtn1zNLdvEzeVovAAL5ZM4k7EDfU_g0I_wZDZQDTy17x9OfREY-WpluaJSJkAvwCmleIB6apYEoknmv5P-vQa-awy5VkKPMWwVTENtJ-bMU40xMsUvFeXXwWOx-Pampv9uK_8B5fkcVD4nEE4eStDcDtaSO-52KMjzLw00BBgKbtwMGxf8"/>
+</div>
+<span class="bg-slate-200 text-slate-600 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase font-['Inter']">Draft</span>
+</div>
+<div class="mb-6">
+<h3 class="text-xl font-extrabold text-primary mb-1">Julian Thorne</h3>
+<p class="text-xs text-on-surface-variant font-['Inter'] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> 
+                            The Cotswolds, Estate Renovation
+                        </p>
+</div>
+<div class="space-y-3 mb-8 flex-1">
+<div class="flex items-center justify-between text-sm">
+<span class="text-on-surface-variant font-['Inter'] text-xs">Primary Phone</span>
+<span class="text-primary font-semibold">+44 12 4255 0891</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<span class="text-on-surface-variant font-['Inter'] text-xs">Email</span>
+<span class="text-primary font-semibold">jthorne@thorne-estates.com</span>
+</div>
+<div class="pt-4 border-t border-surface-container-low flex items-center gap-2">
+<div class="px-3 py-1 bg-primary-container/10 rounded-lg">
+<p class="text-[10px] font-bold text-primary-container uppercase">1 Active Project</p>
+</div>
+</div>
+</div>
+<div class="flex gap-3 pt-4 border-t border-surface-container-low">
+<button class="flex-1 bg-surface-container-low text-primary py-3 rounded-xl text-xs font-bold hover:bg-surface-container-high transition-colors">Details</button>
+<button class="w-12 h-12 flex items-center justify-center text-primary bg-surface-container-low rounded-xl hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined">mail</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center text-primary bg-surface-container-low rounded-xl hover:bg-secondary hover:text-white transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Client Card 3 -->
+<div class="bg-surface-container-lowest rounded-3xl p-8 flex flex-col shadow-[0_20px_40px_rgba(26,28,28,0.04)] hover:shadow-[0_20px_40px_rgba(26,28,28,0.08)] transition-shadow group relative overflow-hidden">
+<div class="absolute top-0 right-0 w-24 h-24 bg-surface-container-low rounded-bl-[100px] -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+<div class="flex items-start justify-between relative mb-6">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-high flex items-center justify-center text-primary overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="professional portrait of an executive woman in a tailored suit with a neutral warm background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuhIGaOGWHsPMBOG7qzfK1Sq3iGwfM-nvswHoOYbbdxCyerT916daylXl6fDZzxG9GDNNt1QFjqfMSWKSLQd_SJnmEGOetN0pIyXWi7OaXUGknNoHiGvnJfq4PXp3RkfxbWE-f8ODeQHWRYyN7H5lpamk6HWvvuMh-YRr-u_MrG_0Wrk2VoGTzkFvSVEehHMnkW3CUDQ61Rzc0ikIUO2iNkXBKlAoo4LqacoRvadLE8xASvF6dWmGIQdt7DVb1QQHRuDb-NHCQPUE"/>
+</div>
+<span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase font-['Inter']">Sent</span>
+</div>
+<div class="mb-6">
+<h3 class="text-xl font-extrabold text-primary mb-1">Aria Sterling</h3>
+<p class="text-xs text-on-surface-variant font-['Inter'] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> 
+                            Belgravia Square, Townhouse II
+                        </p>
+</div>
+<div class="space-y-3 mb-8 flex-1">
+<div class="flex items-center justify-between text-sm">
+<span class="text-on-surface-variant font-['Inter'] text-xs">Primary Phone</span>
+<span class="text-primary font-semibold">+44 20 8122 9044</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<span class="text-on-surface-variant font-['Inter'] text-xs">Email</span>
+<span class="text-primary font-semibold">a.sterling@private.me</span>
+</div>
+<div class="pt-4 border-t border-surface-container-low flex items-center gap-2">
+<div class="px-3 py-1 bg-primary-container/10 rounded-lg">
+<p class="text-[10px] font-bold text-primary-container uppercase">2 Active Projects</p>
+</div>
+</div>
+</div>
+<div class="flex gap-3 pt-4 border-t border-surface-container-low">
+<button class="flex-1 bg-surface-container-low text-primary py-3 rounded-xl text-xs font-bold hover:bg-surface-container-high transition-colors">Details</button>
+<button class="w-12 h-12 flex items-center justify-center text-primary bg-surface-container-low rounded-xl hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined">mail</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center text-primary bg-surface-container-low rounded-xl hover:bg-secondary hover:text-white transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Client Card 4 (Tonal Shift Variant) -->
+<div class="bg-surface-container-low rounded-3xl p-8 flex flex-col hover:shadow-[0_20px_40px_rgba(26,28,28,0.06)] transition-all group relative overflow-hidden">
+<div class="flex items-start justify-between relative mb-6">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-lowest flex items-center justify-center text-primary overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="close up headshot of a business professional male with a clean aesthetic and soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDB6FSViQ6UatnPCrgLmFwImHAzPPG-zXx4yD1SVRl1u34DJJ92qmrsSlFQDzcg4HTw1XtoTPOf8zr-Uv5TOb37M8hRS4IkW6z9FVz9Wl87s-1E3P5uKCGGTyKA564-spZjJdFZH90V8ZO258FC2doekPRYL1QX72ZDEo9THP_8zmIRJQ0IX3MUGK270q4dDZpe-v4aOdm5IvRqWyHvMHlSFYCAiDBhw-zYqAGrmIwF3p55MMaBRqjqYdSg5SB5sI_O108JIsrvhN0"/>
+</div>
+<span class="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase font-['Inter']">Approved</span>
+</div>
+<div class="mb-6">
+<h3 class="text-xl font-extrabold text-primary mb-1">Dorian Gray</h3>
+<p class="text-xs text-on-surface-variant font-['Inter'] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> 
+                            Chelsea Wharf Loft, Unit 12C
+                        </p>
+</div>
+<div class="space-y-3 mb-8 flex-1">
+<div class="flex items-center justify-between text-sm">
+<span class="text-on-surface-variant font-['Inter'] text-xs">Primary Phone</span>
+<span class="text-primary font-semibold">+44 77 0090 0154</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<span class="text-on-surface-variant font-['Inter'] text-xs">Email</span>
+<span class="text-primary font-semibold">d.gray@loftdesigns.com</span>
+</div>
+<div class="pt-4 border-t border-surface-container-lowest flex items-center gap-2">
+<div class="px-3 py-1 bg-primary-container/10 rounded-lg">
+<p class="text-[10px] font-bold text-primary-container uppercase">0 Active Projects</p>
+</div>
+</div>
+</div>
+<div class="flex gap-3 pt-4 border-t border-surface-container-lowest">
+<button class="flex-1 bg-surface-container-lowest text-primary py-3 rounded-xl text-xs font-bold hover:bg-white transition-colors">Details</button>
+<button class="w-12 h-12 flex items-center justify-center text-primary bg-surface-container-lowest rounded-xl hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined">mail</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center text-primary bg-surface-container-lowest rounded-xl hover:bg-secondary hover:text-white transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Client Card 5 -->
+<div class="bg-surface-container-lowest rounded-3xl p-8 flex flex-col shadow-[0_20px_40px_rgba(26,28,28,0.04)] hover:shadow-[0_20px_40px_rgba(26,28,28,0.08)] transition-shadow group relative overflow-hidden">
+<div class="absolute top-0 right-0 w-24 h-24 bg-surface-container-low rounded-bl-[100px] -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+<div class="flex items-start justify-between relative mb-6">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-high flex items-center justify-center text-primary overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="elegant portrait of a client with a minimal aesthetic against a neutral studio backdrop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVkMFci_H7E50ahWgWGyZD7qzhzS4qA7hoelyTBWwk2wnsZU3KXCeBd5o0kXdGdChWjReLLsCwqwAmztUkhGV8aAKAhmEu8V1Z8AQZCtKZQJ2HG3XHhHhbeFiXtnLj7Ahg2YNs_IOOY4Smt0U-H9BsyC35ddnNxD2HdQya5ZzwjNR-6Sxa3dgy0cylvOTT0a7gz5ZVJnvZMKxe2osnTPMRWf9SBIpwcscIRO4lzd8Z1y7MbFtVxbjhZYGZRyFSLmsyeCIqMlaNI4Y"/>
+</div>
+<span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase font-['Inter']">Sent</span>
+</div>
+<div class="mb-6">
+<h3 class="text-xl font-extrabold text-primary mb-1">Clara Oswald</h3>
+<p class="text-xs text-on-surface-variant font-['Inter'] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> 
+                            Hampstead Heath, The Glass House
+                        </p>
+</div>
+<div class="space-y-3 mb-8 flex-1">
+<div class="flex items-center justify-between text-sm">
+<span class="text-on-surface-variant font-['Inter'] text-xs">Primary Phone</span>
+<span class="text-primary font-semibold">+44 77 1111 0987</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<span class="text-on-surface-variant font-['Inter'] text-xs">Email</span>
+<span class="text-primary font-semibold">clara.o@modernliving.uk</span>
+</div>
+<div class="pt-4 border-t border-surface-container-low flex items-center gap-2">
+<div class="px-3 py-1 bg-primary-container/10 rounded-lg">
+<p class="text-[10px] font-bold text-primary-container uppercase">1 Active Project</p>
+</div>
+</div>
+</div>
+<div class="flex gap-3 pt-4 border-t border-surface-container-low">
+<button class="flex-1 bg-surface-container-low text-primary py-3 rounded-xl text-xs font-bold hover:bg-surface-container-high transition-colors">Details</button>
+<button class="w-12 h-12 flex items-center justify-center text-primary bg-surface-container-low rounded-xl hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined">mail</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center text-primary bg-surface-container-low rounded-xl hover:bg-secondary hover:text-white transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Client Card 6 -->
+<div class="bg-surface-container-lowest rounded-3xl p-8 flex flex-col shadow-[0_20px_40px_rgba(26,28,28,0.04)] hover:shadow-[0_20px_40px_rgba(26,28,28,0.08)] transition-shadow group relative overflow-hidden">
+<div class="absolute top-0 right-0 w-24 h-24 bg-surface-container-low rounded-bl-[100px] -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
+<div class="flex items-start justify-between relative mb-6">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-high flex items-center justify-center text-primary overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="professional male executive portrait with soft natural lighting and a high-end corporate feel" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwEVsRzuJlyeyRlynIci8Q-5tumV4_M5ZaD3mZuI1lEminVDNT7F6KB6uJqKu_gzxWZC37Nlw5H5tTLkYDs4qf2lZsq4XidN9kPDkQlUWJw2kjfRdn5e-syaBO3RZk-RgNIYm01ooDuGP_TG51nBrUYTdkBKFdE5i_nP4k6ymtmqfXE9Gbb_-BOFm0ipiKbqKdAJa0Ud9PsGRRbHAmPQInRaAZtRexyzlX3d3rxCoL-mQfC7pG0AwKDwIYWowkmTanpwYahLrVftM"/>
+</div>
+<span class="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase font-['Inter']">Approved</span>
+</div>
+<div class="mb-6">
+<h3 class="text-xl font-extrabold text-primary mb-1">Thomas Sterling</h3>
+<p class="text-xs text-on-surface-variant font-['Inter'] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> 
+                            Marylebone High St, Studio Alpha
+                        </p>
+</div>
+<div class="space-y-3 mb-8 flex-1">
+<div class="flex items-center justify-between text-sm">
+<span class="text-on-surface-variant font-['Inter'] text-xs">Primary Phone</span>
+<span class="text-primary font-semibold">+44 20 8888 2211</span>
+</div>
+<div class="flex items-center justify-between text-sm">
+<span class="text-on-surface-variant font-['Inter'] text-xs">Email</span>
+<span class="text-primary font-semibold">t.sterling@archbuild.com</span>
+</div>
+<div class="pt-4 border-t border-surface-container-low flex items-center gap-2">
+<div class="px-3 py-1 bg-primary-container/10 rounded-lg">
+<p class="text-[10px] font-bold text-primary-container uppercase">2 Active Projects</p>
+</div>
+</div>
+</div>
+<div class="flex gap-3 pt-4 border-t border-surface-container-low">
+<button class="flex-1 bg-surface-container-low text-primary py-3 rounded-xl text-xs font-bold hover:bg-surface-container-high transition-colors">Details</button>
+<button class="w-12 h-12 flex items-center justify-center text-primary bg-surface-container-low rounded-xl hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined">mail</span>
+</button>
+<button class="w-12 h-12 flex items-center justify-center text-primary bg-surface-container-low rounded-xl hover:bg-secondary hover:text-white transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Pagination/Footer -->
+<div class="mt-16 flex items-center justify-between">
+<p class="text-xs text-on-surface-variant font-['Inter']">Showing 6 of 24 Clients</p>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-container-high text-primary hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-xl bg-primary text-white font-bold text-xs">1</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-container-high text-primary hover:bg-primary hover:text-white transition-all font-bold text-xs">2</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-container-high text-primary hover:bg-primary hover:text-white transition-all font-bold text-xs">3</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-container-high text-primary hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+</body></html>

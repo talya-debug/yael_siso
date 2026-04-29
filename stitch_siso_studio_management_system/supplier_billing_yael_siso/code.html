@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Inter:wght@300..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#e1dfff",
+                    "surface-container-low": "#f3f3f3",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed": "#111c2d",
+                    "inverse-on-surface": "#f0f1f1",
+                    "surface": "#f9f9f9",
+                    "secondary": "#7b5800",
+                    "on-tertiary": "#ffffff",
+                    "outline": "#75777d",
+                    "tertiary-container": "#100092",
+                    "secondary-fixed-dim": "#f7bd48",
+                    "on-secondary-fixed": "#271900",
+                    "on-error-container": "#93000a",
+                    "inverse-primary": "#bcc7de",
+                    "on-surface": "#1a1c1c",
+                    "on-background": "#1a1c1c",
+                    "secondary-fixed": "#ffdea6",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed-variant": "#3c475a",
+                    "surface-bright": "#f9f9f9",
+                    "primary-fixed": "#d8e3fb",
+                    "on-tertiary-container": "#8082ff",
+                    "on-surface-variant": "#45474c",
+                    "secondary-container": "#fdc34d",
+                    "inverse-surface": "#2f3131",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-fixed-variant": "#5d4200",
+                    "on-tertiary-fixed-variant": "#2c24ce",
+                    "primary": "#091426",
+                    "tertiary-fixed-dim": "#c1c1ff",
+                    "on-primary": "#ffffff",
+                    "primary-container": "#1e293b",
+                    "outline-variant": "#c5c6cd",
+                    "surface-container-highest": "#e2e2e2",
+                    "on-primary-container": "#8590a6",
+                    "tertiary": "#060056",
+                    "error-container": "#ffdad6",
+                    "surface-tint": "#545f73",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed": "#09006b",
+                    "surface-container-high": "#e8e8e8",
+                    "primary-fixed-dim": "#bcc7de",
+                    "surface-dim": "#dadada",
+                    "surface-container": "#eeeeee",
+                    "surface-variant": "#e2e2e2",
+                    "on-secondary-container": "#715000",
+                    "background": "#f9f9f9"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {},
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Manrope"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            vertical-align: middle;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #091426; }
+        ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface">
+<!-- SideNavBar (Authority JSON) -->
+<aside class="bg-[#091426] h-screen w-64 fixed left-0 top-0 shadow-2xl flex flex-col py-8 px-4 overflow-y-auto z-50">
+<div class="flex items-center gap-3 mb-10 px-2">
+<div class="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">vignette</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tighter text-white">The Studio</h1>
+<p class="text-[10px] uppercase tracking-widest text-on-primary-container font-label">Interior Excellence</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] rounded-xl font-medium text-sm font-['Manrope'] tracking-tight" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] rounded-xl font-medium text-sm font-['Manrope'] tracking-tight" href="#">
+<span class="material-symbols-outlined">group</span> Clients
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] rounded-xl font-medium text-sm font-['Manrope'] tracking-tight" href="#">
+<span class="material-symbols-outlined">architecture</span> Projects
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] rounded-xl font-medium text-sm font-['Manrope'] tracking-tight" href="#">
+<span class="material-symbols-outlined">tactic</span> Scope Templates
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] rounded-xl font-medium text-sm font-['Manrope'] tracking-tight" href="#">
+<span class="material-symbols-outlined">receipt_long</span> Client Billing
+            </a>
+<a class="text-white bg-[#1E293B] flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm font-['Manrope'] tracking-tight" href="#">
+<span class="material-symbols-outlined">payments</span> Supplier Billing
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] rounded-xl font-medium text-sm font-['Manrope'] tracking-tight" href="#">
+<span class="material-symbols-outlined">store</span> Supplier Directory
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] rounded-xl font-medium text-sm font-['Manrope'] tracking-tight" href="#">
+<span class="material-symbols-outlined">analytics</span> Monthly Report
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] rounded-xl font-medium text-sm font-['Manrope'] tracking-tight" href="#">
+<span class="material-symbols-outlined">payments</span> Finance Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] rounded-xl font-medium text-sm font-['Manrope'] tracking-tight" href="#">
+<span class="material-symbols-outlined">history_edu</span> Work Log
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] rounded-xl font-medium text-sm font-['Manrope'] tracking-tight" href="#">
+<span class="material-symbols-outlined">menu_book</span> Knowledge Base
+            </a>
+</nav>
+<div class="mt-auto pt-6 px-2 border-t border-slate-800">
+<div class="flex items-center gap-3">
+<img class="w-8 h-8 rounded-full object-cover border border-slate-700" data-alt="portrait of a professional creative director in a minimalist studio setting with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoXwUBk-Fsyn0ZkPzKcsc8hiETkeaAevodm2lnrri3UPn4Azk9K2LjfciYzGS4r1f60oPCWYyxb2982bj2Iwq3WQRYWe7QjWrm6UWV_f1Fsc-N-vSRzDW7yEATUv40TyYIiP8246bwrEtFTKKs4ErORLqsAXIyjN78_xkyKfGbZSjCvuvSW4pBYpchmjxiJB4V0rINcCSysoFUwsAOKsrVOUZWK3l-6gT_xDeCWRF0_xyYOB5JVHGfvAICnGnyrtPmSJdgfwoT4K0"/>
+<div class="flex-1 min-w-0">
+<p class="text-xs font-bold text-white truncate">Julian Alexander</p>
+<p class="text-[10px] text-on-primary-container truncate font-label">Principal Architect</p>
+</div>
+<span class="material-symbols-outlined text-slate-500 text-sm">more_vert</span>
+</div>
+</div>
+</aside>
+<!-- TopNavBar (Authority JSON) -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-40 bg-[#F9F9F9]/80 backdrop-blur-xl flex justify-between items-center px-8">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-2 pl-10 pr-4 text-sm font-label focus:ring-1 focus:ring-secondary/30 transition-all" placeholder="Search billing, suppliers or projects..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-slate-600">
+<button class="hover:text-secondary transition-colors"><span class="material-symbols-outlined">notifications</span></button>
+<button class="hover:text-secondary transition-colors"><span class="material-symbols-outlined">settings</span></button>
+</div>
+<div class="h-8 w-px bg-surface-container-highest"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold text-primary font-headline">Curated Canvas</p>
+<p class="text-[10px] text-on-surface-variant font-label">v2.4.0 Platinum</p>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-24 pb-12 px-10">
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-8">
+<div class="space-y-1">
+<h2 class="text-3xl font-black tracking-tight text-primary font-headline">Supplier Billing</h2>
+<p class="text-on-surface-variant text-sm font-medium">Manage and track procurement expenditures across active portfolios.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-6 py-2.5 bg-surface-container-lowest text-primary font-bold text-sm rounded-xl transition-all hover:scale-[1.02] shadow-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">download</span>
+                    Export PDF
+                </button>
+<button class="px-6 py-2.5 bg-gradient-to-b from-primary to-primary-container text-white font-bold text-sm rounded-xl transition-all hover:scale-[1.02] shadow-xl flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">add</span>
+                    New Invoice
+                </button>
+</div>
+</div>
+<!-- Filter Bar -->
+<div class="flex gap-4 mb-8">
+<div class="flex-1 bg-surface-container-low p-2 rounded-2xl flex gap-2">
+<select class="bg-surface-container-lowest border-none rounded-xl text-xs font-bold text-primary px-4 py-2 focus:ring-0 cursor-pointer hover:bg-white transition-colors">
+<option>All Projects</option>
+<option>Azure Penthouse</option>
+<option>The Gilded Oak Estate</option>
+<option>Modernist Retreat</option>
+</select>
+<select class="bg-surface-container-lowest border-none rounded-xl text-xs font-bold text-primary px-4 py-2 focus:ring-0 cursor-pointer hover:bg-white transition-colors">
+<option>All Suppliers</option>
+<option>Luxe Textural Fabrics</option>
+<option>Marquina Stone Ltd</option>
+<option>Vanguard Lighting</option>
+</select>
+<select class="bg-surface-container-lowest border-none rounded-xl text-xs font-bold text-primary px-4 py-2 focus:ring-0 cursor-pointer hover:bg-white transition-colors">
+<option>Status: All</option>
+<option>Paid</option>
+<option>Pending</option>
+<option>Overdue</option>
+</select>
+</div>
+<div class="flex items-center gap-2 px-4 bg-surface-container-low rounded-2xl">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest font-label">Date Range</span>
+<span class="text-xs font-bold text-primary">Oct 01 - Oct 31, 2023</span>
+<span class="material-symbols-outlined text-sm text-secondary">calendar_today</span>
+</div>
+</div>
+<!-- Statistics Overview -->
+<div class="grid grid-cols-3 gap-6 mb-10">
+<div class="bg-surface-container-low p-6 rounded-3xl group transition-all hover:bg-white hover:shadow-xl">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest font-label mb-2">Total Payables</p>
+<h3 class="text-3xl font-black text-primary font-headline">$142,850.00</h3>
+<div class="mt-4 flex items-center gap-2">
+<span class="bg-secondary-fixed-dim text-on-secondary-fixed text-[10px] font-bold px-2 py-0.5 rounded-full">Active</span>
+<span class="text-xs text-on-surface-variant font-label">Across 12 suppliers</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-3xl group transition-all hover:bg-white hover:shadow-xl">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest font-label mb-2">Pending Commission</p>
+<h3 class="text-3xl font-black text-secondary font-headline">$14,285.00</h3>
+<div class="mt-4 flex items-center gap-2 text-xs text-on-surface-variant font-label">
+<span class="material-symbols-outlined text-sm text-secondary">trending_up</span>
+                    10% Avg. rate this month
+                </div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-3xl group transition-all hover:bg-white hover:shadow-xl">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest font-label mb-2">Processed (30d)</p>
+<h3 class="text-3xl font-black text-primary font-headline">$88,400.00</h3>
+<div class="mt-4 flex items-center gap-2">
+<div class="flex -space-x-2">
+<img class="w-6 h-6 rounded-full border-2 border-surface" data-alt="professional woman portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFqFDC2NXgcD3V8YshbgvHiB_XfcdWmPYueNiVMzwm0xskAZCnE2SsZDrR24ygt82hIsHQc-IH-rOloyyiM7UEIWLoLMPoSWn_g6IllSbV9kHz_j-xQ2bWdF2UWqwYpuvBT-KKaEA70yOLXEGf8-uLJhYwnezZrTX7xUTB65HoW6oWCEz3jA7raDlC91rlz7mFq2xtrNwpmVdQA-YDPDsfmOwdtxkxgTcX7QSM-W_g6DTcfHX3mFKvfEl9GHcXK8pUvTVGJHZRVp0"/>
+<img class="w-6 h-6 rounded-full border-2 border-surface" data-alt="professional man portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAH0be9qj_9qPZ0KIAdnXeQjpmCLtjT4MoD0gUVUX3TD_mY7p67fpAAOmSP-w7OGtLKVhWfRCodQrC_dmgFd2eBa5yq639NCU4-oS3nJb5ILM1UUvAu_jbQFmdu4K7So-63z0g9dCS9Zt7QwDcf3921_MNqhngnc4WDk3UgkIsPGakoff7LTnK7AJcBDJc1D1Wz2OQGrjxtydENnPiWyYEILGUp0lSF1EEBsYeaHkD7jhqdQghCP_GmEixTC2oSV1V4y7AS7sBq26s"/>
+<img class="w-6 h-6 rounded-full border-2 border-surface" data-alt="modern businessman portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1DeamDluFlLxMt2w2saeQxBpQkRe2E1mLtIW7rCLpq7smS6s9M7K9xOjmYcaZ5mZo1qsQ8KNs65ycu60oTX63tjLAvY6DiR-yjQVfv4v8yRVsqhD4-vCiCjUtsn0DLb3lvopb72kgPlcGqFWBAG02NwK5EgUHQZIfzBjzuYcXvurxKJ8lu9AXc4UOI9KDGF02gd7qQ_nbqTK-Rg8yk4o5aOIJ9nppd9oS_1wgY-NZcVXEKbV428kNlkcQQy6Fe6ePUh95W8HDEmE"/>
+</div>
+<span class="text-xs text-on-surface-variant font-label font-medium">+4 suppliers paid</span>
+</div>
+</div>
+</div>
+<!-- Table Container -->
+<div class="bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-sm">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50">
+<th class="px-8 py-5 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest font-label">Supplier Name</th>
+<th class="px-6 py-5 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest font-label">Project</th>
+<th class="px-6 py-5 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest font-label text-right">Amount</th>
+<th class="px-6 py-5 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest font-label text-center">Comm. %</th>
+<th class="px-6 py-5 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest font-label">Status</th>
+<th class="px-6 py-5 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest font-label">Date</th>
+<th class="px-8 py-5 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest font-label text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y-0">
+<!-- Row 1 -->
+<tr class="group hover:bg-surface-container-low transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-headline font-bold text-xs">LT</div>
+<div>
+<p class="font-bold text-primary text-sm">Luxe Textural Fabrics</p>
+<p class="text-[11px] text-on-surface-variant font-label">Curated Soft Furnishings</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-6">
+<p class="text-sm font-semibold text-primary">Azure Penthouse</p>
+</td>
+<td class="px-6 py-6 text-right">
+<p class="text-sm font-bold text-primary">$24,500.00</p>
+</td>
+<td class="px-6 py-6 text-center">
+<span class="text-xs font-bold text-secondary">15%</span>
+</td>
+<td class="px-6 py-6">
+<span class="bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold px-3 py-1 rounded-full flex w-fit items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Pending
+                            </span>
+</td>
+<td class="px-6 py-6">
+<p class="text-xs font-medium text-on-surface-variant font-label">Oct 14, 2023</p>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="bg-surface-container-low/20 group hover:bg-surface-container-low transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-primary font-headline font-bold text-xs">MS</div>
+<div>
+<p class="font-bold text-primary text-sm">Marquina Stone Ltd</p>
+<p class="text-[11px] text-on-surface-variant font-label">Hard Surfaces &amp; Marble</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-6">
+<p class="text-sm font-semibold text-primary">The Gilded Oak Estate</p>
+</td>
+<td class="px-6 py-6 text-right">
+<p class="text-sm font-bold text-primary">$42,000.00</p>
+</td>
+<td class="px-6 py-6 text-center">
+<span class="text-xs font-bold text-secondary">8%</span>
+</td>
+<td class="px-6 py-6">
+<span class="bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold px-3 py-1 rounded-full flex w-fit items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-on-tertiary-fixed-variant"></span> Paid
+                            </span>
+</td>
+<td class="px-6 py-6">
+<p class="text-xs font-medium text-on-surface-variant font-label">Oct 12, 2023</p>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="group hover:bg-surface-container-low transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center text-on-primary-container font-headline font-bold text-xs">VL</div>
+<div>
+<p class="font-bold text-primary text-sm">Vanguard Lighting</p>
+<p class="text-[11px] text-on-surface-variant font-label">Bespoke Fixtures</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-6">
+<p class="text-sm font-semibold text-primary">Modernist Retreat</p>
+</td>
+<td class="px-6 py-6 text-right">
+<p class="text-sm font-bold text-primary">$18,750.00</p>
+</td>
+<td class="px-6 py-6 text-center">
+<span class="text-xs font-bold text-secondary">12.5%</span>
+</td>
+<td class="px-6 py-6">
+<span class="bg-error-container text-on-error-container text-[10px] font-bold px-3 py-1 rounded-full flex w-fit items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span> Overdue
+                            </span>
+</td>
+<td class="px-6 py-6">
+<p class="text-xs font-medium text-on-surface-variant font-label">Oct 05, 2023</p>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="bg-surface-container-low/20 group hover:bg-surface-container-low transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-secondary-fixed-dim flex items-center justify-center text-on-secondary-fixed font-headline font-bold text-xs">AR</div>
+<div>
+<p class="font-bold text-primary text-sm">Aura Rugs</p>
+<p class="text-[11px] text-on-surface-variant font-label">Handcrafted Textiles</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-6">
+<p class="text-sm font-semibold text-primary">Azure Penthouse</p>
+</td>
+<td class="px-6 py-6 text-right">
+<p class="text-sm font-bold text-primary">$9,200.00</p>
+</td>
+<td class="px-6 py-6 text-center">
+<span class="text-xs font-bold text-secondary">10%</span>
+</td>
+<td class="px-6 py-6">
+<span class="bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold px-3 py-1 rounded-full flex w-fit items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Pending
+                            </span>
+</td>
+<td class="px-6 py-6">
+<p class="text-xs font-medium text-on-surface-variant font-label">Oct 20, 2023</p>
+</td>
+<td class="px-8 py-6 text-right">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="px-8 py-5 border-t border-surface-container-high flex justify-between items-center bg-surface-container-low/30">
+<p class="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest font-label">Showing 4 of 28 transactions</p>
+<div class="flex gap-2">
+<button class="w-8 h-8 rounded-lg border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:bg-white transition-all disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center text-[11px] font-bold shadow-sm">1</button>
+<button class="w-8 h-8 rounded-lg border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:bg-white transition-all text-[11px] font-bold">2</button>
+<button class="w-8 h-8 rounded-lg border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:bg-white transition-all text-[11px] font-bold">3</button>
+<button class="w-8 h-8 rounded-lg border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:bg-white transition-all">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,5 @@
+שדה ראשון (Authorized JavaScript origins):
+https://yaelsiso.vercel.app
+
+שדה שני (Authorized redirect URIs):
+https://yaelsiso.vercel.app/auth/callback

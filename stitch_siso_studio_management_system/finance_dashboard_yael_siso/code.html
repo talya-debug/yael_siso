@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Finance Dashboard | The Studio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed": "#e1dfff",
+                      "surface-container-low": "#f3f3f3",
+                      "on-secondary": "#ffffff",
+                      "on-primary-fixed": "#111c2d",
+                      "inverse-on-surface": "#f0f1f1",
+                      "surface": "#f9f9f9",
+                      "secondary": "#7b5800",
+                      "on-tertiary": "#ffffff",
+                      "outline": "#75777d",
+                      "tertiary-container": "#100092",
+                      "secondary-fixed-dim": "#f7bd48",
+                      "on-secondary-fixed": "#271900",
+                      "on-error-container": "#93000a",
+                      "inverse-primary": "#bcc7de",
+                      "on-surface": "#1a1c1c",
+                      "on-background": "#1a1c1c",
+                      "secondary-fixed": "#ffdea6",
+                      "on-error": "#ffffff",
+                      "on-primary-fixed-variant": "#3c475a",
+                      "surface-bright": "#f9f9f9",
+                      "primary-fixed": "#d8e3fb",
+                      "on-tertiary-container": "#8082ff",
+                      "on-surface-variant": "#45474c",
+                      "secondary-container": "#fdc34d",
+                      "inverse-surface": "#2f3131",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary-fixed-variant": "#5d4200",
+                      "on-tertiary-fixed-variant": "#2c24ce",
+                      "primary": "#091426",
+                      "tertiary-fixed-dim": "#c1c1ff",
+                      "on-primary": "#ffffff",
+                      "primary-container": "#1e293b",
+                      "outline-variant": "#c5c6cd",
+                      "surface-container-highest": "#e2e2e2",
+                      "on-primary-container": "#8590a6",
+                      "tertiary": "#060056",
+                      "error-container": "#ffdad6",
+                      "surface-tint": "#545f73",
+                      "error": "#ba1a1a",
+                      "on-tertiary-fixed": "#09006b",
+                      "surface-container-high": "#e8e8e8",
+                      "primary-fixed-dim": "#bcc7de",
+                      "surface-dim": "#dadada",
+                      "surface-container": "#eeeeee",
+                      "surface-variant": "#e2e2e2",
+                      "on-secondary-container": "#715000",
+                      "background": "#f9f9f9"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "fontFamily": {
+                      "headline": ["Manrope"],
+                      "body": ["Manrope"],
+                      "label": ["Inter"]
+              }
+            },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Manrope', sans-serif; }
+        .label-text { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- SideNavBar -->
+<aside class="bg-[#091426] h-screen w-64 fixed left-0 top-0 flex flex-col h-full py-8 px-4 overflow-y-auto shadow-2xl z-50">
+<div class="mb-10 px-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">vignette</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tighter text-white">The Studio</h1>
+<p class="text-[10px] uppercase tracking-widest text-on-primary-container">Interior Excellence</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] transition-transform rounded-xl font-['Manrope'] text-sm tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] transition-transform rounded-xl font-['Manrope'] text-sm tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+                Clients
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] transition-transform rounded-xl font-['Manrope'] text-sm tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="architecture">architecture</span>
+                Projects
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] transition-transform rounded-xl font-['Manrope'] text-sm tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="tactic">tactic</span>
+                Scope Templates
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] transition-transform rounded-xl font-['Manrope'] text-sm tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+                Client Billing
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] transition-transform rounded-xl font-['Manrope'] text-sm tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+                Supplier Billing
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] transition-transform rounded-xl font-['Manrope'] text-sm tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="store">store</span>
+                Supplier Directory
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] transition-transform rounded-xl font-['Manrope'] text-sm tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                Monthly Report
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-white bg-[#1E293B] rounded-xl font-bold font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+                Finance Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] transition-transform rounded-xl font-['Manrope'] text-sm tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="history_edu">history_edu</span>
+                Work Log
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] transition-transform rounded-xl font-['Manrope'] text-sm tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+                Knowledge Base
+            </a>
+</nav>
+<div class="mt-auto pt-8 border-t border-slate-800/50">
+<div class="flex items-center gap-3 px-4">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="portrait of a professional creative director in a minimalist studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2yvPMjGhf-Wauqnee8XsuuKWKc5pA0g-oyYhewZ_O1WZrkGslUsxhGAJWgJly9n1IOTg--8MJfoRTDgdJVN-DkM2IufAc7xmRbhaudtKDu42URrTO0uxWoGWCN53YeELA9LXrRvvYLcOXyUI5n4Se3UF1uqQdgiDK4PRqpAVZAH5WQVr15TatU8KUcN7hOs7W8kAEBxZcsRhwN8wGEFP_V_n8KNHSicJKHQXNN3vCsE6PvES4gt4Y4yZU025GjiagD8ZJYH_3IdI"/>
+<div class="overflow-hidden">
+<p class="text-white text-sm font-bold truncate">Julian Vane</p>
+<p class="text-slate-500 text-xs truncate">Studio Principal</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-64 min-h-screen">
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-40 bg-[#F9F9F9]/80 backdrop-blur-xl flex justify-between items-center px-8">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-1 focus:ring-secondary/30 placeholder:text-slate-400" placeholder="Search financials..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="relative text-slate-600 hover:text-[#7B5800] transition-colors active:scale-95">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-secondary rounded-full border-2 border-surface"></span>
+</button>
+<button class="text-slate-600 hover:text-[#7B5800] transition-colors active:scale-95">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant/30"></div>
+<span class="font-['Manrope'] text-sm font-semibold text-[#091426]">Curated Canvas</span>
+</div>
+</header>
+<!-- Content Area -->
+<div class="pt-24 pb-12 px-10">
+<div class="flex justify-between items-end mb-10">
+<div>
+<h2 class="text-4xl font-extrabold tracking-tight text-primary mb-2">Finance Dashboard</h2>
+<p class="text-on-surface-variant font-label text-sm">Real-time overview of studio capital and project expenditure.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-5 py-2.5 bg-surface-container-low text-primary font-bold rounded-xl hover:scale-[1.02] transition-transform text-sm">
+                        Export PDF
+                    </button>
+<button class="px-5 py-2.5 bg-gradient-to-v from-primary to-primary-container text-white font-bold rounded-xl hover:scale-[1.02] transition-transform text-sm shadow-lg">
+                        Create Invoice
+                    </button>
+</div>
+</div>
+<!-- KPI Cards Bento -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+<div class="bg-surface-container-lowest p-6 rounded-[2rem] shadow-sm flex flex-col justify-between h-40">
+<div class="flex justify-between items-start">
+<span class="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</span>
+<span class="text-[10px] font-label font-bold text-secondary uppercase tracking-tighter bg-secondary/10 px-2 py-1 rounded-full">Annual</span>
+</div>
+<div>
+<p class="text-on-surface-variant text-xs font-label mb-1">Total Budget</p>
+<p class="text-2xl font-extrabold text-primary">$1,240,000</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-[2rem] shadow-sm flex flex-col justify-between h-40">
+<div class="flex justify-between items-start">
+<span class="w-10 h-10 rounded-xl bg-secondary/5 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">payments</span>
+</span>
+<span class="text-[10px] font-label font-bold text-error uppercase tracking-tighter bg-error/5 px-2 py-1 rounded-full">Spent 62%</span>
+</div>
+<div>
+<p class="text-on-surface-variant text-xs font-label mb-1">Total Spent</p>
+<p class="text-2xl font-extrabold text-primary">$768,420</p>
+</div>
+</div>
+<div class="bg-primary text-white p-6 rounded-[2rem] shadow-xl flex flex-col justify-between h-40">
+<div class="flex justify-between items-start">
+<span class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-secondary-fixed-dim">
+<span class="material-symbols-outlined">savings</span>
+</span>
+</div>
+<div>
+<p class="text-on-primary-container text-xs font-label mb-1">Remaining Balance</p>
+<p class="text-2xl font-extrabold">$471,580</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-[2rem] shadow-sm flex flex-col justify-between h-40 border border-outline-variant/10">
+<div class="flex justify-between items-start">
+<span class="w-10 h-10 rounded-xl bg-secondary/5 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">timer</span>
+</span>
+</div>
+<div>
+<p class="text-on-surface-variant text-xs font-label mb-1">Avg. Cost Per Hour</p>
+<p class="text-2xl font-extrabold text-primary">$185.00</p>
+</div>
+</div>
+</div>
+<!-- Visualizations Row -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+<!-- Bar Chart Concept -->
+<div class="lg:col-span-2 bg-surface-container-lowest p-8 rounded-[2.5rem] shadow-sm">
+<div class="flex justify-between items-center mb-8">
+<h3 class="text-lg font-bold text-primary">Budget vs Spent <span class="font-normal text-on-surface-variant text-sm ml-2">Monthly Distribution</span></h3>
+<div class="flex items-center gap-4 text-xs font-label">
+<div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-primary-container"></span> Budget</div>
+<div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-secondary"></span> Spent</div>
+</div>
+</div>
+<div class="flex items-end justify-between h-64 gap-4 px-4">
+<div class="flex flex-col items-center gap-3 flex-1">
+<div class="w-full flex items-end gap-1 h-full">
+<div class="bg-primary-container/20 w-1/2 rounded-t-lg h-[80%]"></div>
+<div class="bg-secondary w-1/2 rounded-t-lg h-[65%] shadow-lg shadow-secondary/10"></div>
+</div>
+<span class="text-[10px] font-label text-on-surface-variant">JAN</span>
+</div>
+<div class="flex flex-col items-center gap-3 flex-1">
+<div class="w-full flex items-end gap-1 h-full">
+<div class="bg-primary-container/20 w-1/2 rounded-t-lg h-[90%]"></div>
+<div class="bg-secondary w-1/2 rounded-t-lg h-[75%] shadow-lg shadow-secondary/10"></div>
+</div>
+<span class="text-[10px] font-label text-on-surface-variant">FEB</span>
+</div>
+<div class="flex flex-col items-center gap-3 flex-1">
+<div class="w-full flex items-end gap-1 h-full">
+<div class="bg-primary-container/20 w-1/2 rounded-t-lg h-[70%]"></div>
+<div class="bg-secondary w-1/2 rounded-t-lg h-[85%] shadow-lg shadow-secondary/10"></div>
+</div>
+<span class="text-[10px] font-label text-on-surface-variant">MAR</span>
+</div>
+<div class="flex flex-col items-center gap-3 flex-1">
+<div class="w-full flex items-end gap-1 h-full">
+<div class="bg-primary-container/20 w-1/2 rounded-t-lg h-[85%]"></div>
+<div class="bg-secondary w-1/2 rounded-t-lg h-[40%] shadow-lg shadow-secondary/10"></div>
+</div>
+<span class="text-[10px] font-label text-on-surface-variant">APR</span>
+</div>
+<div class="flex flex-col items-center gap-3 flex-1">
+<div class="w-full flex items-end gap-1 h-full">
+<div class="bg-primary-container/20 w-1/2 rounded-t-lg h-[100%]"></div>
+<div class="bg-secondary w-1/2 rounded-t-lg h-[92%] shadow-lg shadow-secondary/10"></div>
+</div>
+<span class="text-[10px] font-label text-on-surface-variant">MAY</span>
+</div>
+<div class="flex flex-col items-center gap-3 flex-1">
+<div class="w-full flex items-end gap-1 h-full">
+<div class="bg-primary-container/20 w-1/2 rounded-t-lg h-[80%]"></div>
+<div class="bg-secondary w-1/2 rounded-t-lg h-[70%] shadow-lg shadow-secondary/10"></div>
+</div>
+<span class="text-[10px] font-label text-on-surface-variant">JUN</span>
+</div>
+</div>
+</div>
+<!-- Pie Chart / Breakdown -->
+<div class="bg-surface-container-low p-8 rounded-[2.5rem] relative overflow-hidden">
+<h3 class="text-lg font-bold text-primary mb-6">Cost Breakdown</h3>
+<div class="relative w-48 h-48 mx-auto mb-8">
+<svg class="w-full h-full transform -rotate-90">
+<circle class="text-primary" cx="96" cy="96" fill="transparent" r="80" stroke="currentColor" stroke-dasharray="502" stroke-dashoffset="125" stroke-width="12"></circle>
+<circle class="text-secondary" cx="96" cy="96" fill="transparent" r="80" stroke="currentColor" stroke-dasharray="502" stroke-dashoffset="400" stroke-width="12"></circle>
+<circle class="text-primary-container" cx="96" cy="96" fill="transparent" r="80" stroke="currentColor" stroke-dasharray="502" stroke-dashoffset="450" stroke-width="12"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-2xl font-extrabold text-primary">82%</span>
+<span class="text-[10px] font-label uppercase tracking-widest text-on-surface-variant">Utilized</span>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center px-2">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="text-xs font-medium">Design Labor</span>
+</div>
+<span class="text-xs font-bold">$342k</span>
+</div>
+<div class="flex justify-between items-center px-2">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-xs font-medium">Sourcing</span>
+</div>
+<span class="text-xs font-bold">$189k</span>
+</div>
+<div class="flex justify-between items-center px-2">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary-container"></span>
+<span class="text-xs font-medium">Consultancy</span>
+</div>
+<span class="text-xs font-bold">$115k</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Table Section -->
+<div class="bg-surface-container-lowest rounded-[2.5rem] shadow-sm overflow-hidden">
+<div class="p-8 border-b border-surface-container-low flex justify-between items-center">
+<h3 class="text-lg font-bold text-primary">Worker Efficiency &amp; Rates</h3>
+<div class="flex gap-2">
+<button class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-on-surface-variant font-label text-xs uppercase tracking-widest">
+<th class="px-8 py-5 font-semibold">Worker &amp; Role</th>
+<th class="px-8 py-5 font-semibold">Project</th>
+<th class="px-8 py-5 font-semibold text-center">Hourly Rate</th>
+<th class="px-8 py-5 font-semibold text-center">Total Hours</th>
+<th class="px-8 py-5 font-semibold text-right">Total Cost</th>
+<th class="px-8 py-5 font-semibold text-center">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low">
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-xs">EK</div>
+<div>
+<p class="font-bold text-sm text-primary">Elena Kovic</p>
+<p class="text-xs text-on-surface-variant">Senior Architect</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6 text-sm font-medium">Penthouse '24</td>
+<td class="px-8 py-6 text-sm text-center font-label">$220/hr</td>
+<td class="px-8 py-6 text-sm text-center font-label">164</td>
+<td class="px-8 py-6 text-sm font-bold text-right text-primary">$36,080</td>
+<td class="px-8 py-6 text-center">
+<span class="px-3 py-1 bg-secondary/10 text-secondary rounded-full text-[10px] font-bold uppercase tracking-tight">Active</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed flex items-center justify-center text-tertiary font-bold text-xs">MR</div>
+<div>
+<p class="font-bold text-sm text-primary">Marcus Rossi</p>
+<p class="text-xs text-on-surface-variant">Lighting Specialist</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6 text-sm font-medium">Azure Marina Villa</td>
+<td class="px-8 py-6 text-sm text-center font-label">$185/hr</td>
+<td class="px-8 py-6 text-sm text-center font-label">82</td>
+<td class="px-8 py-6 text-sm font-bold text-right text-primary">$15,170</td>
+<td class="px-8 py-6 text-center">
+<span class="px-3 py-1 bg-secondary/10 text-secondary rounded-full text-[10px] font-bold uppercase tracking-tight">Active</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed-variant font-bold text-xs">ST</div>
+<div>
+<p class="font-bold text-sm text-primary">Sarah Tan</p>
+<p class="text-xs text-on-surface-variant">Interior Stylist</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6 text-sm font-medium">Hudson Lofts</td>
+<td class="px-8 py-6 text-sm text-center font-label">$140/hr</td>
+<td class="px-8 py-6 text-sm text-center font-label">210</td>
+<td class="px-8 py-6 text-sm font-bold text-right text-primary">$29,400</td>
+<td class="px-8 py-6 text-center">
+<span class="px-3 py-1 bg-outline-variant/20 text-on-surface-variant rounded-full text-[10px] font-bold uppercase tracking-tight">Completed</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-on-primary-fixed-variant flex items-center justify-center text-white font-bold text-xs">JH</div>
+<div>
+<p class="font-bold text-sm text-primary">Julian Hayes</p>
+<p class="text-xs text-on-surface-variant">Technical Draftsman</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6 text-sm font-medium">Oakridge Estate</td>
+<td class="px-8 py-6 text-sm text-center font-label">$110/hr</td>
+<td class="px-8 py-6 text-sm text-center font-label">45</td>
+<td class="px-8 py-6 text-sm font-bold text-right text-primary">$4,950</td>
+<td class="px-8 py-6 text-center">
+<span class="px-3 py-1 bg-secondary/10 text-secondary rounded-full text-[10px] font-bold uppercase tracking-tight">Active</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-8 py-6 bg-surface-container-low/10 text-center">
+<button class="text-secondary font-bold text-sm hover:underline">View All Personnel Records</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

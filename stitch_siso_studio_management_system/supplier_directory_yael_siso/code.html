@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Supplier Directory | The Studio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#e1dfff",
+                        "surface-container-low": "#f3f3f3",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed": "#111c2d",
+                        "inverse-on-surface": "#f0f1f1",
+                        "surface": "#f9f9f9",
+                        "secondary": "#7b5800",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#75777d",
+                        "tertiary-container": "#100092",
+                        "secondary-fixed-dim": "#f7bd48",
+                        "on-secondary-fixed": "#271900",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#bcc7de",
+                        "on-surface": "#1a1c1c",
+                        "on-background": "#1a1c1c",
+                        "secondary-fixed": "#ffdea6",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed-variant": "#3c475a",
+                        "surface-bright": "#f9f9f9",
+                        "primary-fixed": "#d8e3fb",
+                        "on-tertiary-container": "#8082ff",
+                        "on-surface-variant": "#45474c",
+                        "secondary-container": "#fdc34d",
+                        "inverse-surface": "#2f3131",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed-variant": "#5d4200",
+                        "on-tertiary-fixed-variant": "#2c24ce",
+                        "primary": "#091426",
+                        "tertiary-fixed-dim": "#c1c1ff",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#1e293b",
+                        "outline-variant": "#c5c6cd",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-tertiary-fixed": "#09006b",
+                        "surface-container-high": "#e8e8e8",
+                        "primary-fixed-dim": "#bcc7de",
+                        "surface-dim": "#dadada",
+                        "surface-container": "#eeeeee",
+                        "surface-variant": "#e2e2e2",
+                        "on-secondary-container": "#715000",
+                        "background": "#f9f9f9"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #f9f9f9;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface overflow-hidden">
+<!-- SideNavBar Component -->
+<aside class="bg-[#091426] h-screen w-64 fixed left-0 top-0 shadow-2xl z-50 flex flex-col py-8 px-4 overflow-y-auto no-scrollbar font-['Manrope'] text-sm tracking-tight font-medium">
+<div class="mb-10 px-2 flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">vignette</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tighter text-white leading-none">The Studio</h1>
+<p class="text-[10px] uppercase tracking-widest text-on-primary-container mt-1">Interior Excellence</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl duration-300" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl duration-300" href="#">
+<span class="material-symbols-outlined">group</span>
+<span>Clients</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl duration-300" href="#">
+<span class="material-symbols-outlined">architecture</span>
+<span>Projects</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl duration-300" href="#">
+<span class="material-symbols-outlined">tactic</span>
+<span>Scope Templates</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl duration-300" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span>Client Billing</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl duration-300" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span>Supplier Billing</span>
+</a>
+<!-- Active Tab -->
+<a class="flex items-center gap-3 px-3 py-3 text-white bg-[#1E293B] rounded-xl font-bold shadow-lg" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">store</span>
+<span>Supplier Directory</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl duration-300" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span>Monthly Report</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl duration-300" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span>Finance Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl duration-300" href="#">
+<span class="material-symbols-outlined">history_edu</span>
+<span>Work Log</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl duration-300" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span>Knowledge Base</span>
+</a>
+</nav>
+<div class="mt-auto pt-8 border-t border-slate-800/50">
+<div class="flex items-center gap-3 px-3 py-2 bg-[#1E293B]/50 rounded-2xl">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="portrait of a professional creative director in a minimalist studio setting with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgbp7i8232gX00ib3wt1nUQSVPRgQqxE_DeEehSCpNlYEwiwc7Noj3XWXJW2d3roc4_mWsmCBPd362VOBeScZ348-7drhx1xO-t1AKa_W-1BuhZjbytxxGQszvq3rugUSEKmsgT640iYVedOYMJMiHt2Wh9OWfKH4Q7JtEB3mLkvC2UrcAVQo1Og5HjOXbu8QlYiQnGnr7LGVaFhVTRZX4VlWzyk1grSm54GFxEep_r6t0vCpO1uLR3UW0KsCkonEigNiEPmdruK0"/>
+<div class="overflow-hidden">
+<p class="text-xs font-bold text-white truncate">Marcus Sterling</p>
+<p class="text-[10px] text-slate-500 truncate">Lead Designer</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- TopNavBar Component -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-40 bg-[#F9F9F9]/80 backdrop-blur-xl flex justify-between items-center px-8 font-['Manrope'] text-sm font-semibold">
+<div class="flex items-center gap-6 flex-1">
+<div class="relative w-full max-w-md group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg transition-colors group-focus-within:text-secondary">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-secondary/20 placeholder:text-on-surface-variant transition-all" placeholder="Search suppliers, categories, or keywords..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-surface-container-low transition-colors group">
+<span class="material-symbols-outlined text-slate-600 group-hover:text-secondary">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-surface-container-low transition-colors group">
+<span class="material-symbols-outlined text-slate-600 group-hover:text-secondary">settings</span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant/30 mx-2"></div>
+<p class="text-[#091426] font-black tracking-tight text-lg">Curated Canvas</p>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-16 h-screen overflow-y-auto no-scrollbar">
+<div class="p-8 max-w-7xl mx-auto">
+<!-- Page Header -->
+<div class="flex justify-between items-end mb-10">
+<div>
+<nav class="flex items-center gap-2 text-xs text-on-surface-variant mb-2 font-['Inter'] font-medium">
+<span>Directory</span>
+<span class="material-symbols-outlined text-[10px]">chevron_right</span>
+<span class="text-secondary">Suppliers</span>
+</nav>
+<h2 class="text-4xl font-extrabold tracking-tighter text-primary">Supplier Directory</h2>
+<p class="text-on-surface-variant mt-2 max-w-md">Access our verified network of premier artisans and luxury contractors.</p>
+</div>
+<button class="group relative flex items-center gap-2 bg-gradient-to-b from-primary to-primary-container text-white px-6 py-3.5 rounded-xl font-bold text-sm transition-all hover:scale-[1.02] shadow-xl">
+<span class="material-symbols-outlined text-lg">add_circle</span>
+<span>New Supplier</span>
+</button>
+</div>
+<!-- Filter Scrubber -->
+<div class="flex items-center gap-3 mb-10 overflow-x-auto no-scrollbar pb-2">
+<button class="px-5 py-2 bg-primary text-white rounded-full text-xs font-bold whitespace-nowrap">All Suppliers</button>
+<button class="px-5 py-2 bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high rounded-full text-xs font-bold whitespace-nowrap transition-colors">Contractors</button>
+<button class="px-5 py-2 bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high rounded-full text-xs font-bold whitespace-nowrap transition-colors">Electricians</button>
+<button class="px-5 py-2 bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high rounded-full text-xs font-bold whitespace-nowrap transition-colors">Carpentry</button>
+<button class="px-5 py-2 bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high rounded-full text-xs font-bold whitespace-nowrap transition-colors">Textiles</button>
+<button class="px-5 py-2 bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high rounded-full text-xs font-bold whitespace-nowrap transition-colors">Lighting</button>
+<button class="px-5 py-2 bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high rounded-full text-xs font-bold whitespace-nowrap transition-colors">Stone &amp; Tile</button>
+<button class="px-5 py-2 bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high rounded-full text-xs font-bold whitespace-nowrap transition-colors">Artisans</button>
+</div>
+<!-- Supplier Grid (Editorial Layout) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Supplier Card 1 -->
+<div class="group bg-surface-container-lowest rounded-[2rem] p-8 transition-all hover:shadow-[0_20px_40px_rgba(9,20,38,0.06)] flex flex-col border border-transparent hover:border-outline-variant/10">
+<div class="flex justify-between items-start mb-6">
+<div class="w-16 h-16 rounded-2xl bg-surface-container-low flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="construction site with yellow architectural elements and clean professional gear" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnGHsQFRZT4I-pXpSU03QHSvvdFCKqUeVwG5xMnAvwfc3bdAMQR0eDxT7BZRkKIlow5Sb2iSXOAlHB-tPl7I5ZnQSEozS5T7jJvNka_bKIEEK1BuK8FqWNZ47-urH8v1wup94EFjH6Vr5O3pd8yw8XEy08y0TbGT2HY0oGBCxJcBQYY2c1RTKeR4vhIQ4xMtcNbhKm9esm98mKD3biyVhGI9ZoyySVwuj4HptdU-NpOr0iK-8gns5F5B8I2ji1JqCGTnEGh-v3oaI"/>
+</div>
+<span class="px-3 py-1 bg-secondary-fixed-dim/20 text-secondary font-bold text-[10px] uppercase tracking-widest rounded-full">Contractor</span>
+</div>
+<h3 class="text-xl font-extrabold text-primary mb-1 tracking-tight">Vanguard Build Co.</h3>
+<p class="text-on-surface-variant text-sm mb-6 flex items-center gap-1 font-['Inter']">
+<span class="material-symbols-outlined text-sm">location_on</span> Mayfair, London
+                    </p>
+<div class="space-y-4 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg">call</span>
+</div>
+<span class="text-sm font-semibold">+44 20 7946 0123</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg">mail</span>
+</div>
+<span class="text-sm font-semibold truncate">hello@vanguardbuild.uk</span>
+</div>
+</div>
+<div class="mt-auto pt-6 border-t border-outline-variant/10 flex justify-between items-center">
+<div>
+<p class="text-[10px] uppercase tracking-wider text-on-surface-variant font-bold">Commission</p>
+<p class="text-lg font-black text-secondary">8.5%</p>
+</div>
+<button class="w-12 h-12 rounded-full border border-outline-variant/30 flex items-center justify-center hover:bg-primary hover:text-white transition-all group-hover:border-primary">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Supplier Card 2 -->
+<div class="group bg-surface-container-lowest rounded-[2rem] p-8 transition-all hover:shadow-[0_20px_40px_rgba(9,20,38,0.06)] flex flex-col border border-transparent hover:border-outline-variant/10">
+<div class="flex justify-between items-start mb-6">
+<div class="w-16 h-16 rounded-2xl bg-surface-container-low flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="close up of premium copper electrical wiring and minimalist modern light switches" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMzbtDWsOQVnA-W3MpQAzS3lyCZL7LPYgvJgq37u7zAMJbi0lU_ALAWzSeVmJQ16ZV1mKINNZ4UPk2dQNokvwLRAL3lgaB3ho03sxvun0UtnLifExbKgA0qzf2d5mBBkXQj0nmWTqkZ81CbiH1LtkeiJtDa8lRrFaKDjo4C4rkS28xU3qXUf1GH4oQPVqoJawfy9SP0DbDUyl7hqbKA7s1U1uWhUatEu9l9BvbddXFZhs7pq69ypYLJBNlsEvZooc1loLTrxVkUS4"/>
+</div>
+<span class="px-3 py-1 bg-secondary-fixed-dim/20 text-secondary font-bold text-[10px] uppercase tracking-widest rounded-full">Electrician</span>
+</div>
+<h3 class="text-xl font-extrabold text-primary mb-1 tracking-tight">Volt &amp; Hue</h3>
+<p class="text-on-surface-variant text-sm mb-6 flex items-center gap-1 font-['Inter']">
+<span class="material-symbols-outlined text-sm">location_on</span> Kensington, London
+                    </p>
+<div class="space-y-4 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg">call</span>
+</div>
+<span class="text-sm font-semibold">+44 20 7946 0888</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg">mail</span>
+</div>
+<span class="text-sm font-semibold truncate">projects@volthue.com</span>
+</div>
+</div>
+<div class="mt-auto pt-6 border-t border-outline-variant/10 flex justify-between items-center">
+<div>
+<p class="text-[10px] uppercase tracking-wider text-on-surface-variant font-bold">Commission</p>
+<p class="text-lg font-black text-secondary">5.0%</p>
+</div>
+<button class="w-12 h-12 rounded-full border border-outline-variant/30 flex items-center justify-center hover:bg-primary hover:text-white transition-all group-hover:border-primary">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Supplier Card 3 -->
+<div class="group bg-surface-container-lowest rounded-[2rem] p-8 transition-all hover:shadow-[0_20px_40px_rgba(9,20,38,0.06)] flex flex-col border border-transparent hover:border-outline-variant/10">
+<div class="flex justify-between items-start mb-6">
+<div class="w-16 h-16 rounded-2xl bg-surface-container-low flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="samples of high-end Italian marble and tactile stone tiles on a designer palette" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjf3qlt62DGLCybA6UqC_8OdflvcjoSl-grEuH3w7x15HZKQ3zHjL34GlZ7Tp9vsnY0Mg0BWAjGdAopXXeKX8xC7C_F4XFUwEhQDSLr8eFhgb9EnCaq3QClY2fAxJpyugzlW3h4f9aiKz9_BEWRk-qJdxVRjRWrj_Z6V3c7cCUckDE4jstojHLVIHzpES3Mjyk7wW6ru6ssK9lM7R4r1p9SPn9T0smQV6r8PwbNdLOyeNSG6ZdQVXPYUswedT8OLOQFA1FTlNxy50"/>
+</div>
+<span class="px-3 py-1 bg-secondary-fixed-dim/20 text-secondary font-bold text-[10px] uppercase tracking-widest rounded-full">Stone &amp; Tile</span>
+</div>
+<h3 class="text-xl font-extrabold text-primary mb-1 tracking-tight">Marmi d'Elite</h3>
+<p class="text-on-surface-variant text-sm mb-6 flex items-center gap-1 font-['Inter']">
+<span class="material-symbols-outlined text-sm">location_on</span> Chelsea Design District
+                    </p>
+<div class="space-y-4 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg">call</span>
+</div>
+<span class="text-sm font-semibold">+44 20 7946 0555</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg">mail</span>
+</div>
+<span class="text-sm font-semibold truncate">showroom@marmidelite.it</span>
+</div>
+</div>
+<div class="mt-auto pt-6 border-t border-outline-variant/10 flex justify-between items-center">
+<div>
+<p class="text-[10px] uppercase tracking-wider text-on-surface-variant font-bold">Commission</p>
+<p class="text-lg font-black text-secondary">12.0%</p>
+</div>
+<button class="w-12 h-12 rounded-full border border-outline-variant/30 flex items-center justify-center hover:bg-primary hover:text-white transition-all group-hover:border-primary">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Supplier Card 4 -->
+<div class="group bg-surface-container-lowest rounded-[2rem] p-8 transition-all hover:shadow-[0_20px_40px_rgba(9,20,38,0.06)] flex flex-col border border-transparent hover:border-outline-variant/10">
+<div class="flex justify-between items-start mb-6">
+<div class="w-16 h-16 rounded-2xl bg-surface-container-low flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="fine woodworking workshop with chisels and mahogany wood shavings in warm light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBc32yFWzleb09IWeHzHfzfHVK-HQe7PrOnxLqH3tKPcAcTNnJcC07laSLciXdQBNOqkpl9QfqLheFFx4Sah1Bdu3YXFn_aGLHNf5UaWWR0IP4llR1AQt5_yHQ5bDkPIYeCE5GEGfFIa-6Ernlr6eokGi10MXS-hrbWRUkge6XTLJ0CUWBNNofmXRVYiasl7aV_5P04EqXY-c7OgyXcZjvaBI1WBACNSxn1xaHnL21b01mopwstCrYUtBNhtb9GLO2U8jdbUqe4wAc"/>
+</div>
+<span class="px-3 py-1 bg-secondary-fixed-dim/20 text-secondary font-bold text-[10px] uppercase tracking-widest rounded-full">Carpentry</span>
+</div>
+<h3 class="text-xl font-extrabold text-primary mb-1 tracking-tight">The Grain Atelier</h3>
+<p class="text-on-surface-variant text-sm mb-6 flex items-center gap-1 font-['Inter']">
+<span class="material-symbols-outlined text-sm">location_on</span> Shoreditch, London
+                    </p>
+<div class="space-y-4 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg">call</span>
+</div>
+<span class="text-sm font-semibold">+44 20 7946 0444</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg">mail</span>
+</div>
+<span class="text-sm font-semibold truncate">bespoke@grainatelier.co</span>
+</div>
+</div>
+<div class="mt-auto pt-6 border-t border-outline-variant/10 flex justify-between items-center">
+<div>
+<p class="text-[10px] uppercase tracking-wider text-on-surface-variant font-bold">Commission</p>
+<p class="text-lg font-black text-secondary">7.5%</p>
+</div>
+<button class="w-12 h-12 rounded-full border border-outline-variant/30 flex items-center justify-center hover:bg-primary hover:text-white transition-all group-hover:border-primary">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Supplier Card 5 -->
+<div class="group bg-surface-container-lowest rounded-[2rem] p-8 transition-all hover:shadow-[0_20px_40px_rgba(9,20,38,0.06)] flex flex-col border border-transparent hover:border-outline-variant/10">
+<div class="flex justify-between items-start mb-6">
+<div class="w-16 h-16 rounded-2xl bg-surface-container-low flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="luxurious velvet fabric swatches in deep emerald and navy tones with golden embroidery" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkIkO3TmCmcKIkpiAAPO0ssby7VKORcSVhCamlSo4wzUMQgu_BGKAJd2hz_MlsSoAx62yELylNtEWcG397eA8q4MNFp1ntoVmgjZzqWhM64gODfrrVhubA6U1T96SbkG9JBHkyK8SLY1gZ0SnC0y_fLyrtf-tsTTQQktEUEuYASDYus2TZjQAx3x28oS7K-C2a8ultuv0oe-riuivHfcdNkRvSw3oQAH-jvnEXiNX-mGg9EeDIBt00zJz6HeUwpQFlPcUoy_Kh9wc"/>
+</div>
+<span class="px-3 py-1 bg-secondary-fixed-dim/20 text-secondary font-bold text-[10px] uppercase tracking-widest rounded-full">Textiles</span>
+</div>
+<h3 class="text-xl font-extrabold text-primary mb-1 tracking-tight">Velvet &amp; Vine</h3>
+<p class="text-on-surface-variant text-sm mb-6 flex items-center gap-1 font-['Inter']">
+<span class="material-symbols-outlined text-sm">location_on</span> Belgravia, London
+                    </p>
+<div class="space-y-4 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg">call</span>
+</div>
+<span class="text-sm font-semibold">+44 20 7946 0999</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg">mail</span>
+</div>
+<span class="text-sm font-semibold truncate">orders@velvetvine.com</span>
+</div>
+</div>
+<div class="mt-auto pt-6 border-t border-outline-variant/10 flex justify-between items-center">
+<div>
+<p class="text-[10px] uppercase tracking-wider text-on-surface-variant font-bold">Commission</p>
+<p class="text-lg font-black text-secondary">15.0%</p>
+</div>
+<button class="w-12 h-12 rounded-full border border-outline-variant/30 flex items-center justify-center hover:bg-primary hover:text-white transition-all group-hover:border-primary">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Supplier Card 6 (Empty/Add New State Concept) -->
+<div class="group bg-surface-container-low border-2 border-dashed border-outline-variant/40 rounded-[2rem] p-8 flex flex-col items-center justify-center text-center hover:bg-surface-container-high hover:border-secondary transition-all cursor-pointer">
+<div class="w-16 h-16 rounded-full bg-white flex items-center justify-center mb-4 shadow-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl text-secondary">add</span>
+</div>
+<h3 class="text-lg font-bold text-primary tracking-tight">Expand Your Network</h3>
+<p class="text-on-surface-variant text-sm mt-1 max-w-[180px]">Add a new trusted supplier to your private directory.</p>
+</div>
+</div>
+<!-- Footer Stats (Tonal Layering) -->
+<div class="mt-16 grid grid-cols-1 md:grid-cols-4 gap-4">
+<div class="bg-white p-6 rounded-2xl">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Total Suppliers</p>
+<h4 class="text-2xl font-black text-primary">124</h4>
+</div>
+<div class="bg-white p-6 rounded-2xl">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Active Projects</p>
+<h4 class="text-2xl font-black text-primary">38</h4>
+</div>
+<div class="bg-white p-6 rounded-2xl">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Avg. Commission</p>
+<h4 class="text-2xl font-black text-secondary">9.2%</h4>
+</div>
+<div class="bg-white p-6 rounded-2xl">
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold mb-1">Pending Verification</p>
+<h4 class="text-2xl font-black text-primary">12</h4>
+</div>
+</div>
+</div>
+</main>
+</body></html>

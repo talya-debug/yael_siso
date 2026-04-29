@@ -1,42 +1,82 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { supabase } from './lib/supabase'
-import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import PublicWorkLog from './pages/PublicWorkLog'
+import SignaturePage from './pages/SignaturePage'
+import Login from './pages/Login'
 
 function App() {
-  const [session, setSession] = useState(null)
+  const [user, setUser] = useState(null)
+  const [userRole, setUserRole] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // בדיקת מצב כניסה
+    // Check existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setLoading(false)
+      if (session?.user) {
+        setUser(session.user)
+        loadRole(session.user.email)
+      } else {
+        setLoading(false)
+      }
     })
 
-    // האזנה לשינויים בסטטוס כניסה
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setUser(session.user)
+        loadRole(session.user.email)
+      } else {
+        setUser(null)
+        setUserRole(null)
+      }
     })
 
     return () => subscription.unsubscribe()
   }, [])
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="text-gray-500 text-lg">טוען...</div>
-    </div>
-  )
+  async function loadRole(email) {
+    const { data, error } = await supabase.from('user_roles').select('role, name').eq('email', email).maybeSingle()
+    // If table doesn't exist or no row found, default to admin
+    setUserRole(data || { role: 'admin', name: email.split('@')[0] })
+    setLoading(false)
+  }
+
+  async function handleLogin(u) {
+    setUser(u)
+    await loadRole(u.email)
+  }
+
+  async function handleLogout() {
+    await supabase.auth.signOut()
+    setUser(null)
+    setUserRole(null)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#091426] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#B8960B] border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   return (
     <BrowserRouter>
       <Routes>
-        {/* דף ציבורי — ללא התחברות */}
+        {/* Public pages — no auth */}
         <Route path="/worklog-public" element={<PublicWorkLog />} />
-        <Route path="/login" element={!session ? <Login /> : <Navigate to="/" />} />
-        <Route path="/*" element={session ? <Dashboard session={session} /> : <Navigate to="/login" />} />
+        <Route path="/sign/:token" element={<SignaturePage />} />
+
+        {/* Protected pages */}
+        <Route path="/*" element={
+          user ? (
+            <Dashboard userRole={userRole} onLogout={handleLogout} />
+          ) : (
+            <Login onLogin={handleLogin} />
+          )
+        } />
       </Routes>
     </BrowserRouter>
   )

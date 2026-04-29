@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { supabase } from '../lib/supabase'
-import { LayoutDashboard, Users, FolderKanban, Boxes, Wallet, CalendarDays, BookOpen, LogOut, BookUser, Receipt, FileBarChart, BarChart3 } from 'lucide-react'
+import { LayoutDashboard, Users, FolderKanban, Boxes, Wallet, CalendarDays, BookOpen, BookUser, Receipt, FileBarChart, BarChart3, Bell, LogOut, Menu, X } from 'lucide-react'
 import Home from './Home'
 import Clients from './Clients'
 import Projects from './Projects'
@@ -13,33 +12,43 @@ import SupplierBilling from './SupplierBilling'
 import MonthlyReport from './MonthlyReport'
 import FinanceDashboard from './FinanceDashboard'
 
-const modules = [
-  { id: 'home',             label: 'דשבורד',        Icon: LayoutDashboard },
-  { id: 'clients',          label: 'לקוחות',        Icon: Users },
-  { id: 'projects',         label: 'פרויקטים',      Icon: FolderKanban },
-  { id: 'contents',         label: 'תכולות',        Icon: Boxes },
-  { id: 'billing',          label: 'גבייה מלקוחות', Icon: Wallet },
-  { id: 'supplierbilling',  label: 'גבייה מספקים',  Icon: Receipt },
-  { id: 'suppliers',        label: 'ספר ספקים',     Icon: BookUser },
-  { id: 'monthlyreport',    label: 'דוח חודשי',     Icon: FileBarChart },
-  { id: 'financedashboard', label: 'דשבורד ניהולי', Icon: BarChart3 },
-  { id: 'worklog',          label: 'יומן עבודה',    Icon: CalendarDays },
-  { id: 'knowledge',        label: 'ריכוז ידע',     Icon: BookOpen },
+// admin = sees everything, team = limited
+const allModules = [
+  { id: 'home',             label: 'Dashboard',          Icon: LayoutDashboard, access: 'all' },
+  { id: 'clients',          label: 'Clients',             Icon: Users,           access: 'admin' },
+  { id: 'projects',         label: 'Projects',            Icon: FolderKanban,    access: 'all' },
+  { id: 'billing',          label: 'Client Billing',      Icon: Wallet,          access: 'admin' },
+  { id: 'supplierbilling',  label: 'Supplier Billing',    Icon: Receipt,         access: 'admin' },
+  { id: 'suppliers',        label: 'Supplier Directory',  Icon: BookUser,        access: 'all' },
+  { id: 'monthlyreport',    label: 'Monthly Report',      Icon: FileBarChart,    access: 'admin' },
+  { id: 'financedashboard', label: 'Finance Dashboard',   Icon: BarChart3,       access: 'admin' },
+  { id: 'worklog',          label: 'Work Log',            Icon: CalendarDays,    access: 'all' },
+  { id: 'knowledge',        label: 'Knowledge Base',      Icon: BookOpen,        access: 'all' },
+  { id: 'contents',         label: 'Scope Templates',     Icon: Boxes,           access: 'admin' },
 ]
 
-export default function Dashboard({ session }) {
+export default function Dashboard({ userRole, onLogout }) {
+  const isAdmin = userRole?.role === 'admin'
+  const modules = allModules.filter(m => m.access === 'all' || isAdmin)
+  const userName = userRole?.name || 'User'
+  const initials = userName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase()
+
   const [active, setActive] = useState('home')
-  const handleLogout = () => supabase.auth.signOut()
-  const initials = session.user.email?.charAt(0).toUpperCase() || '?'
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const renderPage = () => {
+    // Block non-admin from admin pages
+    if (!isAdmin && allModules.find(m => m.id === active)?.access === 'admin') {
+      setActive('home')
+      return <Home onNavigate={setActive} />
+    }
     switch (active) {
       case 'home':      return <Home onNavigate={setActive} />
       case 'clients':   return <Clients />
       case 'projects':  return <Projects />
       case 'contents':  return <Contents />
       case 'billing':    return <Billing />
-      case 'suppliers':       return <Suppliers />
+      case 'suppliers':       return <Suppliers isAdmin={isAdmin} />
       case 'supplierbilling': return <SupplierBilling />
       case 'monthlyreport':   return <MonthlyReport />
       case 'financedashboard': return <FinanceDashboard />
@@ -50,54 +59,79 @@ export default function Dashboard({ session }) {
   }
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden" dir="rtl">
+    <div className="flex h-screen bg-[#F9F9F9] overflow-hidden" dir="ltr">
+
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />
+      )}
 
       {/* Sidebar */}
-      <aside className="w-60 bg-slate-900 flex flex-col shrink-0">
-        {/* לוגו */}
-        <div className="px-5 py-5 border-b border-slate-700/50">
+      <aside className={`w-60 bg-[#091426] flex flex-col shrink-0 fixed inset-y-0 left-0 z-50 transform transition-transform duration-200 md:relative md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="px-6 py-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center font-bold text-white text-sm">M</div>
-            <span className="text-white font-semibold text-lg tracking-tight">Motiv</span>
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#7B5800] to-[#B8960B] flex items-center justify-center">
+              <span className="text-white font-bold text-sm font-[Manrope]">YS</span>
+            </div>
+            <div>
+              <h1 className="text-white font-bold text-sm font-[Manrope] tracking-tight">Yael Siso</h1>
+              <p className="text-[#6B7A90] text-[10px] font-medium tracking-widest uppercase">Interior Design</p>
+            </div>
           </div>
         </div>
 
-        {/* ניווט */}
-        <nav className="flex-1 px-3 py-4 space-y-0.5">
+        <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-auto" role="navigation" aria-label="Main navigation">
           {modules.map(({ id, label, Icon }) => (
-            <button key={id} onClick={() => setActive(id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
+            <button key={id} onClick={() => { setActive(id); setSidebarOpen(false) }}
+              aria-current={active === id ? 'page' : undefined}
+              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 ${
                 active === id
-                  ? 'bg-indigo-600 text-white font-medium'
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-[#1E293B] text-white shadow-lg shadow-black/20'
+                  : 'text-[#6B7A90] hover:bg-[#0F1D32] hover:text-[#A0B0C4]'
               }`}>
-              <Icon size={16} className="shrink-0" />
+              <Icon size={17} strokeWidth={1.8} className="shrink-0" />
               <span>{label}</span>
+              {active === id && (
+                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#B8960B]" />
+              )}
             </button>
           ))}
         </nav>
 
-        {/* משתמש */}
-        <div className="px-4 py-4 border-t border-slate-700/50">
+        {/* User footer */}
+        <div className="px-4 py-4 border-t border-[#1E293B]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
-              {initials}
+            <div className="w-9 h-9 rounded-full bg-[#1E293B] flex items-center justify-center">
+              <span className="text-[#B8960B] text-xs font-bold font-[Manrope]">{initials}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-white truncate">{session.user.email}</p>
-              <p className="text-xs text-slate-400">מנהל</p>
+              <p className="text-white text-sm font-medium truncate">{userName}</p>
+              <p className="text-[#6B7A90] text-[10px] tracking-wider uppercase">{isAdmin ? 'Admin' : 'Team'}</p>
             </div>
-            <button onClick={handleLogout} title="יציאה"
-              className="text-slate-500 hover:text-red-400 transition p-1 rounded-lg hover:bg-slate-800">
-              <LogOut size={14} />
+            <button onClick={onLogout} className="text-[#6B7A90] hover:text-white p-1.5 rounded-lg hover:bg-[#1E293B] transition" title="Sign Out">
+              <LogOut size={15} strokeWidth={1.8} />
             </button>
           </div>
         </div>
       </aside>
 
-      {/* תוכן */}
-      <main className="flex-1 overflow-auto">
-        <div className="p-8 max-w-6xl">
+      <main className="flex-1 overflow-auto" role="main">
+        <div className="sticky top-0 z-10 bg-[#F9F9F9]/80 backdrop-blur-xl px-4 md:px-8 py-3 md:py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setSidebarOpen(true)} className="md:hidden w-9 h-9 rounded-xl bg-white hover:bg-[#F3F3F3] flex items-center justify-center transition-colors" aria-label="Open menu">
+              <Menu size={18} className="text-[#091426]" />
+            </button>
+            <p className="text-[11px] font-semibold text-[#7B5800] tracking-widest uppercase font-[Manrope]">
+              {modules.find(m => m.id === active)?.label || 'Dashboard'}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button className="w-9 h-9 rounded-xl bg-white hover:bg-[#F3F3F3] flex items-center justify-center transition-colors" aria-label="Notifications">
+              <Bell size={16} className="text-[#6B7A90]" />
+            </button>
+          </div>
+        </div>
+        <div className="px-4 md:px-8 pb-8 max-w-6xl">
           {renderPage()}
         </div>
       </main>

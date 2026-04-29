@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#e1dfff",
+                        "surface-container-low": "#f3f3f3",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed": "#111c2d",
+                        "inverse-on-surface": "#f0f1f1",
+                        "surface": "#f9f9f9",
+                        "secondary": "#7b5800",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#75777d",
+                        "tertiary-container": "#100092",
+                        "secondary-fixed-dim": "#f7bd48",
+                        "on-secondary-fixed": "#271900",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#bcc7de",
+                        "on-surface": "#1a1c1c",
+                        "on-background": "#1a1c1c",
+                        "secondary-fixed": "#ffdea6",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed-variant": "#3c475a",
+                        "surface-bright": "#f9f9f9",
+                        "primary-fixed": "#d8e3fb",
+                        "on-tertiary-container": "#8082ff",
+                        "on-surface-variant": "#45474c",
+                        "secondary-container": "#fdc34d",
+                        "inverse-surface": "#2f3131",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed-variant": "#5d4200",
+                        "on-tertiary-fixed-variant": "#2c24ce",
+                        "primary": "#091426",
+                        "tertiary-fixed-dim": "#c1c1ff",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#1e293b",
+                        "outline-variant": "#c5c6cd",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-primary-container": "#8590a6",
+                        "tertiary": "#060056",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#545f73",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed": "#09006b",
+                        "surface-container-high": "#e8e8e8",
+                        "primary-fixed-dim": "#bcc7de",
+                        "surface-dim": "#dadada",
+                        "surface-container": "#eeeeee",
+                        "surface-variant": "#e2e2e2",
+                        "on-secondary-container": "#715000",
+                        "background": "#f9f9f9"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e2e2; border-radius: 10px; }
+        .glass-header {
+            background: rgba(249, 249, 249, 0.8);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface">
+<!-- SideNavBar Component -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-[#091426] shadow-2xl flex flex-col py-8 px-4 overflow-y-auto z-50">
+<div class="flex items-center gap-3 mb-10 px-2">
+<div class="w-10 h-10 bg-secondary flex items-center justify-center rounded-xl">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">vignette</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tighter text-white">The Studio</h1>
+<p class="text-[10px] text-on-primary-container font-label uppercase tracking-widest">Interior Excellence</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Nav Item: Dashboard -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-medium font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<!-- Nav Item: Clients -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-medium font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined">group</span>
+                Clients
+            </a>
+<!-- Nav Item: Projects -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-medium font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined">architecture</span>
+                Projects
+            </a>
+<!-- Nav Item: Scope Templates -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-medium font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined">tactic</span>
+                Scope Templates
+            </a>
+<!-- Nav Item: Client Billing -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-medium font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+                Client Billing
+            </a>
+<!-- Nav Item: Supplier Billing -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-medium font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined">payments</span>
+                Supplier Billing
+            </a>
+<!-- Nav Item: Supplier Directory -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-medium font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined">store</span>
+                Supplier Directory
+            </a>
+<!-- Nav Item: Monthly Report (ACTIVE) -->
+<a class="flex items-center gap-3 px-4 py-3 text-white bg-[#1E293B] rounded-xl font-bold font-['Manrope'] text-sm tracking-tight scale-[1.02]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+                Monthly Report
+            </a>
+<!-- Nav Item: Finance Dashboard -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-medium font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined">payments</span>
+                Finance Dashboard
+            </a>
+<!-- Nav Item: Work Log -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-medium font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined">history_edu</span>
+                Work Log
+            </a>
+<!-- Nav Item: Knowledge Base -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-medium font-['Manrope'] text-sm tracking-tight" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+                Knowledge Base
+            </a>
+</nav>
+<div class="mt-auto pt-6 border-t border-slate-800/50">
+<div class="flex items-center gap-3 px-2">
+<div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-400 text-sm">person</span>
+</div>
+<div class="flex-1 overflow-hidden">
+<p class="text-white text-xs font-bold truncate">Julianne Vane</p>
+<p class="text-slate-500 text-[10px] truncate">Principal Architect</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- TopNavBar Component -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-[#F9F9F9]/80 backdrop-blur-xl z-40 flex justify-between items-center px-8">
+<div class="flex items-center gap-6 flex-1">
+<div class="relative w-full max-w-md group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg transition-colors group-focus-within:text-secondary">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-sm font-['Manrope'] focus:ring-1 focus:ring-secondary/20 transition-all placeholder:text-slate-400" placeholder="Search project reports..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center text-slate-600 hover:text-[#7B5800] transition-colors hover:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center text-slate-600 hover:text-[#7B5800] transition-colors hover:scale-95">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant/30 mx-2"></div>
+<img alt="User Profile" class="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm" data-alt="professional portrait of a confident woman architect with soft studio lighting and clean neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdkED6kd_hh1saqlDsyLEHjW4r2EDXM_8N9jusJKZFOwboN3_jGhP3dF5NQqDmgkubi4MwvZSzZLBNSpyN0eTQz_ixhmfqPXxEn-hvXG_uDug5jxjWk49fVXvpiH-Of3sT0ksd6O9E-S7FXF_VthKgWQym5m9pWdKwbbyncAWIHw1DwPe1pX5PUY8O4_DNrqdB96sShm339_--RYaO46awPIP7k2lTvmjIpFn-JUPWW_1YtFmbsktshLFhy8hImLYV8Qzy45iY6r0"/>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="ml-64 pt-24 px-8 pb-12">
+<!-- Report Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+<div>
+<nav class="flex items-center gap-2 text-[10px] font-label font-semibold text-on-surface-variant uppercase tracking-[0.2em] mb-4">
+<span>Performance Analytics</span>
+<span class="material-symbols-outlined text-[10px]">chevron_right</span>
+<span class="text-secondary">Monthly Status</span>
+</nav>
+<h2 class="text-4xl font-extrabold tracking-tighter text-primary mb-2">Monthly Status Report</h2>
+<p class="text-on-surface-variant max-w-lg leading-relaxed">A detailed overview of project momentum, milestone completion, and financial allocation for the current period.</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex flex-col gap-1">
+<label class="label-sm text-[10px] font-bold text-on-surface-variant uppercase ml-2">Selected Project</label>
+<div class="relative">
+<select class="appearance-none bg-surface-container-low border-none rounded-xl py-3 pl-4 pr-12 text-sm font-semibold text-primary focus:ring-1 focus:ring-secondary/20 cursor-pointer w-64">
+<option>The Kensington Residence</option>
+<option>Soho Loft Revitalization</option>
+<option>Malibu Coastal Retreat</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="label-sm text-[10px] font-bold text-on-surface-variant uppercase ml-2">Period</label>
+<div class="relative">
+<select class="appearance-none bg-surface-container-low border-none rounded-xl py-3 pl-4 pr-12 text-sm font-semibold text-primary focus:ring-1 focus:ring-secondary/20 cursor-pointer">
+<option>October 2023</option>
+<option>September 2023</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">calendar_month</span>
+</div>
+</div>
+<button class="bg-primary hover:scale-[1.02] active:scale-95 transition-all text-white h-[46px] mt-auto px-6 rounded-xl font-bold flex items-center gap-2 shadow-xl shadow-primary/10">
+<span class="material-symbols-outlined text-sm">mail</span>
+                    Email Report
+                </button>
+</div>
+</div>
+<!-- Bento Grid Content -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Project Progress Summary Card -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container-lowest rounded-[2rem] p-8 shadow-sm flex flex-col justify-between min-h-[400px]">
+<div class="flex justify-between items-start mb-8">
+<div>
+<h3 class="text-xl font-extrabold tracking-tight text-primary">Progress Architecture</h3>
+<p class="text-sm text-on-surface-variant">Real-time completion tracking against project timeline.</p>
+</div>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-secondary-fixed-dim text-on-secondary-fixed text-[10px] font-bold rounded-full uppercase tracking-wider">In Construction</span>
+<span class="px-3 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded-full uppercase tracking-wider">Phase 4 of 6</span>
+</div>
+</div>
+<div class="space-y-8 flex-1">
+<!-- Progress Bar 1 -->
+<div>
+<div class="flex justify-between items-end mb-3">
+<div>
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Architectural Detailing</p>
+<p class="text-lg font-bold text-primary tracking-tight">On Schedule</p>
+</div>
+<span class="text-2xl font-black text-secondary">85%</span>
+</div>
+<div class="h-2 w-full bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all" style="width: 85%;"></div>
+</div>
+</div>
+<!-- Progress Bar 2 -->
+<div>
+<div class="flex justify-between items-end mb-3">
+<div>
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Procurement &amp; Sourcing</p>
+<p class="text-lg font-bold text-primary tracking-tight">Advancing</p>
+</div>
+<span class="text-2xl font-black text-secondary">62%</span>
+</div>
+<div class="h-2 w-full bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all" style="width: 62%;"></div>
+</div>
+</div>
+<!-- Progress Bar 3 -->
+<div>
+<div class="flex justify-between items-end mb-3">
+<div>
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Site Installation</p>
+<p class="text-lg font-bold text-primary tracking-tight">Commenced</p>
+</div>
+<span class="text-2xl font-black text-secondary">24%</span>
+</div>
+<div class="h-2 w-full bg-surface-container-low rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all" style="width: 24%;"></div>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-8 border-t border-outline-variant/10 flex items-center justify-between text-on-surface-variant italic text-sm">
+<span>"The millwork installation has progressed ahead of schedule this month."</span>
+<a class="text-secondary font-bold not-italic hover:underline" href="#">View Site Photos</a>
+</div>
+</div>
+<!-- Financial Summary Card -->
+<div class="col-span-12 lg:col-span-4 bg-primary text-white rounded-[2rem] p-8 shadow-2xl flex flex-col">
+<div class="mb-10">
+<h3 class="text-xl font-bold tracking-tight text-white mb-1">Financial Allocation</h3>
+<p class="text-on-primary-container text-xs">Supplier expenditure for October 2023</p>
+</div>
+<div class="flex-1 space-y-6">
+<div class="flex items-center justify-between group">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-secondary transition-colors">
+<span class="material-symbols-outlined text-white/70 group-hover:text-white">chair</span>
+</div>
+<div>
+<p class="text-xs text-on-primary-container font-semibold uppercase tracking-widest">FF&amp;E Suppliers</p>
+<p class="font-bold text-white tracking-tight">Vitra, B&amp;B Italia</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-white">$42,800</p>
+<p class="text-[10px] text-green-400 font-bold uppercase">Settled</p>
+</div>
+</div>
+<div class="flex items-center justify-between group">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-secondary transition-colors">
+<span class="material-symbols-outlined text-white/70 group-hover:text-white">construction</span>
+</div>
+<div>
+<p class="text-xs text-on-primary-container font-semibold uppercase tracking-widest">Main Contractor</p>
+<p class="font-bold text-white tracking-tight">Empire Refurbs</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-white">$115,000</p>
+<p class="text-[10px] text-secondary-fixed-dim font-bold uppercase">Pending</p>
+</div>
+</div>
+<div class="flex items-center justify-between group">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-secondary transition-colors">
+<span class="material-symbols-outlined text-white/70 group-hover:text-white">palette</span>
+</div>
+<div>
+<p class="text-xs text-on-primary-container font-semibold uppercase tracking-widest">Finishes &amp; Art</p>
+<p class="font-bold text-white tracking-tight">The Modern Gallery</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-white">$12,450</p>
+<p class="text-[10px] text-green-400 font-bold uppercase">Settled</p>
+</div>
+</div>
+</div>
+<div class="mt-auto bg-white/5 rounded-2xl p-6 border border-white/10">
+<p class="text-[10px] font-bold text-on-primary-container uppercase tracking-widest mb-1">Total Monthly Spend</p>
+<div class="flex items-end gap-2">
+<p class="text-3xl font-black text-white">$170,250</p>
+<span class="text-secondary font-bold text-sm mb-1">+12% vs last month</span>
+</div>
+</div>
+</div>
+<!-- Milestone Breakdown -->
+<div class="col-span-12 bg-surface-container-low rounded-[2rem] p-10 overflow-hidden relative">
+<div class="absolute -right-20 -top-20 w-64 h-64 bg-secondary/5 rounded-full blur-3xl"></div>
+<div class="relative z-10">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h3 class="text-2xl font-extrabold tracking-tight text-primary">Milestone Performance</h3>
+<p class="text-sm text-on-surface-variant">Comparing estimated vs. actual delivery timelines.</p>
+</div>
+<button class="text-secondary font-bold flex items-center gap-2 hover:translate-x-1 transition-transform">
+                            Full Timeline Detail
+                            <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+<div class="bg-surface-container-lowest p-6 rounded-2xl border-b-2 border-primary">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Phase 1: Design</p>
+<p class="text-lg font-extrabold text-primary mb-1 italic">Complete</p>
+<p class="text-xs text-slate-500">Delivered on June 12</p>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-2xl border-b-2 border-primary">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">Phase 2: Permits</p>
+<p class="text-lg font-extrabold text-primary mb-1 italic">Complete</p>
+<p class="text-xs text-slate-500">Delivered on July 28</p>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-2xl border-b-2 border-secondary shadow-lg shadow-secondary/5">
+<p class="text-[10px] font-bold text-secondary uppercase tracking-widest mb-2">Phase 3: Sourcing</p>
+<p class="text-lg font-extrabold text-primary mb-1 italic">Active</p>
+<p class="text-xs text-slate-500">Est. completion Nov 05</p>
+</div>
+<div class="bg-surface-container-lowest/50 p-6 rounded-2xl border-b-2 border-slate-200">
+<p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Phase 4: Build</p>
+<p class="text-lg font-extrabold text-slate-300 mb-1 italic">Queued</p>
+<p class="text-xs text-slate-400">Scheduled for Jan 2024</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Visual Insight Card -->
+<div class="col-span-12 md:col-span-6 bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-sm flex group">
+<div class="w-1/2 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" data-alt="minimalist modern living room with deep green velvet sofas, large windows, and architecturally precise lighting during sunset" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnBtgmveiXrZkT3gSQ2tCe01euoYgw55dqZaPtCwL3PSTaMBEkQ1atuzGIOh2osWxAnj6eg3YwxBU-kdsTj6J71nYRxtv-F93hpK-tnlj4ii4yIxRIVvGFAWvjeR-Xqrb16v0hBV1Mn1Oh19BO1__wYQCn-o0W36AxsYyau9rBLnAPNCXzdsWvyA7uVhdsD38MnulYiIt1lEr73VZzRJ3M4NZZwx7-xuFv43cVfW9Q8pBwmUMdpvIBKlA3cIgQQlb7OLm5QeUS38E"/>
+</div>
+<div class="w-1/2 p-8 flex flex-col justify-center">
+<span class="material-symbols-outlined text-secondary mb-4">auto_awesome</span>
+<h4 class="text-xl font-extrabold tracking-tight text-primary mb-3">Sourcing Update</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed mb-6">"The custom walnut cabinetry for the primary suite has entered the final finishing stage in our workshop."</p>
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-secondary-fixed"></div>
+<div class="w-6 h-6 rounded-full bg-primary-container"></div>
+<div class="w-6 h-6 rounded-full bg-outline-variant"></div>
+<span class="text-[10px] font-bold text-on-surface-variant uppercase ml-2 tracking-widest">Master Palette</span>
+</div>
+</div>
+</div>
+<!-- Activity Log / Recent Payments -->
+<div class="col-span-12 md:col-span-6 bg-surface-container-lowest rounded-[2rem] p-8 shadow-sm">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-xl font-extrabold tracking-tight text-primary">Recent Transactions</h3>
+<button class="w-8 h-8 rounded-full hover:bg-surface-container-low transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-400">more_horiz</span>
+</button>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-4 rounded-2xl hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center">
+<span class="material-symbols-outlined text-green-600 text-sm">check_circle</span>
+</div>
+<div>
+<p class="text-sm font-bold text-primary">Stone Surfaces Inc.</p>
+<p class="text-[10px] text-slate-400 uppercase font-bold">Kitchen Marble Deposit</p>
+</div>
+</div>
+<p class="font-bold text-primary text-sm">$8,200.00</p>
+</div>
+<div class="flex items-center justify-between p-4 rounded-2xl hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+<span class="material-symbols-outlined text-blue-600 text-sm">schedule</span>
+</div>
+<div>
+<p class="text-sm font-bold text-primary">Artisan Lighting Co.</p>
+<p class="text-[10px] text-slate-400 uppercase font-bold">Custom Chandelier Bal.</p>
+</div>
+</div>
+<p class="font-bold text-primary text-sm">$4,550.00</p>
+</div>
+<div class="flex items-center justify-between p-4 rounded-2xl hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center">
+<span class="material-symbols-outlined text-green-600 text-sm">check_circle</span>
+</div>
+<div>
+<p class="text-sm font-bold text-primary">European Textiles</p>
+<p class="text-[10px] text-slate-400 uppercase font-bold">Drapery Material Ship.</p>
+</div>
+</div>
+<p class="font-bold text-primary text-sm">$2,100.00</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

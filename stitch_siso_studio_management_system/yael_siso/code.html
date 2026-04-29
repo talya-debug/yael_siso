@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="he"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>גבייה מלקוחות | The Curated Canvas</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed-dim": "#bcc7de",
+                    "secondary": "#545f73",
+                    "inverse-surface": "#2f3131",
+                    "on-tertiary-fixed": "#09006b",
+                    "tertiary-fixed": "#e1dfff",
+                    "surface-container-highest": "#e2e2e2",
+                    "error": "#ba1a1a",
+                    "primary": "#785600",
+                    "secondary-fixed": "#d8e3fb",
+                    "on-error": "#ffffff",
+                    "surface-container": "#eeeeee",
+                    "error-container": "#ffdad6",
+                    "tertiary-container": "#5f5ffd",
+                    "surface-dim": "#dadada",
+                    "surface-container-low": "#f3f3f3",
+                    "surface-container-lowest": "#ffffff",
+                    "outline-variant": "#d3c4af",
+                    "on-tertiary-fixed-variant": "#2c24ce",
+                    "tertiary-fixed-dim": "#c1c1ff",
+                    "on-tertiary-container": "#fffbff",
+                    "on-primary-fixed": "#271900",
+                    "inverse-on-surface": "#f0f1f1",
+                    "primary-container": "#986d00",
+                    "background": "#f9f9f9",
+                    "surface-tint": "#7b5800",
+                    "on-secondary-fixed-variant": "#3c475a",
+                    "on-primary-fixed-variant": "#5d4200",
+                    "surface-bright": "#f9f9f9",
+                    "tertiary": "#4442e3",
+                    "surface-container-high": "#e8e8e8",
+                    "secondary-container": "#d5e0f8",
+                    "on-background": "#1a1c1c",
+                    "inverse-primary": "#f7bd48",
+                    "on-surface-variant": "#4f4535",
+                    "on-tertiary": "#ffffff",
+                    "on-surface": "#1a1c1c",
+                    "on-secondary-container": "#586377",
+                    "outline": "#817563",
+                    "surface": "#f9f9f9",
+                    "on-primary-container": "#fffbff",
+                    "on-primary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "primary-fixed": "#ffdea6",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-fixed": "#111c2d",
+                    "primary-fixed-dim": "#f7bd48",
+                    "surface-variant": "#e2e2e2"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "2xl": "1.5rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .nav-item { font-family: 'Manrope', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body overflow-x-hidden">
+<!-- SideNavBar (Authority Source: JSON) -->
+<aside class="bg-[#1E293B] dark:bg-[#0F172A] h-full w-72 fixed right-0 top-0 z-40 shadow-2xl flex flex-col h-full rtl">
+<div class="px-8 py-10">
+<h1 class="text-xl font-bold text-[#B8860B] tracking-widest uppercase">The Atelier</h1>
+<p class="text-slate-400 text-xs mt-1 font-headline tracking-wide">Interior Design Pro</p>
+</div>
+<nav class="flex-1 overflow-y-auto no-scrollbar py-4 font-['Manrope'] font-medium tracking-wide text-sm">
+<!-- Dashboard -->
+<a class="text-slate-400 hover:text-white py-3 pr-6 flex flex-row-reverse items-center gap-3 transition-colors hover:bg-white/5 transition-all duration-300 scale-100 active:scale-95 transition-transform" href="#">
+<span>Dashboard</span>
+<span class="material-symbols-outlined">dashboard</span>
+</a>
+<!-- Clients -->
+<a class="text-slate-400 hover:text-white py-3 pr-6 flex flex-row-reverse items-center gap-3 transition-colors hover:bg-white/5 transition-all duration-300 scale-100 active:scale-95 transition-transform" href="#">
+<span>Clients</span>
+<span class="material-symbols-outlined">group</span>
+</a>
+<!-- Projects -->
+<a class="text-slate-400 hover:text-white py-3 pr-6 flex flex-row-reverse items-center gap-3 transition-colors hover:bg-white/5 transition-all duration-300 scale-100 active:scale-95 transition-transform" href="#">
+<span>Projects</span>
+<span class="material-symbols-outlined">architecture</span>
+</a>
+<!-- Scope -->
+<a class="text-slate-400 hover:text-white py-3 pr-6 flex flex-row-reverse items-center gap-3 transition-colors hover:bg-white/5 transition-all duration-300 scale-100 active:scale-95 transition-transform" href="#">
+<span>Scope</span>
+<span class="material-symbols-outlined">list_alt</span>
+</a>
+<!-- Client Billing (Active) -->
+<a class="bg-[#f9f9f9] text-[#1a1c1c] rounded-l-full ml-4 py-3 pr-6 flex flex-row-reverse items-center gap-3 scale-100 active:scale-95 transition-transform shadow-lg" href="#">
+<span>Client Billing</span>
+<span class="material-symbols-outlined filled-icon" style="font-variation-settings: 'FILL' 1;">payments</span>
+</a>
+<!-- Supplier Billing -->
+<a class="text-slate-400 hover:text-white py-3 pr-6 flex flex-row-reverse items-center gap-3 transition-colors hover:bg-white/5 transition-all duration-300 scale-100 active:scale-95 transition-transform" href="#">
+<span>Supplier Billing</span>
+<span class="material-symbols-outlined">receipt_long</span>
+</a>
+<!-- Supplier Directory -->
+<a class="text-slate-400 hover:text-white py-3 pr-6 flex flex-row-reverse items-center gap-3 transition-colors hover:bg-white/5 transition-all duration-300 scale-100 active:scale-95 transition-transform" href="#">
+<span>Supplier Directory</span>
+<span class="material-symbols-outlined">factory</span>
+</a>
+<!-- Monthly Report -->
+<a class="text-slate-400 hover:text-white py-3 pr-6 flex flex-row-reverse items-center gap-3 transition-colors hover:bg-white/5 transition-all duration-300 scale-100 active:scale-95 transition-transform" href="#">
+<span>Monthly Report</span>
+<span class="material-symbols-outlined">assessment</span>
+</a>
+<!-- Finance Dashboard -->
+<a class="text-slate-400 hover:text-white py-3 pr-6 flex flex-row-reverse items-center gap-3 transition-colors hover:bg-white/5 transition-all duration-300 scale-100 active:scale-95 transition-transform" href="#">
+<span>Finance Dashboard</span>
+<span class="material-symbols-outlined">query_stats</span>
+</a>
+<!-- Work Log -->
+<a class="text-slate-400 hover:text-white py-3 pr-6 flex flex-row-reverse items-center gap-3 transition-colors hover:bg-white/5 transition-all duration-300 scale-100 active:scale-95 transition-transform" href="#">
+<span>Work Log</span>
+<span class="material-symbols-outlined">history_edu</span>
+</a>
+<!-- Knowledge Base -->
+<a class="text-slate-400 hover:text-white py-3 pr-6 flex flex-row-reverse items-center gap-3 transition-colors hover:bg-white/5 transition-all duration-300 scale-100 active:scale-95 transition-transform" href="#">
+<span>Knowledge Base</span>
+<span class="material-symbols-outlined">menu_book</span>
+</a>
+</nav>
+<div class="p-8 mt-auto flex items-center gap-4 flex-row-reverse border-t border-slate-700/50">
+<div class="h-10 w-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container text-xs font-bold">SD</div>
+<div class="text-right">
+<p class="text-white text-sm font-semibold">Sarah Cohen</p>
+<p class="text-slate-400 text-[10px] uppercase tracking-widest">Lead Designer</p>
+</div>
+</div>
+</aside>
+<!-- TopNavBar (Authority Source: JSON) -->
+<header class="fixed top-0 left-0 right-72 h-20 z-30 bg-[#f9f9f9]/80 backdrop-blur-md flex justify-between items-center px-12 w-full h-full flex-row-reverse font-['Manrope'] text-lg font-semibold">
+<div class="flex items-center gap-6 flex-row-reverse">
+<button class="p-2 hover:bg-[#f3f3f3] rounded-full transition-all text-[#B8860B]">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 hover:bg-[#f3f3f3] rounded-full transition-all text-[#1a1c1c] opacity-60">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="h-10 w-10 overflow-hidden rounded-full shadow-sm">
+<img class="h-full w-full object-cover" data-alt="professional portrait of an interior designer with minimalist jewelry and soft office lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCKA1_j_sxrm_JItNzVQqNqxfQ-_klPt3sV7uCx6_IlnpE2fQRLjk-4zqNbBAYJgUlnoPuwndKbHObtMk_Op1d4AZbDKVhC_dv0bi0XVHJvZ97tZ_w1PcD6HiFm6ThgvQe8WDUOtTZuAlbCs1lI0wxq_fkhI1t4d4n9d4LveuvK_0smNvjExRNTsKM8KJ5gIk9LNuQy2lXCGBd8MsxYLiDN8botUwOF5nuO5Lae00cob7axdaFOBUym7ctxRGLX3cWtTtyY4PByN0"/>
+</div>
+</div>
+<div class="flex-1 flex justify-end px-12">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-[#1a1c1c] opacity-40">search</span>
+<input class="w-full pr-12 pl-4 py-2 bg-surface-container-low rounded-full border-none focus:ring-1 focus:ring-[#B8860B]/20 text-sm font-medium" placeholder="חפש פרויקטים, חשבוניות או לקוחות..." type="text"/>
+</div>
+</div>
+<div class="text-[#B8860B] font-bold">The Curated Canvas</div>
+</header>
+<!-- Main Content -->
+<main class="mr-72 mt-20 p-12 min-h-screen">
+<!-- Page Header -->
+<div class="flex justify-between items-end mb-12">
+<div>
+<h2 class="text-4xl font-extrabold text-on-surface tracking-tight font-headline">גבייה מלקוחות</h2>
+<p class="text-on-surface-variant mt-2 text-lg">פרויקט: וילה הרצליה פיתוח | <span class="font-semibold text-primary">משפחת אלוני</span></p>
+</div>
+<button class="flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container text-on-primary px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all scale-100 active:scale-95 group">
+<span class="material-symbols-outlined text-lg">download</span>
+<span class="font-semibold text-sm">הורדת דוח CSV</span>
+</button>
+</div>
+<!-- Summary Cards: Bento Style -->
+<div class="grid grid-cols-12 gap-8 mb-12">
+<div class="col-span-12 lg:col-span-5 bg-surface-container-lowest p-8 rounded-2xl shadow-sm flex flex-col justify-between min-h-[180px] relative overflow-hidden">
+<div class="z-10">
+<p class="text-on-surface-variant text-sm font-medium uppercase tracking-widest mb-1">סך חוזה פרויקט</p>
+<h3 class="text-5xl font-extrabold text-on-surface font-headline leading-tight">₪420,000</h3>
+</div>
+<div class="mt-4 flex items-center gap-2 z-10">
+<span class="material-symbols-outlined text-primary">analytics</span>
+<p class="text-xs text-on-surface-variant font-medium">עליה של 12% מהערכה ראשונית</p>
+</div>
+<!-- Abstract Design Element -->
+<div class="absolute -left-10 -bottom-10 h-40 w-40 bg-surface-container rounded-full opacity-30"></div>
+</div>
+<div class="col-span-12 md:col-span-6 lg:col-span-3 bg-surface-container-low p-8 rounded-2xl flex flex-col justify-between">
+<div>
+<p class="text-on-surface-variant text-xs font-medium uppercase tracking-widest mb-4">שולם עד כה</p>
+<h3 class="text-3xl font-bold text-[#14532d] font-headline">₪285,500</h3>
+</div>
+<div class="w-full bg-surface-container-highest h-1.5 rounded-full mt-6 overflow-hidden">
+<div class="bg-gradient-to-r from-emerald-600 to-emerald-400 h-full w-[68%] rounded-full"></div>
+</div>
+<p class="text-[10px] text-on-surface-variant mt-2 font-semibold">68% מהסכום הכולל</p>
+</div>
+<div class="col-span-12 md:col-span-6 lg:col-span-4 bg-surface-container-low p-8 rounded-2xl flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-on-surface-variant text-xs font-medium uppercase tracking-widest mb-4">יתרה לתשלום</p>
+<h3 class="text-3xl font-bold text-primary-container font-headline">₪134,500</h3>
+</div>
+<div class="bg-primary-fixed p-3 rounded-xl">
+<span class="material-symbols-outlined text-primary font-variation-settings: 'FILL' 1;">pending_actions</span>
+</div>
+</div>
+<div class="mt-6">
+<p class="text-xs text-on-surface-variant leading-relaxed">
+                        מתוכם <span class="font-bold text-on-surface">₪45,000</span> במילסטון הנוכחי הממתין לאישור לקוח.
+                    </p>
+</div>
+</div>
+</div>
+<!-- Milestones Section -->
+<div class="bg-surface-container-low p-1 rounded-2xl">
+<div class="bg-surface-container-lowest rounded-2xl p-8">
+<div class="flex items-center justify-between mb-8">
+<h4 class="text-xl font-bold font-headline">פירוט אבני דרך ותשלומים</h4>
+<div class="flex gap-4">
+<span class="flex items-center gap-2 text-xs font-medium bg-surface-container px-3 py-1.5 rounded-full">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span> שולם
+                        </span>
+<span class="flex items-center gap-2 text-xs font-medium bg-surface-container px-3 py-1.5 rounded-full">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span> ממתין
+                        </span>
+</div>
+</div>
+<!-- Table Content -->
+<div class="flex flex-col gap-4">
+<!-- Row 1 -->
+<div class="flex items-center justify-between p-6 bg-surface-container-low rounded-2xl hover:bg-surface-container transition-all group cursor-pointer">
+<div class="flex items-center gap-6 flex-1">
+<div class="bg-surface-container-lowest h-12 w-12 rounded-full flex items-center justify-center font-bold text-primary group-hover:scale-110 transition-transform">1</div>
+<div>
+<h5 class="font-bold text-on-surface">חתימת חוזה ומקדמה</h5>
+<p class="text-xs text-on-surface-variant mt-0.5">שלב תכנון רעיוני והתחלת עבודה</p>
+</div>
+</div>
+<div class="w-32 text-center">
+<p class="text-xs text-on-surface-variant font-medium uppercase">אחוז</p>
+<p class="font-bold text-on-surface">15%</p>
+</div>
+<div class="w-48 text-center">
+<p class="text-xs text-on-surface-variant font-medium uppercase">סכום</p>
+<p class="font-bold text-on-surface">₪63,000</p>
+</div>
+<div class="w-48 text-center">
+<p class="text-xs text-on-surface-variant font-medium uppercase">תאריך</p>
+<p class="font-medium text-on-surface">12.01.2024</p>
+</div>
+<div class="w-40 flex justify-end">
+<span class="bg-emerald-50 text-emerald-800 text-[11px] font-bold px-4 py-1.5 rounded-full uppercase tracking-wider">שולם</span>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="flex items-center justify-between p-6 bg-surface-container-low rounded-2xl hover:bg-surface-container transition-all group cursor-pointer">
+<div class="flex items-center gap-6 flex-1">
+<div class="bg-surface-container-lowest h-12 w-12 rounded-full flex items-center justify-center font-bold text-primary group-hover:scale-110 transition-transform">2</div>
+<div>
+<h5 class="font-bold text-on-surface">גמר תכנית העמדה ובחירת חומרים</h5>
+<p class="text-xs text-on-surface-variant mt-0.5">אישור תכניות אדריכליות</p>
+</div>
+</div>
+<div class="w-32 text-center">
+<p class="text-xs text-on-surface-variant font-medium uppercase">אחוז</p>
+<p class="font-bold text-on-surface">25%</p>
+</div>
+<div class="w-48 text-center">
+<p class="text-xs text-on-surface-variant font-medium uppercase">סכום</p>
+<p class="font-bold text-on-surface">₪105,000</p>
+</div>
+<div class="w-48 text-center">
+<p class="text-xs text-on-surface-variant font-medium uppercase">תאריך</p>
+<p class="font-medium text-on-surface">05.02.2024</p>
+</div>
+<div class="w-40 flex justify-end">
+<span class="bg-emerald-50 text-emerald-800 text-[11px] font-bold px-4 py-1.5 rounded-full uppercase tracking-wider">שולם</span>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="flex items-center justify-between p-6 bg-surface-container-low rounded-2xl hover:bg-surface-container transition-all group cursor-pointer">
+<div class="flex items-center gap-6 flex-1">
+<div class="bg-surface-container-lowest h-12 w-12 rounded-full flex items-center justify-center font-bold text-primary group-hover:scale-110 transition-transform">3</div>
+<div>
+<h5 class="font-bold text-on-surface">הגשת מכרז קבלנים ונגרות</h5>
+<p class="text-xs text-on-surface-variant mt-0.5">סיום שלב המפרטים הטכניים</p>
+</div>
+</div>
+<div class="w-32 text-center">
+<p class="text-xs text-on-surface-variant font-medium uppercase">אחוז</p>
+<p class="font-bold text-on-surface">30%</p>
+</div>
+<div class="w-48 text-center">
+<p class="text-xs text-on-surface-variant font-medium uppercase">סכום</p>
+<p class="font-bold text-on-surface">₪126,000</p>
+</div>
+<div class="w-48 text-center">
+<p class="text-xs text-on-surface-variant font-medium uppercase">תאריך</p>
+<p class="font-medium text-on-surface">28.02.2024</p>
+</div>
+<div class="w-40 flex justify-end">
+<span class="bg-emerald-50 text-emerald-800 text-[11px] font-bold px-4 py-1.5 rounded-full uppercase tracking-wider">שולם</span>
+</div>
+</div>
+<!-- Row 4 (Pending) -->
+<div class="flex items-center justify-between p-6 bg-primary-fixed/30 rounded-2xl ring-2 ring-primary/10 hover:bg-primary-fixed/40 transition-all group cursor-pointer">
+<div class="flex items-center gap-6 flex-1">
+<div class="bg-surface-container-lowest h-12 w-12 rounded-full flex items-center justify-center font-bold text-primary group-hover:scale-110 transition-transform">4</div>
+<div>
+<h5 class="font-bold text-on-surface">פיקוח עליון - גמר שלד ואינסטלציה</h5>
+<p class="text-xs text-on-surface-variant mt-0.5">ביצוע פיקוח בשטח ואישור התקדמות</p>
+</div>
+</div>
+<div class="w-32 text-center">
+<p class="text-xs text-on-surface-variant font-medium uppercase">אחוז</p>
+<p class="font-bold text-on-surface">20%</p>
+</div>
+<div class="w-48 text-center">
+<p class="text-xs text-on-surface-variant font-medium uppercase">סכום</p>
+<p class="font-bold text-on-surface">₪84,000</p>
+</div>
+<div class="w-48 text-center">
+<p class="text-xs text-on-surface-variant font-medium uppercase">תאריך יעד</p>
+<p class="font-medium text-on-surface">20.03.2024</p>
+</div>
+<div class="w-40 flex justify-end">
+<span class="bg-amber-100 text-amber-800 text-[11px] font-bold px-4 py-1.5 rounded-full uppercase tracking-wider">ממתין לתשלום</span>
+</div>
+</div>
+<!-- Row 5 (Future) -->
+<div class="flex items-center justify-between p-6 bg-surface-container-low opacity-60 rounded-2xl">
+<div class="flex items-center gap-6 flex-1">
+<div class="bg-surface-container-lowest h-12 w-12 rounded-full flex items-center justify-center font-bold text-slate-400">5</div>
+<div>
+<h5 class="font-bold text-on-surface">מסירת פרויקט וסטיילינג</h5>
+<p class="text-xs text-on-surface-variant mt-0.5">שלב אחרון לאחר התקנות וניקיון</p>
+</div>
+</div>
+<div class="w-32 text-center">
+<p class="text-xs text-on-surface-variant font-medium uppercase">אחוז</p>
+<p class="font-bold text-on-surface">10%</p>
+</div>
+<div class="w-48 text-center">
+<p class="text-xs text-on-surface-variant font-medium uppercase">סכום</p>
+<p class="font-bold text-on-surface">₪42,000</p>
+</div>
+<div class="w-48 text-center">
+<p class="text-xs text-on-surface-variant font-medium uppercase">תאריך יעד</p>
+<p class="font-medium text-on-surface">15.05.2024</p>
+</div>
+<div class="w-40 flex justify-end">
+<span class="bg-surface-container text-on-surface-variant text-[11px] font-bold px-4 py-1.5 rounded-full uppercase tracking-wider">עתידי</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Secondary Layout: Recent Invoices Floating -->
+<div class="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="bg-surface-container-low p-8 rounded-2xl relative overflow-hidden">
+<div class="z-10 relative">
+<h4 class="text-lg font-bold font-headline mb-6">חשבוניות אחרונות שהופקו</h4>
+<ul class="space-y-4">
+<li class="flex items-center justify-between bg-surface-container-lowest p-4 rounded-xl">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary bg-primary-fixed p-2 rounded-lg">description</span>
+<div>
+<p class="text-sm font-bold">חשבונית #2024-0012</p>
+<p class="text-[10px] text-on-surface-variant">הופקה ב-12.01.2024</p>
+</div>
+</div>
+<button class="text-primary hover:underline text-xs font-semibold">צפייה</button>
+</li>
+<li class="flex items-center justify-between bg-surface-container-lowest p-4 rounded-xl">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary bg-primary-fixed p-2 rounded-lg">description</span>
+<div>
+<p class="text-sm font-bold">חשבונית #2024-0045</p>
+<p class="text-[10px] text-on-surface-variant">הופקה ב-05.02.2024</p>
+</div>
+</div>
+<button class="text-primary hover:underline text-xs font-semibold">צפייה</button>
+</li>
+</ul>
+</div>
+<!-- Glassmorphism decorative element -->
+<div class="absolute right-[-10%] top-[-10%] w-32 h-32 bg-primary/10 blur-3xl rounded-full"></div>
+</div>
+<div class="bg-surface-container-highest/30 p-8 rounded-2xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center text-center group cursor-pointer hover:bg-surface-container-highest transition-colors">
+<div class="w-16 h-16 rounded-full bg-surface-container-lowest flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-3xl">add_card</span>
+</div>
+<h4 class="text-lg font-bold font-headline">הפקת חשבונית חדשה</h4>
+<p class="text-sm text-on-surface-variant mt-2 max-w-[240px]">צור חשבונית מס או בקשת תשלום עבור אבן הדרך הבאה בפרויקט</p>
+</div>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#e1dfff",
+                    "surface-container-low": "#f3f3f3",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed": "#111c2d",
+                    "inverse-on-surface": "#f0f1f1",
+                    "surface": "#f9f9f9",
+                    "secondary": "#7b5800",
+                    "on-tertiary": "#ffffff",
+                    "outline": "#75777d",
+                    "tertiary-container": "#100092",
+                    "secondary-fixed-dim": "#f7bd48",
+                    "on-secondary-fixed": "#271900",
+                    "on-error-container": "#93000a",
+                    "inverse-primary": "#bcc7de",
+                    "on-surface": "#1a1c1c",
+                    "on-background": "#1a1c1c",
+                    "secondary-fixed": "#ffdea6",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed-variant": "#3c475a",
+                    "surface-bright": "#f9f9f9",
+                    "primary-fixed": "#d8e3fb",
+                    "on-tertiary-container": "#8082ff",
+                    "on-surface-variant": "#45474c",
+                    "secondary-container": "#fdc34d",
+                    "inverse-surface": "#2f3131",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-fixed-variant": "#5d4200",
+                    "on-tertiary-fixed-variant": "#2c24ce",
+                    "primary": "#091426",
+                    "tertiary-fixed-dim": "#c1c1ff",
+                    "on-primary": "#ffffff",
+                    "primary-container": "#1e293b",
+                    "outline-variant": "#c5c6cd",
+                    "surface-container-highest": "#e2e2e2",
+                    "on-primary-container": "#8590a6",
+                    "tertiary": "#060056",
+                    "error-container": "#ffdad6",
+                    "surface-tint": "#545f73",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed": "#09006b",
+                    "surface-container-high": "#e8e8e8",
+                    "primary-fixed-dim": "#bcc7de",
+                    "surface-dim": "#dadada",
+                    "surface-container": "#eeeeee",
+                    "surface-variant": "#e2e2e2",
+                    "on-secondary-container": "#715000",
+                    "background": "#f9f9f9"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Manrope"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .gantt-grid {
+            background-size: 40px 100%;
+            background-image: linear-gradient(to right, #e2e2e2 1px, transparent 1px);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f3f3f3;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c5c6cd;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- SideNavBar (Authority Source: JSON) -->
+<aside class="bg-[#091426] h-screen w-64 fixed left-0 top-0 flex flex-col py-8 px-4 overflow-y-auto shadow-2xl z-50">
+<div class="flex items-center gap-3 mb-10 px-2">
+<div class="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center shadow-lg shadow-secondary/20">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">vignette</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tighter text-white">The Studio</h1>
+<p class="text-[10px] text-on-primary-container font-label uppercase tracking-widest">Interior Excellence</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Navigation Items Mapping -->
+<a class="flex items-center gap-3 py-3 px-4 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] transition-transform rounded-xl font-medium" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] transition-transform rounded-xl font-medium" href="#">
+<span class="material-symbols-outlined">group</span>
+<span>Clients</span>
+</a>
+<!-- Active State Logic: Projects is active -->
+<a class="flex items-center gap-3 py-3 px-4 text-white bg-[#1E293B] rounded-xl font-bold transition-transform scale-[1.02]" href="#">
+<span class="material-symbols-outlined">architecture</span>
+<span>Projects</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] transition-transform rounded-xl font-medium" href="#">
+<span class="material-symbols-outlined">tactic</span>
+<span>Scope Templates</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] transition-transform rounded-xl font-medium" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span>Client Billing</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] transition-transform rounded-xl font-medium" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span>Supplier Billing</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 text-slate-400 hover:text-white transition-colors hover:bg-[#1E293B] hover:scale-[1.02] transition-transform rounded-xl font-medium" href="#">
+<span class="material-symbols-outlined">store</span>
+<span>Supplier Directory</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-white/5">
+<div class="flex items-center gap-3 px-2">
+<img alt="User Profile" class="w-10 h-10 rounded-full object-cover grayscale" data-alt="professional headshot of a senior interior architect in a minimalist studio setting with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbQ6KQpqc4dzKwHjZoEAdfYMam65pZFgr5UT0D0wDtRi2Y-h8hXjrzvooE4Nu_eFY8nar3MrBzz-sVpWwNuAbjKP82tD_pe3PZgWqfqHqM_VshPYo0F9zJfUnxJ84CjmXqAOsjqqMnHriRYl8qBTKD2AHXXDXzMpsao-5eI0skqfSPFfe7nLbO3c9lI0xkEjr3zT-MvQTd5l97HTVi_8q-C03ZM36vLviYAMBr7I--qiP_F6kI-5vwA9XS_HYdfn1Toex9pZpy0i0"/>
+<div class="overflow-hidden">
+<p class="text-white text-sm font-bold truncate">Julian Vanhoutte</p>
+<p class="text-slate-500 text-[11px] font-label">Principal Designer</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- TopNavBar (Authority Source: JSON) -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-[#F9F9F9]/80 backdrop-blur-xl z-40 flex justify-between items-center px-8">
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-sm">search</span>
+<input class="bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-sm w-64 focus:ring-1 focus:ring-secondary/30 transition-all font-label" placeholder="Search projects..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-slate-600 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-slate-600 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-16 min-h-screen">
+<div class="p-8 max-w-[1600px] mx-auto space-y-8">
+<!-- Project Control Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="space-y-1">
+<div class="flex items-center gap-2 text-secondary font-label text-xs font-bold tracking-widest uppercase">
+<span>Ongoing Project</span>
+<span class="w-1 h-1 rounded-full bg-secondary"></span>
+<span>Phase 03</span>
+</div>
+<div class="flex items-center gap-4">
+<h2 class="text-4xl font-black tracking-tight text-primary">Aura Penthouse Suite</h2>
+<button class="p-2 rounded-xl hover:bg-surface-container-low text-primary transition-colors">
+<span class="material-symbols-outlined">expand_more</span>
+</button>
+</div>
+</div>
+<div class="flex items-center bg-surface-container-low p-1.5 rounded-2xl">
+<button class="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold bg-white shadow-sm text-primary transition-all">
+<span class="material-symbols-outlined text-[18px]">timeline</span>
+                        Gantt
+                    </button>
+<button class="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-slate-500 hover:text-primary transition-all">
+<span class="material-symbols-outlined text-[18px]">view_kanban</span>
+                        Kanban
+                    </button>
+<button class="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-slate-500 hover:text-primary transition-all">
+<span class="material-symbols-outlined text-[18px]">list</span>
+                        List
+                    </button>
+</div>
+</div>
+<!-- Dashboard Summary Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+<!-- Main Status Card -->
+<div class="lg:col-span-2 bg-white rounded-[2rem] p-8 shadow-sm flex items-center justify-between group hover:shadow-xl transition-shadow duration-500">
+<div class="space-y-6">
+<div class="space-y-2">
+<label class="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest font-label">Lead Client</label>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold">EM</div>
+<p class="text-xl font-bold">Elena Moretti</p>
+</div>
+</div>
+<div class="flex gap-12">
+<div class="space-y-1">
+<label class="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest font-label">Total Budget</label>
+<p class="text-2xl font-black text-primary">₪ 1,450,000</p>
+</div>
+<div class="space-y-1">
+<label class="text-[11px] font-bold text-on-surface-variant uppercase tracking-widest font-label">Allocated</label>
+<p class="text-2xl font-black text-secondary">₪ 892,400</p>
+</div>
+</div>
+</div>
+<div class="relative w-32 h-32 flex items-center justify-center">
+<svg class="w-full h-full -rotate-90">
+<circle class="text-surface-container-low" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-secondary transition-all duration-1000" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" stroke-dasharray="364.4" stroke-dashoffset="145.7" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-2xl font-black text-primary">60%</span>
+<span class="text-[9px] font-bold uppercase text-on-surface-variant tracking-tighter">Progress</span>
+</div>
+</div>
+</div>
+<!-- Secondary Metric Cards -->
+<div class="bg-surface-container-low rounded-[2rem] p-8 space-y-6">
+<div class="flex justify-between items-start">
+<div class="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary">pending_actions</span>
+</div>
+<span class="bg-secondary-fixed-dim text-on-secondary-fixed text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-tighter">Active</span>
+</div>
+<div class="space-y-1">
+<p class="text-3xl font-black text-primary">12</p>
+<p class="text-sm font-semibold text-slate-500">Open Deliverables</p>
+</div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-2/3"></div>
+</div>
+</div>
+<div class="bg-primary rounded-[2rem] p-8 space-y-6 text-white relative overflow-hidden">
+<!-- Subtle pattern background -->
+<div class="absolute inset-0 opacity-10 pointer-events-none">
+<svg height="100%" width="100%"><pattern height="20" id="dots" patternunits="userSpaceOnUse" width="20" x="0" y="0"><circle cx="2" cy="2" fill="white" r="1"></circle></pattern><rect fill="url(#dots)" height="100%" width="100%"></rect></svg>
+</div>
+<div class="relative z-10 flex justify-between items-start">
+<div class="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary-fixed-dim">event_available</span>
+</div>
+</div>
+<div class="relative z-10 space-y-1">
+<p class="text-3xl font-black">Nov 24</p>
+<p class="text-sm font-medium text-on-primary-container">Next Milestone: Curated Finishes</p>
+</div>
+<button class="relative z-10 w-full py-3 bg-secondary rounded-xl text-xs font-bold uppercase tracking-widest hover:scale-[1.02] transition-transform">
+                        View Schedule
+                    </button>
+</div>
+</div>
+<!-- Gantt Visualization -->
+<div class="bg-white rounded-[2rem] shadow-sm overflow-hidden flex flex-col">
+<div class="p-8 flex items-center justify-between border-b border-surface-container-low">
+<h3 class="text-xl font-bold text-primary">Project Timeline</h3>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span class="text-xs font-semibold text-slate-500">Structural</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-secondary"></span>
+<span class="text-xs font-semibold text-slate-500">Finishing</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-tertiary-container"></span>
+<span class="text-xs font-semibold text-slate-500">Sourcing</span>
+</div>
+</div>
+</div>
+<div class="overflow-x-auto">
+<div class="min-w-[1000px]">
+<!-- Timeline Header -->
+<div class="flex bg-surface-container-low/50">
+<div class="w-72 p-4 border-r border-surface-container-low font-label text-[10px] font-bold text-slate-400 uppercase tracking-widest">Phase / Task</div>
+<div class="flex-1 flex gantt-grid h-10 items-center">
+<div class="w-10 text-[9px] font-bold text-slate-400 text-center">01</div>
+<div class="w-10 text-[9px] font-bold text-slate-400 text-center">02</div>
+<div class="w-10 text-[9px] font-bold text-slate-400 text-center">03</div>
+<div class="w-10 text-[9px] font-bold text-primary text-center bg-white shadow-sm ring-1 ring-surface-container-low py-1">04</div>
+<div class="w-10 text-[9px] font-bold text-slate-400 text-center">05</div>
+<div class="w-10 text-[9px] font-bold text-slate-400 text-center">06</div>
+<div class="w-10 text-[9px] font-bold text-slate-400 text-center">07</div>
+<div class="w-10 text-[9px] font-bold text-slate-400 text-center">08</div>
+<div class="w-10 text-[9px] font-bold text-slate-400 text-center">09</div>
+<div class="w-10 text-[9px] font-bold text-slate-400 text-center">10</div>
+<div class="w-10 text-[9px] font-bold text-slate-400 text-center">11</div>
+<div class="w-10 text-[9px] font-bold text-slate-400 text-center">12</div>
+</div>
+</div>
+<!-- Timeline Rows -->
+<div class="divide-y divide-surface-container-low">
+<!-- Phase 1 -->
+<div class="flex items-stretch group">
+<div class="w-72 p-6 border-r border-surface-container-low bg-white group-hover:bg-surface-container-low/30 transition-colors">
+<h4 class="font-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-slate-400">folder_open</span>
+                                        Conceptual Design
+                                    </h4>
+</div>
+<div class="flex-1 relative gantt-grid h-20 bg-white group-hover:bg-surface-container-low/10 transition-colors">
+<div class="absolute top-6 left-0 w-80 h-8 bg-primary/10 border-l-4 border-primary rounded-r-lg flex items-center px-4">
+<span class="text-[10px] font-bold text-primary truncate uppercase tracking-tighter">Discovery &amp; Moodboarding</span>
+</div>
+</div>
+</div>
+<!-- Phase 2 -->
+<div class="flex items-stretch group">
+<div class="w-72 p-6 border-r border-surface-container-low bg-white group-hover:bg-surface-container-low/30 transition-colors">
+<h4 class="font-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-slate-400">architecture</span>
+                                        Technical Drawings
+                                    </h4>
+</div>
+<div class="flex-1 relative gantt-grid h-20 bg-white group-hover:bg-surface-container-low/10 transition-colors">
+<div class="absolute top-6 left-40 w-[400px] h-8 bg-secondary/10 border-l-4 border-secondary rounded-r-lg flex items-center px-4">
+<span class="text-[10px] font-bold text-secondary truncate uppercase tracking-tighter">MEP &amp; Structural Planning</span>
+</div>
+</div>
+</div>
+<!-- Phase 3 -->
+<div class="flex items-stretch group">
+<div class="w-72 p-6 border-r border-surface-container-low bg-white group-hover:bg-surface-container-low/30 transition-colors">
+<h4 class="font-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-slate-400">shopping_bag</span>
+                                        Material Sourcing
+                                    </h4>
+</div>
+<div class="flex-1 relative gantt-grid h-20 bg-white group-hover:bg-surface-container-low/10 transition-colors">
+<div class="absolute top-6 left-[360px] w-64 h-8 bg-tertiary-container/10 border-l-4 border-tertiary-container rounded-r-lg flex items-center px-4">
+<span class="text-[10px] font-bold text-tertiary-container truncate uppercase tracking-tighter">Vendor Procurement</span>
+</div>
+<!-- Marker for current day -->
+<div class="absolute top-0 bottom-0 left-[140px] w-[1px] bg-secondary z-10 shadow-[0_0_10px_rgba(123,88,0,0.4)]">
+<div class="bg-secondary text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full absolute -top-2 -translate-x-1/2 whitespace-nowrap">TODAY</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Contextual Insights / Moodboard -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="md:col-span-2 bg-surface-container-low rounded-[2rem] p-8 flex gap-8 items-center">
+<div class="w-1/3 aspect-square rounded-2xl overflow-hidden shadow-lg transform -rotate-3 hover:rotate-0 transition-transform duration-500">
+<img alt="Interior mood" class="w-full h-full object-cover" data-alt="luxurious modern living room with organic textures, travertine stone walls, and warm indirect lighting during sunset" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB39-Dg43qiBtHhWsjKfQTUm0yWgOrt3-donNHuRtqpC9mKx8Z55XQjcTCqiuWIEzdfRpq-yD82GobhuufeukHzkRIRHaYqg3ApORn8TJPi9Xj9284iigQxPArTAVchCUO--vIUTLWxEX1TG8BM4XgvasGtLHf9bAoKmCUVsJO9a_r2NxqXQQg-3QfSBRH4HOgWIolcpUh_OLCh8fDYAcfaB5-NKSVXuS-A1DnlftbiCmGbnW7uak64r6IREB1JHYipDJgDWIbego4"/>
+</div>
+<div class="flex-1 space-y-4">
+<h4 class="text-2xl font-black text-primary">Aesthetic Anchor</h4>
+<p class="text-sm text-slate-600 leading-relaxed font-medium">The palette focuses on 'Mineral Minimalism'—using raw textures like honed marble and brushed brass to contrast against the obsidian structural elements.</p>
+<div class="flex gap-2">
+<span class="w-8 h-8 rounded-full bg-[#E5E4E2] border-2 border-white shadow-sm"></span>
+<span class="w-8 h-8 rounded-full bg-[#C5B358] border-2 border-white shadow-sm"></span>
+<span class="w-8 h-8 rounded-full bg-[#1A1C1C] border-2 border-white shadow-sm"></span>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-[2rem] p-8 shadow-sm flex flex-col justify-between group hover:bg-primary transition-all duration-500">
+<div class="space-y-4">
+<div class="w-12 h-12 rounded-2xl bg-surface-container-low flex items-center justify-center group-hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-primary group-hover:text-white">history_edu</span>
+</div>
+<h4 class="text-xl font-bold text-primary group-hover:text-white transition-colors">Daily Log</h4>
+<p class="text-xs text-slate-500 group-hover:text-white/60 transition-colors">3 updates recorded today by the field site supervisor.</p>
+</div>
+<a class="mt-6 flex items-center gap-2 text-secondary font-bold text-sm uppercase tracking-widest group-hover:text-secondary-fixed-dim" href="#">
+                        View Log
+                        <span class="material-symbols-outlined">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB for project actions -->
+<button class="fixed bottom-8 right-8 w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform group z-50">
+<span class="material-symbols-outlined text-3xl group-hover:rotate-90 transition-transform">add</span>
+<!-- Tooltip hint -->
+<span class="absolute right-20 bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">New Task</span>
+</button>
+</body></html>

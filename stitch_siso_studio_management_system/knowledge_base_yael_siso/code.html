@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Knowledge Base | The Studio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #F9F9F9;
+        }
+        .glass-header {
+            background: rgba(249, 249, 249, 0.8);
+            backdrop-filter: blur(20px);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#e1dfff",
+                        "surface-container-low": "#f3f3f3",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed": "#111c2d",
+                        "inverse-on-surface": "#f0f1f1",
+                        "surface": "#f9f9f9",
+                        "secondary": "#7b5800",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#75777d",
+                        "tertiary-container": "#100092",
+                        "secondary-fixed-dim": "#f7bd48",
+                        "on-secondary-fixed": "#271900",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#bcc7de",
+                        "on-surface": "#1a1c1c",
+                        "on-background": "#1a1c1c",
+                        "secondary-fixed": "#ffdea6",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed-variant": "#3c475a",
+                        "surface-bright": "#f9f9f9",
+                        "primary-fixed": "#d8e3fb",
+                        "on-tertiary-container": "#8082ff",
+                        "on-surface-variant": "#45474c",
+                        "secondary-container": "#fdc34d",
+                        "inverse-surface": "#2f3131",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed-variant": "#5d4200",
+                        "on-tertiary-fixed-variant": "#2c24ce",
+                        "primary": "#091426",
+                        "tertiary-fixed-dim": "#c1c1ff",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#1e293b",
+                        "outline-variant": "#c5c6cd",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-primary-container": "#8590a6",
+                        "tertiary": "#060056",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#545f73",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed": "#09006b",
+                        "surface-container-high": "#e8e8e8",
+                        "primary-fixed-dim": "#bcc7de",
+                        "surface-dim": "#dadada",
+                        "surface-container": "#eeeeee",
+                        "surface-variant": "#e2e2e2",
+                        "on-secondary-container": "#715000",
+                        "background": "#f9f9f9"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<!-- SideNavBar Shell -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-[#091426] shadow-2xl flex flex-col py-8 px-4 overflow-y-auto z-50 transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1)">
+<div class="flex items-center gap-3 px-2 mb-10">
+<div class="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center text-white">
+<span class="material-symbols-outlined" data-icon="vignette">vignette</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tighter text-white">The Studio</h1>
+<p class="text-[10px] uppercase tracking-widest text-on-primary-container font-semibold">Interior Excellence</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Navigation Items from JSON -->
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-['Manrope'] text-sm tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-['Manrope'] text-sm tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+                Clients
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-['Manrope'] text-sm tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="architecture">architecture</span>
+                Projects
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-['Manrope'] text-sm tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="tactic">tactic</span>
+                Scope Templates
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-['Manrope'] text-sm tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+                Client Billing
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-['Manrope'] text-sm tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+                Supplier Billing
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-['Manrope'] text-sm tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="store">store</span>
+                Supplier Directory
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-['Manrope'] text-sm tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                Monthly Report
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-['Manrope'] text-sm tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+                Finance Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] transition-all rounded-xl font-['Manrope'] text-sm tracking-tight font-medium" href="#">
+<span class="material-symbols-outlined" data-icon="history_edu">history_edu</span>
+                Work Log
+            </a>
+<!-- Active State Navigation -->
+<a class="flex items-center gap-3 px-3 py-3 text-white bg-[#1E293B] rounded-xl font-['Manrope'] text-sm tracking-tight font-bold scale-[1.02]" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+                Knowledge Base
+            </a>
+</nav>
+<div class="mt-auto pt-8 border-t border-white/5">
+<div class="flex items-center gap-3 px-2">
+<div class="w-10 h-10 rounded-full bg-primary-container overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="portrait of a professional creative director in a minimalist studio setting with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuByMxQHzUBHKVTNTCBigAE0IU99C-FXzpzEVwraLvrdSXBRPxLZvs6-nlikmPpfIVo6viG9WB49xr6PLpL5Pqqj5-HgkR5iTQxugu8JzhT8U8aCUGyEB-e1YKZJ-dzyazHq36JqqhIXX2OpBirknCj2yOr8uViTjmL4Zx0ZmJl9JQgM8p9Cj0GRdeeylNy3YMUtk3tb_P50gT7LNDtuN5JY-0GqH5h2PLP_zGolBFAWh14nAw18OU564OsIrUvxLIWzPymxyksxIE0"/>
+</div>
+<div class="flex flex-col">
+<span class="text-white text-sm font-bold tracking-tight">Julian Voss</span>
+<span class="text-slate-500 text-xs font-['Inter']">Senior Architect</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- TopNavBar Shell -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-[#F9F9F9]/80 backdrop-blur-xl z-40 flex justify-between items-center px-8 transition-all duration-300">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-2 pl-10 pr-4 text-sm font-['Manrope'] focus:ring-2 focus:ring-secondary/20 transition-all placeholder:text-on-surface-variant/50" placeholder="Search resources, guides, or standards..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-surface-container-high transition-colors relative">
+<span class="material-symbols-outlined text-slate-600" data-icon="notifications">notifications</span>
+<span class="absolute top-2.5 right-2.5 w-2 h-2 bg-secondary rounded-full border-2 border-surface"></span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-slate-600" data-icon="settings">settings</span>
+</button>
+</div>
+<div class="h-6 w-[1px] bg-outline-variant/30"></div>
+<span class="text-lg font-black text-[#091426] tracking-tight">Curated Canvas</span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-16 min-h-screen">
+<div class="p-8 max-w-7xl mx-auto">
+<!-- Page Header Area -->
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+<div>
+<nav class="flex items-center gap-2 mb-4">
+<span class="text-[11px] font-['Inter'] font-semibold uppercase tracking-widest text-on-surface-variant">Resources</span>
+<span class="material-symbols-outlined text-[12px] text-outline-variant" data-icon="chevron_right">chevron_right</span>
+<span class="text-[11px] font-['Inter'] font-semibold uppercase tracking-widest text-secondary">Knowledge Base</span>
+</nav>
+<h2 class="text-4xl font-extrabold tracking-tighter text-primary">Studio Wisdom</h2>
+<p class="text-on-surface-variant mt-2 max-w-lg font-medium leading-relaxed">The collective intelligence of our practice. Standards, material guides, and architectural principles curated for excellence.</p>
+</div>
+<button class="flex items-center gap-2 px-6 py-3.5 bg-primary bg-gradient-to-b from-primary to-primary-container text-white rounded-xl font-bold text-sm tracking-tight shadow-lg hover:scale-[1.02] transition-transform active:scale-[0.98]">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+                    Create New Article
+                </button>
+</div>
+<!-- Categories Horizontal Filter (No-Line Logic) -->
+<div class="flex items-center gap-3 overflow-x-auto no-scrollbar mb-10 pb-2">
+<button class="px-6 py-2.5 bg-secondary text-white rounded-full text-xs font-bold whitespace-nowrap shadow-md">All Resources</button>
+<button class="px-6 py-2.5 bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high rounded-full text-xs font-bold whitespace-nowrap transition-colors">Material Sourcing</button>
+<button class="px-6 py-2.5 bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high rounded-full text-xs font-bold whitespace-nowrap transition-colors">Technical Details</button>
+<button class="px-6 py-2.5 bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high rounded-full text-xs font-bold whitespace-nowrap transition-colors">Client Management</button>
+<button class="px-6 py-2.5 bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high rounded-full text-xs font-bold whitespace-nowrap transition-colors">Sustainable Practice</button>
+<button class="px-6 py-2.5 bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high rounded-full text-xs font-bold whitespace-nowrap transition-colors">Lighting Standards</button>
+</div>
+<!-- Bento-Style Grid of Article Cards -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- Featured Large Card -->
+<div class="md:col-span-8 bg-surface-container-low rounded-[2rem] overflow-hidden group cursor-pointer hover:shadow-xl transition-all duration-500">
+<div class="flex flex-col md:flex-row h-full">
+<div class="md:w-1/2 h-64 md:h-auto overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="luxurious modern living room with organic textures, beige linen sofas, and soft morning light hitting marble surfaces" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAz0DWJ18kuzD6eD5l2ejGbLNZRtmmdtj0Uh0hTJrCKIw0OzmRbYo-lVPgwzE-daXmz46HcD6yXVkUbhkbnnxZ0mWExPxg3lCnNBJp6vJGTsiBC_zn9LFr9wxbDYYdCs481SgMaKJUzEo5UEQwlkeGklveQ5lzjFkmLCaJPd_nZVrWQ1P7R31rWSOBNhb6MSxWjn9CKttTTe-2D8lij5Pnff8edn5Ex4FoJ-mAB30vezKzMNPaM0kznYeLZPmuybKWYyimYaktFfhw"/>
+</div>
+<div class="md:w-1/2 p-10 flex flex-col justify-between">
+<div>
+<span class="inline-block px-3 py-1 bg-secondary-fixed-dim/20 text-on-secondary-fixed text-[10px] font-bold uppercase tracking-widest rounded-full mb-6">Featured Standard</span>
+<h3 class="text-2xl font-extrabold text-primary leading-tight tracking-tight mb-4 group-hover:text-secondary transition-colors">The 2024 Guide to Sustainable Marble Sourcing</h3>
+<p class="text-on-surface-variant font-medium text-sm leading-relaxed mb-6 line-clamp-3">Navigating ethical extraction and supply chains for high-end residential projects. This guide covers the latest certifications and supplier vetting processes.</p>
+</div>
+<div class="flex items-center justify-between mt-4">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-outline-variant"></div>
+<span class="text-xs font-bold text-primary">Elena Rossi</span>
+</div>
+<span class="text-[11px] font-['Inter'] text-on-surface-variant/60 font-semibold uppercase">Oct 12, 2023</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Secondary Square Card -->
+<div class="md:col-span-4 bg-surface-container-lowest rounded-[2rem] p-8 shadow-sm flex flex-col justify-between group cursor-pointer hover:translate-y-[-4px] transition-all">
+<div>
+<div class="w-12 h-12 rounded-2xl bg-secondary-fixed/30 flex items-center justify-center text-secondary mb-8 group-hover:bg-secondary group-hover:text-white transition-all">
+<span class="material-symbols-outlined text-2xl" data-icon="lightbulb">lightbulb</span>
+</div>
+<h3 class="text-xl font-bold text-primary tracking-tight mb-3">Lighting Temperature Standards</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed line-clamp-3">A technical breakdown of Kelvin ratings for different residential spaces, from gallery walls to intimate bedrooms.</p>
+</div>
+<div class="pt-8 flex items-center justify-between border-t border-surface-container-low">
+<span class="text-[10px] font-bold uppercase tracking-widest text-secondary">Technical Detail</span>
+<span class="text-[11px] font-['Inter'] text-on-surface-variant/60 font-semibold uppercase">Sep 28</span>
+</div>
+</div>
+<!-- Small Grid Items -->
+<div class="md:col-span-4 bg-surface-container-low rounded-[2rem] p-8 group cursor-pointer hover:bg-surface-container-high transition-all">
+<span class="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant/40 mb-6 block">Client Relations</span>
+<h3 class="text-lg font-bold text-primary tracking-tight mb-3">Initial Consultation Scripting</h3>
+<p class="text-sm text-on-surface-variant/80 leading-relaxed mb-6">How to manage expectations during the first vision-casting phase with high-net-worth individuals.</p>
+<div class="flex items-center gap-1 text-secondary font-bold text-xs">
+                        Read Guide <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</div>
+<div class="md:col-span-4 bg-surface-container-lowest shadow-sm rounded-[2rem] p-8 group cursor-pointer hover:bg-white transition-all">
+<span class="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant/40 mb-6 block">Materiality</span>
+<h3 class="text-lg font-bold text-primary tracking-tight mb-3">Veneer Matching Patterns</h3>
+<p class="text-sm text-on-surface-variant/80 leading-relaxed mb-6">Visual guide to book-matching, slip-matching, and random-matching for custom cabinetry.</p>
+<div class="flex items-center gap-1 text-secondary font-bold text-xs">
+                        Read Guide <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</div>
+<div class="md:col-span-4 bg-primary rounded-[2rem] p-8 relative overflow-hidden group cursor-pointer">
+<div class="absolute top-0 right-0 p-8 opacity-10">
+<span class="material-symbols-outlined text-8xl" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<div class="relative z-10 flex flex-col h-full justify-between">
+<div>
+<span class="text-[9px] font-black uppercase tracking-[0.2em] text-white/50 mb-6 block">New Release</span>
+<h3 class="text-xl font-bold text-white tracking-tight mb-3">AI in Design Documentation</h3>
+<p class="text-sm text-white/70 leading-relaxed">Streamlining drafting workflows using parametric plugins and neural rendering tools.</p>
+</div>
+<div class="pt-8">
+<button class="bg-secondary text-white px-4 py-2 rounded-lg text-xs font-bold hover:scale-105 transition-transform">Explore Beta Guide</button>
+</div>
+</div>
+</div>
+<!-- Another Horizontal Card -->
+<div class="md:col-span-12 bg-surface-container-low rounded-[2rem] p-10 flex flex-col md:flex-row items-center gap-8 group cursor-pointer">
+<div class="flex-1">
+<span class="text-[10px] font-bold uppercase tracking-widest text-secondary mb-4 block">Archive Update</span>
+<h3 class="text-2xl font-extrabold text-primary mb-3">Historical Preservation: 19th Century Brownstones</h3>
+<p class="text-on-surface-variant font-medium leading-relaxed max-w-2xl">A comprehensive library of molding profiles and window restoration standards specific to Northeast urban architecture.</p>
+</div>
+<div class="flex -space-x-3">
+<div class="w-12 h-12 rounded-full border-4 border-surface bg-surface-container-high overflow-hidden">
+<img alt="Contributor" class="w-full h-full object-cover" data-alt="headshot of a female architect in glasses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOWd2WyHawtxF4ieOL_vYu4o5OvsmZH1aebvG4b-4-w4xm5hxQ44fJGMW4vp_sH0gkseS2LyzebBBex2ZdLiitzjnd-Ad5s5ANugUflV3R-2Rcqqwdnt3lQ0mhOF7g-swYDCEHoYGW2U9ECTvnWOnM7-h4UrGFJxJ1vtxX2Un2MJBukKijBjRH4uEqukq69HttHj27eOlsnB5GzP1-Ea4lXWc6x9SfodOpYXmsklxs2lTRuG3616x6gLrjokC7nKvrJmJEOkvYDeg"/>
+</div>
+<div class="w-12 h-12 rounded-full border-4 border-surface bg-surface-container-high overflow-hidden">
+<img alt="Contributor" class="w-full h-full object-cover" data-alt="headshot of a male designer in a turtleneck" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdExsgElGYhBznnM7JStTG7Kk7BnGem3ogOGBfkhku_3rWvFg9qiZtWGJF8wGRmq60wBn__9asqgtVihm-vUdoWoovDq-9fAGrTrAJKSA4X7VQkrplQttjNZQiYoOWwxCwUFMVPh3u0hJSoDq0J_o7PRU4kGjwFuqBUdaxsGEQ6AY7tdebjNbsOUkyB7bTP3jjcvIrSJsm8BqB_lo2zLo_qELoi2HhE6GGmFsUo7HaOZ-vBZ6WqUVzP12U9uTOH0gm9hGttNgO7MI"/>
+</div>
+<div class="w-12 h-12 rounded-full border-4 border-surface bg-surface-container-high flex items-center justify-center text-[10px] font-bold text-on-surface-variant">
+                            +4
+                        </div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

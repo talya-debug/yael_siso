@@ -1,9 +1,53 @@
 @import "tailwindcss";
 
-/* RTL לתמיכה בעברית */
+/* Fonts: Manrope for headlines, Inter for body/labels */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* LTR layout */
 body {
-  direction: rtl;
-  font-family: 'Segoe UI', Arial, sans-serif;
+  direction: ltr;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
   margin: 0;
-  background: #f8f9fa;
+  background: #F9F9F9;
+  color: #1a1c1c;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Manrope for headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Manrope', 'Inter', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(9, 20, 38, 0.15);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(9, 20, 38, 0.3);
+}
+
+/* Focus accessibility */
+*:focus-visible {
+  outline: 2px solid #7B5800;
+  outline-offset: 2px;
+}
+
+/* Smooth transitions */
+* {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Selection color */
+::selection {
+  background: rgba(123, 88, 0, 0.15);
+  color: #091426;
 }

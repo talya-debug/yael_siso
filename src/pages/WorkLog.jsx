@@ -3,9 +3,8 @@ import { supabase } from '../lib/supabase'
 import { Plus, X, Trash2, Clock, Link2, Copy, Check } from 'lucide-react'
 
 // תפקידים אפשריים
-const ROLES = ['מנהלת פרויקט', 'שרטטת', 'מעצבת', 'אחר']
+const ROLES = ['Project Manager', 'Drafter', 'Designer', 'Other']
 
-// כתובת הלינק הציבורי
 function getPublicUrl() {
   return `${window.location.origin}/worklog-public`
 }
@@ -41,7 +40,7 @@ export default function WorkLog() {
   }
 
   async function save() {
-    if (!form.description.trim()) return
+    if (!form.project_id || !form.hours || !form.worker_name.trim()) return
     await supabase.from('work_log').insert({
       project_id:  form.project_id  || null,
       work_date:   form.work_date,
@@ -56,6 +55,7 @@ export default function WorkLog() {
   }
 
   async function remove(id) {
+    if (!confirm('Delete this entry?')) return
     await supabase.from('work_log').delete().eq('id', id)
     setLogs(prev => prev.filter(l => l.id !== id))
   }
@@ -66,7 +66,6 @@ export default function WorkLog() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  // פילטר
   const filtered = logs.filter(l => {
     const matchProj = !filterProj || l.project_id === filterProj
     const matchRole = !filterRole || l.role === filterRole
@@ -75,195 +74,189 @@ export default function WorkLog() {
 
   const totalHours = filtered.reduce((s, l) => s + Number(l.hours || 0), 0)
 
-  // KPI לפי תפקיד
   const hoursByRole = ROLES.reduce((acc, r) => {
     acc[r] = logs.filter(l => l.role === r).reduce((s, l) => s + Number(l.hours || 0), 0)
     return acc
   }, {})
 
-  const inp = "w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition"
-  const lbl = "text-xs font-semibold text-slate-400 uppercase tracking-wide block mb-1.5"
+  const inp = "w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 transition"
+  const lbl = "text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5"
 
-  if (loading) return <div className="text-slate-400 text-sm p-8">טוען...</div>
+  if (loading) return <div className="flex items-center justify-center p-8"><div className="w-6 h-6 border-2 border-[#091426] border-t-transparent rounded-full animate-spin" /></div>
 
   return (
     <div className="space-y-5">
-      {/* כותרת */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">יומן עבודה</h1>
-          <p className="text-sm text-slate-400 mt-0.5">
-            {logs.length} רשומות · סה"כ {logs.reduce((s,l) => s + Number(l.hours||0),0)} שעות
+          <h1 className="text-2xl font-bold text-[#091426] font-[Manrope] tracking-tight">Work Log</h1>
+          <p className="text-sm text-[#6B7A90] mt-0.5">
+            {logs.length} entries · Total {logs.reduce((s,l) => s + Number(l.hours||0),0)} hours
           </p>
         </div>
         <div className="flex gap-2">
-          {/* כפתור קישור חיצוני */}
           <button onClick={copyLink}
-            className={`flex items-center gap-2 border px-3 py-2.5 rounded-xl text-sm transition ${
+            className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all ${
               copied
-                ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
-                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                ? 'bg-emerald-50 text-emerald-600'
+                : 'bg-[#F3F3F3] text-[#6B7A90] hover:bg-[#F9F9F9]'
             }`}>
-            {copied ? <Check size={14} /> : <Link2 size={14} />}
-            {copied ? 'הועתק!' : 'קישור חיצוני'}
+            {copied ? <Check size={14} strokeWidth={1.8} /> : <Link2 size={14} strokeWidth={1.8} />}
+            {copied ? 'Copied!' : 'Public Link'}
           </button>
           <button onClick={() => setShowForm(true)}
-            className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-indigo-700 transition shadow-sm">
-            <Plus size={15} /> רישום חדש
+            className="flex items-center gap-2 bg-[#091426] text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all">
+            <Plus size={15} strokeWidth={1.8} /> New Entry
           </button>
         </div>
       </div>
 
-      {/* URL הצגה */}
-      <div className="bg-slate-800 rounded-xl px-4 py-2.5 flex items-center gap-3">
-        <Link2 size={14} className="text-slate-400 shrink-0" />
-        <span className="text-slate-300 text-xs font-mono flex-1 truncate">{getPublicUrl()}</span>
+      <div className="bg-[#091426] rounded-xl px-4 py-2.5 flex items-center gap-3 overflow-x-auto">
+        <Link2 size={14} className="text-[#6B7A90] shrink-0" strokeWidth={1.8} />
+        <a href={getPublicUrl()} target="_blank" rel="noopener noreferrer"
+          className="text-gray-300 text-xs font-mono flex-1 truncate hover:text-white transition">
+          {getPublicUrl()}
+        </a>
         <button onClick={copyLink}
-          className="text-xs text-indigo-400 hover:text-indigo-300 transition shrink-0">
-          {copied ? '✓ הועתק' : 'העתק'}
+          className="text-xs text-[#6B7A90] hover:text-gray-300 transition shrink-0">
+          {copied ? '✓ Copied' : 'Copy'}
         </button>
+        <a href={getPublicUrl()} target="_blank" rel="noopener noreferrer"
+          className="text-xs text-[#B8960B] hover:text-white transition shrink-0 font-medium">
+          Open ↗
+        </a>
       </div>
 
-      {/* KPI שעות לפי תפקיד */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         {ROLES.map(r => (
-          <div key={r} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
-            <p className="text-2xl font-bold text-slate-800">{hoursByRole[r] || 0}<span className="text-sm font-normal text-slate-400">ש'</span></p>
-            <p className="text-xs text-slate-400 mt-0.5">{r}</p>
+          <div key={r} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4">
+            <p className="text-2xl font-bold text-[#091426]">{hoursByRole[r] || 0}<span className="text-sm font-normal text-[#6B7A90]">h</span></p>
+            <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-0.5">{r}</p>
           </div>
         ))}
       </div>
 
-      {/* פילטרים */}
       <div className="flex gap-3 flex-wrap">
         <select value={filterProj} onChange={e => setFilterProj(e.target.value)}
-          className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white min-w-40">
-          <option value="">כל הפרויקטים</option>
+          className="bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 min-w-40">
+          <option value="">All Projects</option>
           {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
         <select value={filterRole} onChange={e => setFilterRole(e.target.value)}
-          className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white">
-          <option value="">כל התפקידים</option>
+          className="bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20">
+          <option value="">All Roles</option>
           {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
         </select>
         {(filterProj || filterRole) && (
-          <span className="text-sm text-slate-400 self-center">{filtered.length} רשומות · {totalHours} שעות</span>
+          <span className="text-sm text-[#6B7A90] self-center">{filtered.length} entries · {totalHours} hours</span>
         )}
       </div>
 
-      {/* רשימה */}
       {filtered.length === 0 && (
         <div className="text-center py-16">
           <div className="text-5xl mb-3">📅</div>
-          <p className="text-slate-400 text-sm">אין רשומות עדיין — לחצי "+ רישום חדש"</p>
+          <p className="text-[#6B7A90] text-sm">No entries yet — click "+ New Entry"</p>
         </div>
       )}
 
       <div className="space-y-2">
         {filtered.map(l => (
-          <div key={l.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex items-start justify-between group">
+          <div key={l.id} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4 flex items-start justify-between group">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap mb-1">
-                <span className="text-sm font-medium text-slate-500">
-                  {new Date(l.work_date).toLocaleDateString('he-IL', { day: 'numeric', month: 'short', year: 'numeric' })}
+                <span className="text-sm font-medium text-[#6B7A90]">
+                  {new Date(l.work_date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </span>
                 {l.projects?.name && (
-                  <span className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
+                  <span className="text-[10px] font-bold tracking-wider bg-[#F3F3F3] text-[#091426] px-2 py-0.5 rounded-full">
                     {l.projects.name}
                   </span>
                 )}
                 {l.role && (
-                  <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-bold tracking-wider bg-[#F3F3F3] text-[#6B7A90] px-2 py-0.5 rounded-full">
                     {l.role}
                   </span>
                 )}
                 {l.worker_name && (
-                  <span className="text-xs text-slate-400">{l.worker_name}</span>
+                  <span className="text-xs text-[#6B7A90]">{l.worker_name}</span>
                 )}
               </div>
-              <p className="text-slate-800 text-sm">{l.description}</p>
+              <p className="text-[#091426] text-sm">{l.description}</p>
             </div>
-            <div className="flex items-center gap-3 shrink-0 mr-4">
+            <div className="flex items-center gap-3 shrink-0 ml-4">
               {l.hours && (
-                <span className="flex items-center gap-1 font-semibold text-slate-700 text-sm">
-                  <Clock size={13} className="text-slate-400" /> {l.hours}ש'
+                <span className="flex items-center gap-1 font-semibold text-[#091426] text-sm">
+                  <Clock size={13} className="text-[#6B7A90]" strokeWidth={1.8} /> {l.hours}h
                 </span>
               )}
               <button onClick={() => remove(l.id)}
-                className="opacity-0 group-hover:opacity-100 transition text-slate-300 hover:text-red-500 p-1 rounded-lg hover:bg-red-50">
-                <Trash2 size={13} />
+                className="opacity-0 group-hover:opacity-100 transition text-[#6B7A90] hover:text-red-500 p-1 rounded-xl hover:bg-red-50">
+                <Trash2 size={13} strokeWidth={1.8} />
               </button>
             </div>
           </div>
         ))}
       </div>
 
-      {/* מודאל רישום חדש */}
       {showForm && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-[#091426]/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-              <h2 className="text-base font-semibold text-slate-800">רישום עבודה</h2>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#F3F3F3]">
+              <h2 className="text-base font-semibold text-[#091426] font-[Manrope] tracking-tight">Log Work</h2>
               <button onClick={() => setShowForm(false)}
-                className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400">
-                <X size={16} />
+                className="w-8 h-8 rounded-xl hover:bg-[#F3F3F3] flex items-center justify-center text-[#6B7A90]">
+                <X size={16} strokeWidth={1.8} />
               </button>
             </div>
             <div className="px-6 py-5 space-y-4">
-              {/* תאריך + שעות */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className={lbl}>תאריך</label>
+                  <label className={lbl}>Date</label>
                   <input type="date" value={form.work_date}
                     onChange={e => setForm({...form, work_date: e.target.value})} className={inp} />
                 </div>
                 <div>
-                  <label className={lbl}>שעות</label>
+                  <label className={lbl}>Hours</label>
                   <input type="number" step="0.5" value={form.hours}
                     onChange={e => setForm({...form, hours: e.target.value})}
                     className={inp} placeholder="0" />
                 </div>
               </div>
-              {/* תפקיד */}
               <div>
-                <label className={lbl}>תפקיד</label>
+                <label className={lbl}>Role</label>
                 <select value={form.role} onChange={e => setForm({...form, role: e.target.value})} className={inp}>
                   {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
-              {/* פרויקט */}
               <div>
-                <label className={lbl}>פרויקט</label>
+                <label className={lbl}>Project</label>
                 <select value={form.project_id}
                   onChange={e => setForm({...form, project_id: e.target.value})} className={inp}>
-                  <option value="">בחרי פרויקט...</option>
+                  <option value="">Select project...</option>
                   {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
               </div>
-              {/* תיאור */}
               <div>
-                <label className={lbl}>מה עשית *</label>
+                <label className={lbl}>What did you do? *</label>
                 <textarea value={form.description}
                   onChange={e => setForm({...form, description: e.target.value})}
                   className={inp + ' resize-none'} rows={3}
-                  placeholder="תיאור העבודה שבוצעה..." />
+                  placeholder="Description of work performed..." />
               </div>
-              {/* שם עובד */}
               <div>
-                <label className={lbl}>שם עובד</label>
+                <label className={lbl}>Worker Name</label>
                 <input value={form.worker_name}
                   onChange={e => setForm({...form, worker_name: e.target.value})}
-                  className={inp} placeholder="שם..." />
+                  className={inp} placeholder="Name..." />
               </div>
             </div>
-            <div className="flex gap-2 px-6 py-4 border-t border-slate-100">
+            <div className="flex gap-2 px-6 py-4 border-t border-[#F3F3F3]">
               <button onClick={save}
-                className="flex-1 bg-indigo-600 text-white py-2.5 rounded-xl text-sm font-medium hover:bg-indigo-700 transition">
-                שמירה
+                className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all">
+                Save
               </button>
               <button onClick={() => setShowForm(false)}
-                className="flex-1 border border-slate-200 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition">
-                ביטול
+                className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F9F9F9] transition-all">
+                Cancel
               </button>
             </div>
           </div>

@@ -4,21 +4,21 @@ import { Plus, X, Trash2, Phone, Mail, Globe, MapPin, Search, Pencil, Save } fro
 
 // קטגוריות ספקים
 const CATEGORIES = [
-  'קבלן שיפוצים',
-  'חשמלאי',
-  'אינסטלטור',
-  'נגר',
-  'טכנאי מיזוג',
-  'צבעי',
-  'גבס',
-  'ריצוף',
-  'ריהוט',
-  'תאורה',
-  'וילונות ותריסים',
-  'שיש ומטבחים',
-  'אריחים וחיפויים',
-  'גינון ונוף',
-  'אחר',
+  'Renovation Contractor',
+  'Electrician',
+  'Plumber',
+  'Carpenter',
+  'HVAC Technician',
+  'Painter',
+  'Drywall',
+  'Flooring',
+  'Furniture',
+  'Lighting',
+  'Curtains & Blinds',
+  'Countertops & Kitchens',
+  'Tiles & Cladding',
+  'Landscaping',
+  'Other',
 ]
 
 // מודאל הוספה / עריכת ספק
@@ -42,7 +42,7 @@ function SupplierModal({ supplier, onClose, onSaved }) {
   }
 
   async function handleSave() {
-    if (!form.name.trim()) { alert('שם הספק הוא שדה חובה'); return }
+    if (!form.name.trim()) { alert('Supplier name is required'); return }
     setSaving(true)
     const payload = {
       name: form.name.trim(),
@@ -64,95 +64,86 @@ function SupplierModal({ supplier, onClose, onSaved }) {
     }
 
     setSaving(false)
-    if (error) { alert('שגיאה בשמירה: ' + error.message); return }
+    if (error) { alert('Error saving: ' + error.message); return }
     onSaved(data, isEdit)
   }
 
-  const inp = "w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition"
-  const lbl = "text-xs font-semibold text-slate-400 uppercase tracking-wide block mb-1.5"
+  const inp = "w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 transition"
+  const lbl = "text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5"
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-slate-900/60" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-[#091426]/60" onClick={onClose}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        {/* כותרת */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-100">
-          <h2 className="font-semibold text-slate-800">{isEdit ? 'עריכת ספק' : 'ספק חדש'}</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition p-1 rounded-lg hover:bg-slate-100">
-            <X size={18} />
+        <div className="flex items-center justify-between p-5 border-b border-[#F3F3F3]">
+          <h2 className="font-semibold text-[#091426] font-[Manrope] tracking-tight">{isEdit ? 'Edit Supplier' : 'New Supplier'}</h2>
+          <button onClick={onClose} className="text-[#6B7A90] hover:text-[#091426] transition p-1 rounded-xl hover:bg-[#F3F3F3]">
+            <X size={18} strokeWidth={1.8} />
           </button>
         </div>
 
-        {/* טופס */}
         <div className="p-5 space-y-4">
-          {/* שם */}
           <div>
-            <label className={lbl}>שם הספק *</label>
+            <label className={lbl}>Supplier Name *</label>
             <input value={form.name} onChange={e => set('name', e.target.value)}
-              placeholder="שם הספק / עסק" className={inp} autoFocus />
+              placeholder="Supplier / Business name" className={inp} autoFocus />
           </div>
 
-          {/* קטגוריה */}
           <div>
-            <label className={lbl}>קטגוריה</label>
+            <label className={lbl}>Category</label>
             <select value={form.category} onChange={e => set('category', e.target.value)} className={inp}>
               {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
 
-          {/* טלפון + מייל */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className={lbl}>טלפון</label>
+              <label className={lbl}>Phone</label>
               <input value={form.phone} onChange={e => set('phone', e.target.value)}
                 placeholder="050-0000000" className={inp} />
             </div>
             <div>
-              <label className={lbl}>מייל</label>
+              <label className={lbl}>Email</label>
               <input value={form.email} onChange={e => set('email', e.target.value)}
                 placeholder="email@example.com" className={inp} />
             </div>
           </div>
 
-          {/* כתובת */}
           <div>
-            <label className={lbl}>כתובת</label>
+            <label className={lbl}>Address</label>
             <input value={form.address} onChange={e => set('address', e.target.value)}
-              placeholder="רחוב, עיר" className={inp} />
+              placeholder="Street, City" className={inp} />
           </div>
 
-          {/* אתר + עמלה */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className={lbl}>אתר / קישור</label>
+              <label className={lbl}>Website / Link</label>
               <input value={form.website} onChange={e => set('website', e.target.value)}
                 placeholder="https://..." className={inp} />
             </div>
             <div>
-              <label className={lbl}>עמלה (%)</label>
+              <label className={lbl}>Commission (%)</label>
               <input type="number" value={form.commission_pct} onChange={e => set('commission_pct', e.target.value)}
                 placeholder="10" min="0" max="100" className={inp} />
             </div>
           </div>
 
-          {/* הערות */}
           <div>
-            <label className={lbl}>הערות</label>
+            <label className={lbl}>Notes</label>
             <textarea value={form.notes} onChange={e => set('notes', e.target.value)}
-              placeholder="פרטים נוספים, המלצות, תנאי תשלום..."
+              placeholder="Additional details, recommendations, payment terms..."
               rows={3} className={inp + ' resize-none'} />
           </div>
         </div>
 
-        {/* כפתורים */}
-        <div className="flex gap-3 p-5 border-t border-slate-100">
+        <div className="flex gap-3 p-5 border-t border-[#F3F3F3]">
           <button onClick={handleSave} disabled={saving}
-            className="flex-1 bg-indigo-600 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-indigo-700 transition disabled:opacity-50 flex items-center justify-center gap-2">
-            <Save size={15} />
-            {saving ? 'שומר...' : isEdit ? 'עדכן' : 'הוסף ספק'}
+            className="flex-1 bg-[#091426] text-white rounded-xl py-2.5 text-sm font-medium hover:bg-[#1E293B] transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+            <Save size={15} strokeWidth={1.8} />
+            {saving ? 'Saving...' : isEdit ? 'Update' : 'Add Supplier'}
           </button>
           <button onClick={onClose}
-            className="px-4 py-2.5 rounded-xl text-sm text-slate-600 hover:bg-slate-100 transition border border-slate-200">
-            ביטול
+            className="px-4 py-2.5 rounded-xl text-sm text-[#6B7A90] hover:bg-[#F9F9F9] bg-[#F3F3F3] transition-all">
+            Cancel
           </button>
         </div>
       </div>
@@ -161,71 +152,77 @@ function SupplierModal({ supplier, onClose, onSaved }) {
 }
 
 // כרטיס ספק
-function SupplierCard({ supplier, onEdit, onDelete }) {
+function SupplierCard({ supplier, isAdmin, onEdit, onDelete, onAddPurchase }) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 hover:shadow-md transition group">
-      {/* שורה עליונה */}
+    <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-5 hover:shadow-[0_4px_30px_rgba(9,20,38,0.08)] transition-all group">
       <div className="flex items-start justify-between mb-3">
         <div>
-          <h3 className="font-semibold text-slate-800 text-base leading-tight">{supplier.name}</h3>
+          <h3 className="font-semibold text-[#091426] text-base leading-tight font-[Manrope] tracking-tight">{supplier.name}</h3>
           <div className="flex items-center gap-2 mt-1 flex-wrap">
-            <span className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
+            <span className="text-[10px] font-bold tracking-wider bg-[#F3F3F3] text-[#091426] px-2 py-0.5 rounded-full">
               {supplier.category}
             </span>
-            {supplier.commission_pct != null && (
-              <span className="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-medium">
-                עמלה {supplier.commission_pct}%
+            {isAdmin && supplier.commission_pct != null && (
+              <span className="text-[10px] font-bold tracking-wider bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full">
+                Commission {supplier.commission_pct}%
               </span>
             )}
           </div>
         </div>
-        {/* כפתורי עריכה/מחיקה */}
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
-          <button onClick={() => onEdit(supplier)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition">
-            <Pencil size={14} />
-          </button>
-          <button onClick={() => onDelete(supplier)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition">
-            <Trash2 size={14} />
-          </button>
+          {!isAdmin && (
+            <button onClick={() => onAddPurchase(supplier)}
+              className="px-2.5 py-1 rounded-xl text-[10px] font-bold tracking-wider text-[#7B5800] bg-amber-50 hover:bg-amber-100 transition">
+              + Purchase
+            </button>
+          )}
+          {isAdmin && (
+            <>
+              <button onClick={() => onEdit(supplier)}
+                className="p-1.5 rounded-xl text-[#6B7A90] hover:text-[#091426] hover:bg-[#F3F3F3] transition">
+                <Pencil size={14} strokeWidth={1.8} />
+              </button>
+              <button onClick={() => onDelete(supplier)}
+                className="p-1.5 rounded-xl text-[#6B7A90] hover:text-red-500 hover:bg-red-50 transition">
+                <Trash2 size={14} strokeWidth={1.8} />
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      {/* פרטי קשר */}
       <div className="space-y-1.5">
         {supplier.phone && (
           <a href={`tel:${supplier.phone}`}
-            className="flex items-center gap-2 text-sm text-slate-600 hover:text-indigo-600 transition">
-            <Phone size={13} className="text-slate-400 shrink-0" />
+            className="flex items-center gap-2 text-sm text-[#091426] hover:text-[#091426] transition">
+            <Phone size={13} className="text-[#6B7A90] shrink-0" strokeWidth={1.8} />
             <span>{supplier.phone}</span>
           </a>
         )}
         {supplier.email && (
           <a href={`mailto:${supplier.email}`}
-            className="flex items-center gap-2 text-sm text-slate-600 hover:text-indigo-600 transition">
-            <Mail size={13} className="text-slate-400 shrink-0" />
+            className="flex items-center gap-2 text-sm text-[#091426] hover:text-[#091426] transition">
+            <Mail size={13} className="text-[#6B7A90] shrink-0" strokeWidth={1.8} />
             <span className="truncate">{supplier.email}</span>
           </a>
         )}
         {supplier.address && (
-          <div className="flex items-center gap-2 text-sm text-slate-500">
-            <MapPin size={13} className="text-slate-400 shrink-0" />
+          <div className="flex items-center gap-2 text-sm text-[#6B7A90]">
+            <MapPin size={13} className="text-[#6B7A90] shrink-0" strokeWidth={1.8} />
             <span>{supplier.address}</span>
           </div>
         )}
         {supplier.website && (
           <a href={supplier.website} target="_blank" rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm text-indigo-500 hover:text-indigo-700 transition">
-            <Globe size={13} className="shrink-0" />
-            <span className="truncate">אתר / קישור</span>
+            className="flex items-center gap-2 text-sm text-[#091426] hover:text-[#091426] transition">
+            <Globe size={13} className="shrink-0" strokeWidth={1.8} />
+            <span className="truncate">Website / Link</span>
           </a>
         )}
       </div>
 
-      {/* הערות */}
       {supplier.notes && (
-        <p className="mt-3 text-xs text-slate-400 border-t border-slate-100 pt-3 leading-relaxed">
+        <p className="mt-3 text-xs text-[#6B7A90] border-t border-[#F3F3F3] pt-3 leading-relaxed">
           {supplier.notes}
         </p>
       )}
@@ -234,88 +231,106 @@ function SupplierCard({ supplier, onEdit, onDelete }) {
 }
 
 // ── דף ראשי ──
-export default function Suppliers() {
+export default function Suppliers({ isAdmin = true }) {
   const [suppliers, setSuppliers] = useState([])
+  const [projects, setProjects]   = useState([])
   const [loading, setLoading]     = useState(true)
-  const [modal, setModal]         = useState(null)   // null | 'add' | supplier-object (edit)
+  const [modal, setModal]         = useState(null)
   const [search, setSearch]       = useState('')
-  const [filterCat, setFilterCat] = useState('הכל')
+  const [filterCat, setFilterCat] = useState('All')
+  const [purchaseModal, setPurchaseModal] = useState(null)
+  const [purchaseForm, setPurchaseForm]   = useState({ project_id: '', description: '', amount: '', quote_link: '' })
+  const [savingPurchase, setSavingPurchase] = useState(false)
 
-  // טעינה
   useEffect(() => {
     async function load() {
-      const { data } = await supabase.from('suppliers').select('*').order('name')
-      setSuppliers(data || [])
+      const [{ data: s }, { data: p }] = await Promise.all([
+        supabase.from('suppliers').select('*').order('name'),
+        supabase.from('projects').select('id, name').eq('status', 'active').order('name'),
+      ])
+      setSuppliers(s || [])
+      setProjects(p || [])
       setLoading(false)
     }
     load()
   }, [])
 
-  // קטגוריות קיימות בפועל
-  const existingCats = ['הכל', ...Array.from(new Set(suppliers.map(s => s.category))).sort()]
+  async function savePurchase() {
+    if (!purchaseForm.project_id || !purchaseForm.amount) return
+    setSavingPurchase(true)
+    await supabase.from('supplier_payments').insert({
+      supplier_id: purchaseModal.id,
+      project_id: purchaseForm.project_id,
+      description: purchaseForm.description,
+      amount: Number(purchaseForm.amount),
+      commission_pct: purchaseModal.commission_pct || null,
+      status: 'pending',
+    })
+    setPurchaseModal(null)
+    setPurchaseForm({ project_id: '', description: '', amount: '', quote_link: '' })
+    setSavingPurchase(false)
+    alert('Purchase added! Chloe will review it.')
+  }
 
-  // פילטר
+  const existingCats = ['All', ...Array.from(new Set(suppliers.map(s => s.category))).sort()]
+
   const filtered = suppliers.filter(s => {
     const matchSearch = !search || [s.name, s.phone, s.email, s.category, s.notes]
       .some(v => v?.toLowerCase().includes(search.toLowerCase()))
-    const matchCat = filterCat === 'הכל' || s.category === filterCat
+    const matchCat = filterCat === 'All' || s.category === filterCat
     return matchSearch && matchCat
   })
 
-  // אחרי שמירה
   function handleSaved(saved, isEdit) {
     if (isEdit) {
       setSuppliers(prev => prev.map(s => s.id === saved.id ? saved : s))
     } else {
-      setSuppliers(prev => [...prev, saved].sort((a, b) => a.name.localeCompare(b.name, 'he')))
+      setSuppliers(prev => [...prev, saved].sort((a, b) => a.name.localeCompare(b.name)))
     }
     setModal(null)
   }
 
-  // מחיקה
   async function handleDelete(supplier) {
-    if (!window.confirm(`למחוק את ${supplier.name}?`)) return
+    if (!window.confirm(`Delete ${supplier.name}?`)) return
     await supabase.from('suppliers').delete().eq('id', supplier.id)
     setSuppliers(prev => prev.filter(s => s.id !== supplier.id))
   }
 
-  if (loading) return <div className="text-slate-400 text-sm p-8">טוען...</div>
+  if (loading) return <div className="flex items-center justify-center p-8"><div className="w-6 h-6 border-2 border-[#091426] border-t-transparent rounded-full animate-spin" /></div>
 
   return (
     <div className="space-y-6">
-      {/* כותרת */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">ספר ספקים</h1>
-          <p className="text-sm text-slate-400 mt-0.5">{suppliers.length} ספקים במאגר</p>
+          <h1 className="text-2xl font-bold text-[#091426] font-[Manrope] tracking-tight">Supplier Directory</h1>
+          <p className="text-sm text-[#6B7A90] mt-0.5">{suppliers.length} suppliers in directory</p>
         </div>
-        <button onClick={() => setModal('add')}
-          className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-indigo-700 transition shadow-sm">
-          <Plus size={16} /> ספק חדש
-        </button>
+        {isAdmin && (
+          <button onClick={() => setModal('add')}
+            className="flex items-center gap-2 bg-[#091426] text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all">
+            <Plus size={16} strokeWidth={1.8} /> New Supplier
+          </button>
+        )}
       </div>
 
-      {/* חיפוש + פילטר */}
-      <div className="flex gap-3 flex-wrap">
-        {/* חיפוש */}
-        <div className="relative flex-1 min-w-48">
-          <Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+      <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
+        <div className="relative flex-1 min-w-0 sm:min-w-48">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7A90]" strokeWidth={1.8} />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="חיפוש לפי שם, טלפון, מייל..."
-            className="w-full border border-slate-200 rounded-xl pr-9 pl-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition bg-white"
+            placeholder="Search by name, phone, email..."
+            className="w-full bg-[#F3F3F3] rounded-xl pl-9 pr-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 transition"
           />
         </div>
 
-        {/* פילטר קטגוריה */}
         <div className="flex gap-1.5 flex-wrap">
           {existingCats.map(cat => (
             <button key={cat} onClick={() => setFilterCat(cat)}
-              className={`px-3 py-2 rounded-xl text-xs font-medium transition border ${
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
                 filterCat === cat
-                  ? 'bg-indigo-600 text-white border-indigo-600'
-                  : 'bg-white text-slate-500 border-slate-200 hover:border-indigo-300 hover:text-indigo-600'
+                  ? 'bg-[#091426] text-white'
+                  : 'bg-white text-[#6B7A90] hover:bg-[#F3F3F3]'
               }`}>
               {cat}
             </button>
@@ -323,30 +338,85 @@ export default function Suppliers() {
         </div>
       </div>
 
-      {/* רשת ספקים */}
       {filtered.length === 0 ? (
         <div className="text-center py-20">
-          <p className="text-slate-400 text-sm">
-            {suppliers.length === 0 ? 'עדיין אין ספקים — לחצי "ספק חדש" להוספה' : 'לא נמצאו ספקים תואמים'}
+          <p className="text-[#6B7A90] text-sm">
+            {suppliers.length === 0 ? 'No suppliers yet — click "New Supplier" to add one' : 'No matching suppliers found'}
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map(s => (
-            <SupplierCard key={s.id} supplier={s}
+            <SupplierCard key={s.id} supplier={s} isAdmin={isAdmin}
               onEdit={sup => setModal(sup)}
-              onDelete={handleDelete} />
+              onDelete={handleDelete}
+              onAddPurchase={sup => { setPurchaseModal(sup); setPurchaseForm({ project_id: '', description: '', amount: '', quote_link: '' }) }} />
           ))}
         </div>
       )}
 
-      {/* מודאל */}
       {modal && (
         <SupplierModal
           supplier={modal === 'add' ? null : modal}
           onClose={() => setModal(null)}
           onSaved={handleSaved}
         />
+      )}
+
+      {/* Purchase Modal — for team members */}
+      {purchaseModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-[#091426]/60" onClick={() => setPurchaseModal(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b border-[#F3F3F3]">
+              <div>
+                <h2 className="font-semibold text-[#091426] font-[Manrope] tracking-tight">Add Purchase</h2>
+                <p className="text-xs text-[#6B7A90] mt-0.5">Supplier: {purchaseModal.name}</p>
+              </div>
+              <button onClick={() => setPurchaseModal(null)} className="text-[#6B7A90] hover:text-[#091426] p-1 rounded-xl hover:bg-[#F3F3F3] transition">
+                <X size={18} strokeWidth={1.8} />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <div>
+                <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Project *</label>
+                <select value={purchaseForm.project_id} onChange={e => setPurchaseForm(p => ({...p, project_id: e.target.value}))}
+                  className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20">
+                  <option value="">— Select Project —</option>
+                  {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Description</label>
+                <input value={purchaseForm.description} onChange={e => setPurchaseForm(p => ({...p, description: e.target.value}))}
+                  placeholder="What was ordered..."
+                  className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Amount (₪) *</label>
+                <input type="number" value={purchaseForm.amount} onChange={e => setPurchaseForm(p => ({...p, amount: e.target.value}))}
+                  placeholder="0"
+                  className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Quote File Link (Google Drive)</label>
+                <input value={purchaseForm.quote_link} onChange={e => setPurchaseForm(p => ({...p, quote_link: e.target.value}))}
+                  placeholder="https://drive.google.com/..."
+                  className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+                <p className="text-[10px] text-[#6B7A90] mt-1">Upload the quote to Google Drive and paste the link here</p>
+              </div>
+            </div>
+            <div className="flex gap-3 p-5 border-t border-[#F3F3F3]">
+              <button onClick={savePurchase} disabled={!purchaseForm.project_id || !purchaseForm.amount || savingPurchase}
+                className="flex-1 bg-[#091426] text-white rounded-xl py-2.5 text-sm font-medium hover:bg-[#1E293B] transition-all disabled:opacity-40">
+                {savingPurchase ? 'Saving...' : 'Submit Purchase'}
+              </button>
+              <button onClick={() => setPurchaseModal(null)}
+                className="px-4 py-2.5 rounded-xl text-sm text-[#6B7A90] hover:bg-[#F9F9F9] bg-[#F3F3F3] transition-all">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

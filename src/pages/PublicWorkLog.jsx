@@ -1,148 +1,132 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { Clock, Calendar } from 'lucide-react'
+import { Clock, Send, CheckCircle2 } from 'lucide-react'
 
-// תפקידים
-const ROLES = ['מנהלת פרויקט', 'שרטטת', 'מעצבת', 'אחר']
+const ROLES = ['Project Manager', 'Drafter', 'Designer', 'Other']
 
-// דף ציבורי ליומן עבודה — ללא התחברות
 export default function PublicWorkLog() {
-  const [logs, setLogs]           = useState([])
-  const [projects, setProjects]   = useState([])
-  const [loading, setLoading]     = useState(true)
-  const [filterProj, setFilterProj] = useState('')
-  const [filterRole, setFilterRole] = useState('')
-
-  useEffect(() => { fetchAll() }, [])
-
-  async function fetchAll() {
-    const [{ data: l }, { data: p }] = await Promise.all([
-      supabase.from('work_log').select('*, projects(name)').order('work_date', { ascending: false }),
-      supabase.from('projects').select('id, name').order('name'),
-    ])
-    setLogs(l || [])
-    setProjects(p || [])
-    setLoading(false)
-  }
-
-  // פילטר
-  const filtered = logs.filter(l => {
-    const matchProj = !filterProj || l.project_id === filterProj
-    const matchRole = !filterRole || l.role === filterRole
-    return matchProj && matchRole
+  const [projects, setProjects] = useState([])
+  const [loading, setLoading]   = useState(true)
+  const [submitted, setSubmitted] = useState(false)
+  const [honeypot, setHoneypot] = useState('')
+  const [form, setForm] = useState({
+    project_id: '',
+    work_date: new Date().toISOString().split('T')[0],
+    role: ROLES[0],
+    worker_name: '',
+    hours: '',
+    description: '',
   })
 
-  const totalHours = filtered.reduce((s, l) => s + Number(l.hours || 0), 0)
+  useEffect(() => {
+    supabase.from('projects').select('id, name').eq('status', 'active').order('name')
+      .then(({ data }) => { setProjects(data || []); setLoading(false) })
+  }, [])
 
-  // KPI לפי תפקיד
-  const hoursByRole = ROLES.reduce((acc, r) => {
-    acc[r] = logs.filter(l => l.role === r).reduce((s, l) => s + Number(l.hours || 0), 0)
-    return acc
-  }, {})
+  async function handleSubmit(e) {
+    e.preventDefault()
+    if (honeypot) return
+    if (!form.project_id || !form.worker_name || !form.hours || !form.description.trim()) return
+
+    await supabase.from('work_log').insert({
+      project_id: form.project_id,
+      work_date: form.work_date,
+      role: form.role,
+      worker_name: form.worker_name,
+      hours: Number(form.hours),
+      description: form.description,
+    })
+
+    setSubmitted(true)
+    setTimeout(() => {
+      setSubmitted(false)
+      setForm(f => ({ ...f, hours: '', description: '' }))
+    }, 3000)
+  }
+
+  const inp = "w-full bg-[#F3F3F3] rounded-xl px-4 py-3 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 transition"
+  const lbl = "text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5"
 
   if (loading) return (
-    <div className="flex items-center justify-center h-screen bg-slate-50">
-      <div className="text-slate-400 text-sm">טוען...</div>
+    <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center">
+      <div className="w-6 h-6 border-2 border-[#091426] border-t-transparent rounded-full animate-spin" />
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-slate-50" dir="rtl">
-      {/* כותרת עליונה */}
-      <div className="bg-slate-900 px-6 py-4">
-        <div className="max-w-4xl mx-auto flex items-center gap-3">
-          <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center font-bold text-white text-sm">M</div>
-          <div>
-            <span className="text-white font-semibold text-lg">Motiv</span>
-            <span className="text-slate-400 text-sm mr-3">· יומן עבודה</span>
+    <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center p-6">
+      <div className="w-full max-w-md">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#7B5800] to-[#B8960B] flex items-center justify-center mx-auto mb-3">
+            <Clock size={22} className="text-white" strokeWidth={1.8} />
           </div>
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-6 py-8 space-y-6">
-        {/* כותרת */}
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800">יומן עבודה</h1>
-          <p className="text-sm text-slate-400 mt-0.5">
-            {logs.length} רשומות · סה"כ {logs.reduce((s, l) => s + Number(l.hours || 0), 0)} שעות
-          </p>
+          <h1 className="text-xl font-bold text-[#091426] font-[Manrope] tracking-tight">Work Log</h1>
+          <p className="text-xs text-[#6B7A90] tracking-widest uppercase mt-1">Yael Siso Interior Design</p>
         </div>
 
-        {/* KPI שעות לפי תפקיד */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {ROLES.map(r => (
-            <div key={r} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
-              <p className="text-2xl font-bold text-slate-800">
-                {hoursByRole[r] || 0}<span className="text-sm font-normal text-slate-400">ש'</span>
-              </p>
-              <p className="text-xs text-slate-400 mt-0.5">{r}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* פילטרים */}
-        <div className="flex gap-3 flex-wrap">
-          <select value={filterProj} onChange={e => setFilterProj(e.target.value)}
-            className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white min-w-40">
-            <option value="">כל הפרויקטים</option>
-            {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
-          <select value={filterRole} onChange={e => setFilterRole(e.target.value)}
-            className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-white">
-            <option value="">כל התפקידים</option>
-            {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
-          </select>
-          {(filterProj || filterRole) && (
-            <span className="text-sm text-slate-400 self-center">{filtered.length} רשומות · {totalHours} שעות</span>
-          )}
-        </div>
-
-        {/* רשימה */}
-        {filtered.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="text-5xl mb-3">📅</div>
-            <p className="text-slate-400 text-sm">אין רשומות עדיין</p>
+        {/* Form */}
+        {submitted ? (
+          <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-8 text-center">
+            <CheckCircle2 size={48} className="text-emerald-500 mx-auto mb-3" strokeWidth={1.5} />
+            <h2 className="text-lg font-bold text-[#091426] font-[Manrope]">Hours Logged!</h2>
+            <p className="text-sm text-[#6B7A90] mt-1">Thank you. You can submit another entry.</p>
           </div>
         ) : (
-          <div className="space-y-2">
-            {filtered.map(l => (
-              <div key={l.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex items-start justify-between">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <span className="text-sm font-medium text-slate-500 flex items-center gap-1">
-                      <Calendar size={12} className="text-slate-400" />
-                      {new Date(l.work_date).toLocaleDateString('he-IL', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </span>
-                    {l.projects?.name && (
-                      <span className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
-                        {l.projects.name}
-                      </span>
-                    )}
-                    {l.role && (
-                      <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
-                        {l.role}
-                      </span>
-                    )}
-                    {l.worker_name && (
-                      <span className="text-xs text-slate-400">{l.worker_name}</span>
-                    )}
-                  </div>
-                  <p className="text-slate-800 text-sm">{l.description}</p>
-                </div>
-                {l.hours && (
-                  <div className="flex items-center gap-1 font-semibold text-slate-700 text-sm shrink-0 mr-4">
-                    <Clock size={13} className="text-slate-400" /> {l.hours}ש'
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+          <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-6 space-y-4">
+            <div>
+              <label className={lbl}>Your Name *</label>
+              <input value={form.worker_name} onChange={e => setForm({...form, worker_name: e.target.value})}
+                placeholder="Full name" className={inp} required />
+            </div>
 
-        {/* פוטר */}
-        <div className="text-center pt-4 pb-8">
-          <p className="text-xs text-slate-300">Motiv · מערכת ניהול פרויקטים</p>
-        </div>
+            <div>
+              <label className={lbl}>Role *</label>
+              <select value={form.role} onChange={e => setForm({...form, role: e.target.value})} className={inp}>
+                {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+            </div>
+
+            <div>
+              <label className={lbl}>Project *</label>
+              <select value={form.project_id} onChange={e => setForm({...form, project_id: e.target.value})} className={inp} required>
+                <option value="">— Select Project —</option>
+                {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={lbl}>Date *</label>
+                <input type="date" value={form.work_date} onChange={e => setForm({...form, work_date: e.target.value})}
+                  className={inp} required />
+              </div>
+              <div>
+                <label className={lbl}>Hours *</label>
+                <input type="number" step="0.5" min="0.5" max="24" value={form.hours}
+                  onChange={e => setForm({...form, hours: e.target.value})}
+                  placeholder="0" className={inp} required />
+              </div>
+            </div>
+
+            <div>
+              <label className={lbl}>Description *</label>
+              <textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})}
+                placeholder="What did you work on..."
+                rows={3} className={inp + ' resize-none'} required />
+              {/* Honeypot - hidden from real users */}
+              <input type="text" value={honeypot} onChange={e => setHoneypot(e.target.value)}
+                style={{ position: 'absolute', left: '-9999px', tabIndex: -1 }} autoComplete="off" />
+            </div>
+
+            <button type="submit"
+              disabled={!form.project_id || !form.worker_name || !form.hours || !form.description.trim()}
+              className="w-full bg-[#091426] text-white py-3 rounded-xl text-sm font-semibold hover:bg-[#1E293B] transition-all disabled:opacity-40 flex items-center justify-center gap-2">
+              <Send size={15} strokeWidth={1.8} />
+              Submit Hours
+            </button>
+          </form>
+        )}
       </div>
     </div>
   )

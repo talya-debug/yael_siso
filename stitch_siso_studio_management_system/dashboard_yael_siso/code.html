@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed": "#e1dfff",
+                      "surface-container-low": "#f3f3f3",
+                      "on-secondary": "#ffffff",
+                      "on-primary-fixed": "#111c2d",
+                      "inverse-on-surface": "#f0f1f1",
+                      "surface": "#f9f9f9",
+                      "secondary": "#7b5800",
+                      "on-tertiary": "#ffffff",
+                      "outline": "#75777d",
+                      "tertiary-container": "#100092",
+                      "secondary-fixed-dim": "#f7bd48",
+                      "on-secondary-fixed": "#271900",
+                      "on-error-container": "#93000a",
+                      "inverse-primary": "#bcc7de",
+                      "on-surface": "#1a1c1c",
+                      "on-background": "#1a1c1c",
+                      "secondary-fixed": "#ffdea6",
+                      "on-error": "#ffffff",
+                      "on-primary-fixed-variant": "#3c475a",
+                      "surface-bright": "#f9f9f9",
+                      "primary-fixed": "#d8e3fb",
+                      "on-tertiary-container": "#8082ff",
+                      "on-surface-variant": "#45474c",
+                      "secondary-container": "#fdc34d",
+                      "inverse-surface": "#2f3131",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary-fixed-variant": "#5d4200",
+                      "on-tertiary-fixed-variant": "#2c24ce",
+                      "primary": "#091426",
+                      "tertiary-fixed-dim": "#c1c1ff",
+                      "on-primary": "#ffffff",
+                      "primary-container": "#1e293b",
+                      "outline-variant": "#c5c6cd",
+                      "surface-container-highest": "#e2e2e2",
+                      "on-primary-container": "#8590a6",
+                      "tertiary": "#060056",
+                      "error-container": "#ffdad6",
+                      "surface-tint": "#545f73",
+                      "error": "#ba1a1a",
+                      "on-tertiary-fixed": "#09006b",
+                      "surface-container-high": "#e8e8e8",
+                      "primary-fixed-dim": "#bcc7de",
+                      "surface-dim": "#dadada",
+                      "surface-container": "#eeeeee",
+                      "surface-variant": "#e2e2e2",
+                      "on-secondary-container": "#715000",
+                      "background": "#f9f9f9"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "fontFamily": {
+                      "headline": ["Manrope"],
+                      "body": ["Manrope"],
+                      "label": ["Inter"]
+              }
+            },
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-header {
+            background: rgba(249, 249, 249, 0.8);
+            backdrop-filter: blur(20px);
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- SideNavBar Shell -->
+<aside class="bg-[#091426] h-screen w-64 fixed left-0 top-0 shadow-2xl flex flex-col py-8 px-4 overflow-y-auto z-50">
+<div class="flex items-center gap-3 px-2 mb-10">
+<div class="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">vignette</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tighter text-white">The Studio</h1>
+<p class="text-xs text-on-primary-container font-medium tracking-tight">Interior Excellence</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-white bg-[#1E293B] rounded-xl font-bold transition-all duration-300" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-['Manrope'] text-sm tracking-tight">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] rounded-xl transition-all duration-300" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-['Manrope'] text-sm tracking-tight">Clients</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] rounded-xl transition-all duration-300" href="#">
+<span class="material-symbols-outlined">architecture</span>
+<span class="font-['Manrope'] text-sm tracking-tight">Projects</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] rounded-xl transition-all duration-300" href="#">
+<span class="material-symbols-outlined">tactic</span>
+<span class="font-['Manrope'] text-sm tracking-tight">Scope Templates</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] rounded-xl transition-all duration-300" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-['Manrope'] text-sm tracking-tight">Client Billing</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] rounded-xl transition-all duration-300" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-['Manrope'] text-sm tracking-tight">Supplier Billing</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] rounded-xl transition-all duration-300" href="#">
+<span class="material-symbols-outlined">store</span>
+<span class="font-['Manrope'] text-sm tracking-tight">Supplier Directory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] rounded-xl transition-all duration-300" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-['Manrope'] text-sm tracking-tight">Monthly Report</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] rounded-xl transition-all duration-300" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-['Manrope'] text-sm tracking-tight">Finance Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] rounded-xl transition-all duration-300" href="#">
+<span class="material-symbols-outlined">history_edu</span>
+<span class="font-['Manrope'] text-sm tracking-tight">Work Log</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-[#1E293B] hover:scale-[1.02] rounded-xl transition-all duration-300" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-['Manrope'] text-sm tracking-tight">Knowledge Base</span>
+</a>
+</nav>
+<div class="mt-auto pt-8 border-t border-slate-800/50">
+<div class="flex items-center gap-3 px-2">
+<img alt="Yael Siso" class="w-10 h-10 rounded-full object-cover grayscale opacity-80" data-alt="Professional headshot of a female creative director in a minimalist office setting, warm natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDil5k7nOgEneC80ywQ-Ooe7TPhWAlK3RlT3Z-5_OdHqQ72YSObcITkTAxQssqAtv8aUJMwB1KPOaIGTpEb6HjNTvqL8XbXUx_Q5j3ASnkyNzHwB_dAkBD-lihiSZHS_keJjumYv0MtqnRdaLYoD4tCRTly1h3CZM1QxjbQI0E03kmnYXYn29QJY1k9uqr6rcyNB4gr_O6vD1jawe8hHEs4Ok2ZunTmwLe9qbGAFoETwhp1U6zFDDktjggaNsPPPQQpH2dJ_5Xs63s"/>
+<div>
+<p class="text-sm font-bold text-white leading-none">Yael Siso</p>
+<p class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Lead Architect</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 min-h-screen bg-surface">
+<!-- TopNavBar Shell -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-40 bg-[#F9F9F9]/80 backdrop-blur-xl flex justify-between items-center px-8">
+<div class="flex items-center gap-6 flex-1">
+<h2 class="text-lg font-black text-[#091426] tracking-tight">Curated Canvas</h2>
+<div class="relative w-72">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 text-sm focus:ring-1 focus:ring-secondary/30 font-['Inter']" placeholder="Search projects or clients..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors text-slate-600">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors text-slate-600">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-secondary-container/20 flex items-center justify-center">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXtETJyorYTjMWPxK5OTLkZHhA5Sn9JQqSCmaI-yfn-dQ5wTlrTqZUsf4t2DF3ApUvUzXPzRkENKrwGsupJuouh0eXxhHqnTbDileGbyXWBk198KVkbtu3IYaKR_NPtWJ_X2lZqNkGydev9mXyZF9lCvsqQmUWeGA-ucdUKtlD3Na5ajbPrdlRgQ6wZHKzDLv31TH3GR8oieiz8P4eIr_GK7bis94XhQeMtyfHjFzoBJa8dabwFYNnMG5sNNgApHdR0VwccmKVVd0"/>
+</div>
+</div>
+</header>
+<!-- Canvas Content -->
+<div class="pt-24 px-10 pb-12">
+<!-- Welcome Header -->
+<section class="mb-10">
+<h1 class="text-4xl font-extrabold tracking-tight text-primary mb-1">Welcome, Yael</h1>
+<p class="text-on-surface-variant font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+                    Monday, October 23, 2023
+                </p>
+</section>
+<!-- KPI Cards Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:scale-[1.02] transition-transform duration-300">
+<p class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-widest mb-2 font-['Inter']">Total Clients</p>
+<div class="flex items-end justify-between">
+<h3 class="text-3xl font-extrabold text-primary">124</h3>
+<span class="text-xs font-bold text-secondary bg-secondary/10 px-2 py-1 rounded-full">+12%</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:scale-[1.02] transition-transform duration-300">
+<p class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-widest mb-2 font-['Inter']">Active Projects</p>
+<div class="flex items-end justify-between">
+<h3 class="text-3xl font-extrabold text-primary">18</h3>
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-200"></div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-300"></div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-400"></div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:scale-[1.02] transition-transform duration-300">
+<p class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-widest mb-2 font-['Inter']">Pending Billing</p>
+<div class="flex items-end justify-between">
+<h3 class="text-3xl font-extrabold text-primary">₪ 42,800</h3>
+<span class="material-symbols-outlined text-secondary">payments</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:scale-[1.02] transition-transform duration-300">
+<p class="text-[11px] font-semibold text-on-surface-variant uppercase tracking-widest mb-2 font-['Inter']">Completed Tasks</p>
+<div class="flex items-end justify-between">
+<h3 class="text-3xl font-extrabold text-primary">45/60</h3>
+<div class="w-16 h-2 bg-surface-container-low rounded-full overflow-hidden mb-2">
+<div class="w-3/4 h-full bg-secondary"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Main Dashboard Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+<!-- Left Column: Recent Projects -->
+<section class="lg:col-span-2 space-y-6">
+<div class="flex items-center justify-between">
+<h2 class="text-2xl font-bold tracking-tight text-primary">Recent Projects</h2>
+<button class="text-sm font-bold text-secondary hover:underline transition-all">View All Projects</button>
+</div>
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low">
+<th class="px-6 py-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest font-['Inter']">Project Name</th>
+<th class="px-6 py-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest font-['Inter']">Client</th>
+<th class="px-6 py-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest font-['Inter']">Status</th>
+<th class="px-6 py-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest font-['Inter']">Progress</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low">
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-slate-100 flex-shrink-0">
+<img class="w-full h-full object-cover rounded-lg" data-alt="Modern minimalist living room with beige tones and sculptural furniture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWL52sHQAL70BGfsOQSbu9qkpo0y9-h9mHPIdVcsJqYaYoEWMzF48cNTSDo1LfTAfUQegonOVZZVmlgeyAU4v3bpPV5uMWJtbj4rzKf3RsUuzucLjagHGqxtmQ6fXiG2tbFeVYzUE_gnkpGDRbqkSURUJbseuhayVa7MbaN9usg2oxBRTCM_yrFLr2kpbZpADl0mP0C3euQjxnlhGZg0XQcZLMiJ8zL1pkYSCEA__gN4WdeEIwmEBWNfQHxeuMTPO-Ig_R-c8X8Zc"/>
+</div>
+<span class="font-bold text-primary">Herzliya Pituach Villa</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface-variant">Levy Family</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-secondary/10 text-secondary text-[10px] font-bold uppercase tracking-wider rounded-full">Sourcing</span>
+</td>
+<td class="px-6 py-5">
+<div class="w-full max-w-[100px] h-1.5 bg-surface-container-low rounded-full overflow-hidden">
+<div class="w-[65%] h-full bg-secondary"></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-slate-100 flex-shrink-0">
+<img class="w-full h-full object-cover rounded-lg" data-alt="Contemporary kitchen design with dark marble and gold fixtures" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAw7r2jTbZzhwGUjx5WU6udqZraeiYJkHh1-AQzFGi0jKcbzV3SGqQjQyzIjQoQDoEabNjNQ65_mpiCFtajzyyGGvGzd-0rXtljwxfxE69lTd3TptkWxQgeuDArWysmtWkFKUDXcTKB2Sf1CQw2ujBgBlDVdNrzN2LEN2JZ_a-PxQzIZrFiXsHub6NZcol01mheNkSdn7HZw6LAmWOchyP6Q2tG0NbY-xcR71Hz4tzNjDlfiByIc_ID9pYAQi8HeS_kPNgZr_Zzz9I"/>
+</div>
+<span class="font-bold text-primary">Tel Aviv Penthouse</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface-variant">Cohen &amp; Co.</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider rounded-full">Concept</span>
+</td>
+<td class="px-6 py-5">
+<div class="w-full max-w-[100px] h-1.5 bg-surface-container-low rounded-full overflow-hidden">
+<div class="w-[25%] h-full bg-primary"></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-slate-100 flex-shrink-0">
+<img class="w-full h-full object-cover rounded-lg" data-alt="Luxury bathroom with natural stone walls and ambient lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnp3mFGEILwnCD9gJ9mPmwJkbPiJjRfs8qEcNcwXH-9DWj-aUHBWjgylafjNbzEcKoAxBUOMjKsfoAWEBJaSJz2tgLr_h0ETm5a_vupja53JOzZP3wvE4JkoqZTpXcBJOCj8Y1Ck4AvKqpnyfW29-Jpcaw7SjocPdEMEfNQdYagRW7RRzDNYPR13gDJAmGK6-6RtI5m0U6ChTt75CVz5MajiFd2MWzuY-oc3eIpCTPh6mWKMbqfPVYQag70MU81cBH6qa5_-L0R8w"/>
+</div>
+<span class="font-bold text-primary">Raanana Residence</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface-variant">Dr. Miller</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-wider rounded-full">Implementation</span>
+</td>
+<td class="px-6 py-5">
+<div class="w-full max-w-[100px] h-1.5 bg-surface-container-low rounded-full overflow-hidden">
+<div class="w-[85%] h-full bg-green-500"></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-slate-100 flex-shrink-0">
+<img class="w-full h-full object-cover rounded-lg" data-alt="Modern kitchen with high-end appliances and sleek cabinets" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBZZMS_rOq020BfCdvdSXQvKB4Sc7ZaYBvu7lQufqcDz8i1czVjGGzKmI8znU3CJgv-LowUjnPFf0iKHrsRLavDOxsMY55Iej8UiKqYiPZoLCwzLjiOkpgtPtjh5QBbT8c-mluNzN-bk7IWD9Dcy7D66wV1Hh9R4Rjcjgbi4zbRyHitDTio-92LkcHOixr-2h6mClL0SpdQeLn3C_NkVbdFhQOE6MufYYbXY1yfRuzIw-zOH90cbBdn4NSlC2fQtcKcpm9fInFH6Q"/>
+</div>
+<span class="font-bold text-primary">Savyon Estate</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface-variant">Arison Group</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-secondary/10 text-secondary text-[10px] font-bold uppercase tracking-wider rounded-full">Sourcing</span>
+</td>
+<td class="px-6 py-5">
+<div class="w-full max-w-[100px] h-1.5 bg-surface-container-low rounded-full overflow-hidden">
+<div class="w-[50%] h-full bg-secondary"></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low/30 transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-slate-100 flex-shrink-0">
+<img class="w-full h-full object-cover rounded-lg" data-alt="Professional office lobby with architectural lighting and concrete textures" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPAAUgqMlinseOsNcwQzD73AkIIcvx6CfY-QH-5s__v6T-SZlrsMVnpPnJpQpMMTG5pJqg_4FmRqdsbbIg5T7cDR7DPXQt8LrQ1pC50E8xWwrT98ZO23U8HS1SXnP3Q0S2bwmw7mjMhgUoPy7jy5vF3o8wAYqdRL1SkvM1VbjfOMMA78u9eB1YGSjZ4imPUQ4RykfmeacSVNJePOUpGZryZbW9yhn3kdHPwMIi6TrUmi6yi1B8Cbw7uxWid1g2Qu2NhizHmbMaPlk"/>
+</div>
+<span class="font-bold text-primary">Jaffa Loft</span>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface-variant">Galit Bar</td>
+<td class="px-6 py-5">
+<span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider rounded-full">Concept</span>
+</td>
+<td class="px-6 py-5">
+<div class="w-full max-w-[100px] h-1.5 bg-surface-container-low rounded-full overflow-hidden">
+<div class="w-[10%] h-full bg-primary"></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Right Column: Upcoming Tasks -->
+<section class="space-y-6">
+<div class="flex items-center justify-between">
+<h2 class="text-2xl font-bold tracking-tight text-primary">Upcoming Tasks</h2>
+<button class="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+<div class="space-y-4">
+<div class="bg-surface-container-lowest p-5 rounded-xl shadow-sm border-l-4 border-secondary">
+<div class="flex items-start justify-between mb-3">
+<div>
+<p class="text-[10px] font-bold text-secondary uppercase tracking-widest font-['Inter'] mb-1">High Priority</p>
+<h4 class="font-bold text-primary">Marble Supplier Review</h4>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">more_vert</span>
+</div>
+<div class="flex items-center justify-between text-xs text-on-surface-variant">
+<span class="flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[14px]">apartment</span> Tel Aviv Penthouse
+                                </span>
+<span class="font-semibold text-secondary">Today</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-xl shadow-sm border-l-4 border-slate-300">
+<div class="flex items-start justify-between mb-3">
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest font-['Inter'] mb-1">Medium Priority</p>
+<h4 class="font-bold text-primary">Lighting Plan Finalization</h4>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">more_vert</span>
+</div>
+<div class="flex items-center justify-between text-xs text-on-surface-variant">
+<span class="flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[14px]">apartment</span> Herzliya Villa
+                                </span>
+<span class="font-medium">Oct 25</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-xl shadow-sm border-l-4 border-slate-300">
+<div class="flex items-start justify-between mb-3">
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest font-['Inter'] mb-1">Medium Priority</p>
+<h4 class="font-bold text-primary">Client Contract Sign-off</h4>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">more_vert</span>
+</div>
+<div class="flex items-center justify-between text-xs text-on-surface-variant">
+<span class="flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[14px]">apartment</span> Raanana Residence
+                                </span>
+<span class="font-medium">Oct 27</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-xl shadow-sm border-l-4 border-slate-200">
+<div class="flex items-start justify-between mb-3">
+<div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest font-['Inter'] mb-1">Low Priority</p>
+<h4 class="font-bold text-primary">Fabric Sample Sorting</h4>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">more_vert</span>
+</div>
+<div class="flex items-center justify-between text-xs text-on-surface-variant">
+<span class="flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[14px]">apartment</span> Studio General
+                                </span>
+<span class="font-medium">Oct 28</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-xl shadow-sm border-l-4 border-secondary">
+<div class="flex items-start justify-between mb-3">
+<div>
+<p class="text-[10px] font-bold text-secondary uppercase tracking-widest font-['Inter'] mb-1">High Priority</p>
+<h4 class="font-bold text-primary">Site Visit: Jaffa Loft</h4>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">more_vert</span>
+</div>
+<div class="flex items-center justify-between text-xs text-on-surface-variant">
+<span class="flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[14px]">apartment</span> Jaffa Loft
+                                </span>
+<span class="font-semibold text-secondary">Tomorrow</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<!-- FAB -->
+<button class="fixed bottom-10 right-10 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform active:scale-95 z-50">
+<span class="material-symbols-outlined text-2xl">add_circle</span>
+</button>
+</main>
+</body></html>
