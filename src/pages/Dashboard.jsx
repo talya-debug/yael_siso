@@ -14,7 +14,7 @@ import FinanceDashboard from './FinanceDashboard'
 
 // admin = sees everything, team = limited
 const allModules = [
-  { id: 'home',             label: 'Dashboard',          Icon: LayoutDashboard, access: 'all' },
+  { id: 'home',             label: 'Dashboard',          Icon: LayoutDashboard, access: 'admin' },
   { id: 'clients',          label: 'Clients',             Icon: Users,           access: 'admin' },
   { id: 'projects',         label: 'Projects',            Icon: FolderKanban,    access: 'all' },
   { id: 'billing',          label: 'Client Billing',      Icon: Wallet,          access: 'admin' },
@@ -33,7 +33,7 @@ export default function Dashboard({ userRole, onLogout }) {
   const userName = userRole?.name || 'User'
   const initials = userName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase()
 
-  const [active, setActive] = useState('home')
+  const [active, setActive] = useState(isAdmin ? 'home' : 'projects')
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const renderPage = () => {
