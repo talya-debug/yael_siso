@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { Users, FolderKanban, Wallet, CheckCircle2, Clock, AlertCircle, ArrowUpRight, TrendingUp } from 'lucide-react'
 
-export default function Home({ onNavigate }) {
+export default function Home({ onNavigate, isAdmin = true }) {
   const [stats, setStats] = useState({ clients: 0, projects: 0, tasks: 0, doneTasks: 0, pendingBilling: 0, paidBilling: 0 })
   const [recentProjects, setRecentProjects] = useState([])
   const [upcomingTasks, setUpcomingTasks] = useState([])
@@ -50,12 +50,13 @@ export default function Home({ onNavigate }) {
     setLoading(false)
   }
 
-  const kpis = [
-    { label: 'TOTAL CLIENTS',    value: stats.clients,   icon: Users,         nav: 'clients',  accent: false },
-    { label: 'ACTIVE PROJECTS',  value: stats.projects,  icon: FolderKanban,  nav: 'projects',  accent: false },
-    { label: 'PENDING BILLING',  value: `₪${stats.pendingBilling.toLocaleString()}`, icon: Wallet, nav: 'billing', accent: true },
-    { label: 'COMPLETED TASKS',  value: `${stats.doneTasks}/${stats.tasks}`, icon: CheckCircle2, nav: 'projects', accent: false },
+  const allKpis = [
+    { label: 'TOTAL CLIENTS',    value: stats.clients,   icon: Users,         nav: 'clients',  accent: false, admin: true },
+    { label: 'ACTIVE PROJECTS',  value: stats.projects,  icon: FolderKanban,  nav: 'projects',  accent: false, admin: false },
+    { label: 'PENDING BILLING',  value: `₪${stats.pendingBilling.toLocaleString()}`, icon: Wallet, nav: 'billing', accent: true, admin: true },
+    { label: 'COMPLETED TASKS',  value: `${stats.doneTasks}/${stats.tasks}`, icon: CheckCircle2, nav: 'projects', accent: false, admin: false },
   ]
+  const kpis = allKpis.filter(k => !k.admin || isAdmin)
 
   const STATUS_META = {
     active:    { label: 'ACTIVE',     bg: 'bg-emerald-50',  text: 'text-emerald-700', dot: 'bg-emerald-500' },

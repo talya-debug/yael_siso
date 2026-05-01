@@ -40,10 +40,10 @@ export default function Dashboard({ userRole, onLogout }) {
     // Block non-admin from admin pages
     if (!isAdmin && allModules.find(m => m.id === active)?.access === 'admin') {
       setActive('home')
-      return <Home onNavigate={setActive} />
+      return <Home onNavigate={setActive} isAdmin={isAdmin} />
     }
     switch (active) {
-      case 'home':      return <Home onNavigate={setActive} />
+      case 'home':      return <Home onNavigate={setActive} isAdmin={isAdmin} />
       case 'clients':   return <Clients />
       case 'projects':  return <Projects />
       case 'contents':  return <Contents />
@@ -52,9 +52,9 @@ export default function Dashboard({ userRole, onLogout }) {
       case 'supplierbilling': return <SupplierBilling />
       case 'monthlyreport':   return <MonthlyReport />
       case 'financedashboard': return <FinanceDashboard />
-      case 'worklog':         return <WorkLog />
+      case 'worklog':         return <WorkLog isAdmin={isAdmin} />
       case 'knowledge': return <Knowledge />
-      default:          return <Home onNavigate={setActive} />
+      default:          return <Home onNavigate={setActive} isAdmin={isAdmin} />
     }
   }
 

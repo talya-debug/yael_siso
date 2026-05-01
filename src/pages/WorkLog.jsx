@@ -9,7 +9,7 @@ function getPublicUrl() {
   return `${window.location.origin}/worklog-public`
 }
 
-export default function WorkLog() {
+export default function WorkLog({ isAdmin = true }) {
   const [logs,       setLogs]       = useState([])
   const [projects,   setProjects]   = useState([])
   const [loading,    setLoading]    = useState(true)
@@ -89,9 +89,11 @@ export default function WorkLog() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold text-[#091426] font-[Manrope] tracking-tight">Work Log</h1>
-          <p className="text-sm text-[#6B7A90] mt-0.5">
-            {logs.length} entries · Total {logs.reduce((s,l) => s + Number(l.hours||0),0)} hours
-          </p>
+          {isAdmin && (
+            <p className="text-sm text-[#6B7A90] mt-0.5">
+              {logs.length} entries · Total {logs.reduce((s,l) => s + Number(l.hours||0),0)} hours
+            </p>
+          )}
         </div>
         <div className="flex gap-2">
           <button onClick={copyLink}
@@ -126,76 +128,90 @@ export default function WorkLog() {
         </a>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-        {ROLES.map(r => (
-          <div key={r} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4">
-            <p className="text-2xl font-bold text-[#091426]">{hoursByRole[r] || 0}<span className="text-sm font-normal text-[#6B7A90]">h</span></p>
-            <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-0.5">{r}</p>
-          </div>
-        ))}
-      </div>
+      {isAdmin && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+          {ROLES.map(r => (
+            <div key={r} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4">
+              <p className="text-2xl font-bold text-[#091426]">{hoursByRole[r] || 0}<span className="text-sm font-normal text-[#6B7A90]">h</span></p>
+              <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-0.5">{r}</p>
+            </div>
+          ))}
+        </div>
+      )}
 
-      <div className="flex gap-3 flex-wrap">
-        <select value={filterProj} onChange={e => setFilterProj(e.target.value)}
-          className="bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 min-w-40">
-          <option value="">All Projects</option>
-          {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-        </select>
-        <select value={filterRole} onChange={e => setFilterRole(e.target.value)}
-          className="bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20">
-          <option value="">All Roles</option>
-          {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
-        </select>
-        {(filterProj || filterRole) && (
-          <span className="text-sm text-[#6B7A90] self-center">{filtered.length} entries · {totalHours} hours</span>
-        )}
-      </div>
+      {isAdmin && (
+        <div className="flex gap-3 flex-wrap">
+          <select value={filterProj} onChange={e => setFilterProj(e.target.value)}
+            className="bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 min-w-40">
+            <option value="">All Projects</option>
+            {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </select>
+          <select value={filterRole} onChange={e => setFilterRole(e.target.value)}
+            className="bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20">
+            <option value="">All Roles</option>
+            {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
+          {(filterProj || filterRole) && (
+            <span className="text-sm text-[#6B7A90] self-center">{filtered.length} entries · {totalHours} hours</span>
+          )}
+        </div>
+      )}
 
-      {filtered.length === 0 && (
+      {isAdmin && filtered.length === 0 && (
         <div className="text-center py-16">
           <div className="text-5xl mb-3">📅</div>
           <p className="text-[#6B7A90] text-sm">No entries yet — click "+ New Entry"</p>
         </div>
       )}
 
-      <div className="space-y-2">
-        {filtered.map(l => (
-          <div key={l.id} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4 flex items-start justify-between group">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap mb-1">
-                <span className="text-sm font-medium text-[#6B7A90]">
-                  {new Date(l.work_date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
-                </span>
-                {l.projects?.name && (
-                  <span className="text-[10px] font-bold tracking-wider bg-[#F3F3F3] text-[#091426] px-2 py-0.5 rounded-full">
-                    {l.projects.name}
+      {!isAdmin && (
+        <div className="text-center py-16">
+          <div className="text-5xl mb-3">📝</div>
+          <p className="text-[#091426] text-sm font-medium">Log your work hours</p>
+          <p className="text-[#6B7A90] text-xs mt-1">Click "+ New Entry" to add your hours, or use the public link</p>
+        </div>
+      )}
+
+      {isAdmin && (
+        <div className="space-y-2">
+          {filtered.map(l => (
+            <div key={l.id} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4 flex items-start justify-between group">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap mb-1">
+                  <span className="text-sm font-medium text-[#6B7A90]">
+                    {new Date(l.work_date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </span>
-                )}
-                {l.role && (
-                  <span className="text-[10px] font-bold tracking-wider bg-[#F3F3F3] text-[#6B7A90] px-2 py-0.5 rounded-full">
-                    {l.role}
-                  </span>
-                )}
-                {l.worker_name && (
-                  <span className="text-xs text-[#6B7A90]">{l.worker_name}</span>
-                )}
+                  {l.projects?.name && (
+                    <span className="text-[10px] font-bold tracking-wider bg-[#F3F3F3] text-[#091426] px-2 py-0.5 rounded-full">
+                      {l.projects.name}
+                    </span>
+                  )}
+                  {l.role && (
+                    <span className="text-[10px] font-bold tracking-wider bg-[#F3F3F3] text-[#6B7A90] px-2 py-0.5 rounded-full">
+                      {l.role}
+                    </span>
+                  )}
+                  {l.worker_name && (
+                    <span className="text-xs text-[#6B7A90]">{l.worker_name}</span>
+                  )}
+                </div>
+                <p className="text-[#091426] text-sm">{l.description}</p>
               </div>
-              <p className="text-[#091426] text-sm">{l.description}</p>
+              <div className="flex items-center gap-3 shrink-0 ml-4">
+                {l.hours && (
+                  <span className="flex items-center gap-1 font-semibold text-[#091426] text-sm">
+                    <Clock size={13} className="text-[#6B7A90]" strokeWidth={1.8} /> {l.hours}h
+                  </span>
+                )}
+                <button onClick={() => remove(l.id)}
+                  className="opacity-0 group-hover:opacity-100 transition text-[#6B7A90] hover:text-red-500 p-1 rounded-xl hover:bg-red-50">
+                  <Trash2 size={13} strokeWidth={1.8} />
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-3 shrink-0 ml-4">
-              {l.hours && (
-                <span className="flex items-center gap-1 font-semibold text-[#091426] text-sm">
-                  <Clock size={13} className="text-[#6B7A90]" strokeWidth={1.8} /> {l.hours}h
-                </span>
-              )}
-              <button onClick={() => remove(l.id)}
-                className="opacity-0 group-hover:opacity-100 transition text-[#6B7A90] hover:text-red-500 p-1 rounded-xl hover:bg-red-50">
-                <Trash2 size={13} strokeWidth={1.8} />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {showForm && (
         <div className="fixed inset-0 bg-[#091426]/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
