@@ -1,0 +1,14 @@
+קלואי, עוד צעד אחד קטן:
+
+1. היכנסי לכתובת:
+https://console.cloud.google.com/apis/credentials/consent
+
+2. חפשי כפתור או לינק שכתוב עליו "Test users" או "Add users"
+
+3. תוסיפי את המייל:
+hello@yaelsiso.com
+
+4. שמרי
+
+5. תנסי שוב את הלינק:
+https://yaelsiso.vercel.app/api/gmail-auth

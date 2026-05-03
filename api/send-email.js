@@ -1,10 +1,10 @@
-// שליחת מייל דרך Gmail API מ-hello@yaelsiso.com
+// שליחת מייל דרך Gmail API מ-hello@yaelsiso.com — תומך בקבצים מצורפים
 import { createClient } from '@supabase/supabase-js'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' })
 
-  const { to, subject, body } = req.body
+  const { to, subject, body, attachments } = req.body
   if (!to || !subject || !body) return res.status(400).json({ error: 'Missing to, subject, or body' })
 
   const sb = createClient(process.env.VITE_SUPABASE_URL, process.env.VITE_SUPABASE_ANON_KEY)
@@ -27,18 +27,62 @@ export default async function handler(req, res) {
   const { access_token } = await tokenRes.json()
   if (!access_token) return res.status(500).json({ error: 'Failed to get access token' })
 
-  // בניית מייל בפורמט RFC 2822
-  const email = [
-    `From: Yael Siso Studio <hello@yaelsiso.com>`,
-    `To: ${to}`,
-    `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
-    `MIME-Version: 1.0`,
-    `Content-Type: text/html; charset=UTF-8`,
-    ``,
-    body,
-  ].join('\r\n')
+  let raw
 
-  const raw = Buffer.from(email).toString('base64url')
+  if (attachments && attachments.length > 0) {
+    // מייל עם קבצים מצורפים — multipart MIME
+    const boundary = 'boundary_' + Date.now()
+    const parts = []
+
+    // חלק HTML
+    parts.push([
+      `Content-Type: text/html; charset=UTF-8`,
+      ``,
+      body,
+    ].join('\r\n'))
+
+    // קבצים מצורפים
+    for (const att of attachments) {
+      // att.dataUrl = "data:application/pdf;base64,ABC..."
+      const match = att.dataUrl.match(/^data:(.+?);base64,(.+)$/)
+      if (!match) continue
+      const mimeType = match[1]
+      const base64Data = match[2]
+      parts.push([
+        `Content-Type: ${mimeType}`,
+        `Content-Transfer-Encoding: base64`,
+        `Content-Disposition: attachment; filename="${att.name}"`,
+        ``,
+        base64Data,
+      ].join('\r\n'))
+    }
+
+    const email = [
+      `From: Yael Siso Studio <hello@yaelsiso.com>`,
+      `To: ${to}`,
+      `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
+      `MIME-Version: 1.0`,
+      `Content-Type: multipart/mixed; boundary="${boundary}"`,
+      ``,
+      ...parts.map(p => `--${boundary}\r\n${p}`),
+      `--${boundary}--`,
+    ].join('\r\n')
+
+    raw = Buffer.from(email).toString('base64url')
+  } else {
+    // מייל פשוט בלי קבצים
+    const email = [
+      `From: Yael Siso Studio <hello@yaelsiso.com>`,
+      `To: ${to}`,
+      `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
+      `MIME-Version: 1.0`,
+      `Content-Type: text/html; charset=UTF-8`,
+      ``,
+      body,
+    ].join('\r\n')
+
+    raw = Buffer.from(email).toString('base64url')
+  }
 
   // שליחה דרך Gmail API
   const sendRes = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {

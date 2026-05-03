@@ -101,6 +101,7 @@ function TaskPanel({ task, onClose, onUpdate, client }) {
   const interval = setInterval(async () => {
    const { data } = await supabase.from('tasks').select('status').eq('id', task.id).single()
    if (data && data.status !== task.status) {
+    fetchSignature()
     onUpdate()
    }
   }, 5000)
@@ -165,18 +166,18 @@ Yael Siso | Interior Design`)
   setShowEmailPreview(true)
  }
 
- // העלאת קובץ
+ // העלאת קובץ — שמירה כ-base64 data URL לצירוף במייל
  async function handleFileUpload(e) {
   const file = e.target.files?.[0]
   if (!file) return
+  if (file.size > 5 * 1024 * 1024) { alert('File too large (max 5MB)'); return }
   setUploadingFile(true)
-  const fileName = `signatures/${Date.now()}_${file.name}`
-  const { error } = await supabase.storage.from('attachments').upload(fileName, file)
-  if (!error) {
-   const { data: urlData } = supabase.storage.from('attachments').getPublicUrl(fileName)
-   setAttachedFiles(prev => [...prev, { name: file.name, url: urlData.publicUrl }])
+  const reader = new FileReader()
+  reader.onload = () => {
+   setAttachedFiles(prev => [...prev, { name: file.name, dataUrl: reader.result }])
+   setUploadingFile(false)
   }
-  setUploadingFile(false)
+  reader.readAsDataURL(file)
   e.target.value = ''
  }
 
@@ -204,29 +205,25 @@ Yael Siso | Interior Design`)
   navigator.clipboard?.writeText(pendingSigUrl)
 
   // בניית גוף המייל כ-HTML
-  const attachmentsHtml = attachedFiles.length > 0
-   ? `<div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #eee;">
-      <p style="color: #091426; font-size: 13px; font-weight: 600; margin-bottom: 8px;">Attached Documents:</p>
-      ${attachedFiles.map(f => `<a href="${f.url}" style="display: block; color: #7B5800; font-size: 13px; margin-bottom: 4px; text-decoration: underline;">📎 ${f.name}</a>`).join('')}
-     </div>`
-   : ''
-
   const htmlBody = `
    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px;">
     <h2 style="color: #091426; font-size: 18px; margin-bottom: 16px;">Document Approval</h2>
     <div style="color: #333; font-size: 14px; white-space: pre-line; margin-bottom: 24px;">${emailBody}</div>
     <a href="${pendingSigUrl}" style="background: #091426; color: #fff; padding: 12px 32px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 600; display: inline-block;">Review & Sign</a>
-    ${attachmentsHtml}
+    ${attachedFiles.length > 0 ? '<p style="color: #6B7A90; font-size: 12px; margin-top: 16px;">📎 ' + attachedFiles.length + ' file(s) attached</p>' : ''}
     <p style="color: #B8960B; font-size: 11px; margin-top: 32px; letter-spacing: 2px; text-transform: uppercase;">Yael Siso — Interior Design</p>
    </div>
   `
+
+  // הכנת קבצים מצורפים לשליחה
+  const apiAttachments = attachedFiles.map(f => ({ name: f.name, dataUrl: f.dataUrl }))
 
   setSendingEmail(true)
   try {
    const res = await fetch('/api/send-email', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ to: emailTo, subject: emailSubject, body: htmlBody }),
+    body: JSON.stringify({ to: emailTo, subject: emailSubject, body: htmlBody, attachments: apiAttachments }),
    })
    if (res.ok) {
     setEmailSent(true)
