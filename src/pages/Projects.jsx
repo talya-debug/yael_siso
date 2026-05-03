@@ -114,12 +114,56 @@ function TaskPanel({ task, onClose, onUpdate, client }) {
 
  const [sendingEmail, setSendingEmail] = useState(false)
  const [emailSent, setEmailSent] = useState(false)
+ const [showEmailPreview, setShowEmailPreview] = useState(false)
+ const [emailSubject, setEmailSubject] = useState('')
+ const [emailBody, setEmailBody] = useState('')
+ const [emailTo, setEmailTo] = useState('')
+ const [pendingSigUrl, setPendingSigUrl] = useState('')
+ const [attachedFiles, setAttachedFiles] = useState([])
+ const [uploadingFile, setUploadingFile] = useState(false)
 
- async function sendForSignature() {
+ // שלב 1 — הכנת תצוגה מקדימה
+ function prepareSignature() {
   const token = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substr(2, 16)
   const url = window.location.origin + '/sign/' + token
+  setPendingSigUrl(url)
+  setEmailTo(client?.email || '')
+  setEmailSubject('Document for Your Approval — Yael Siso Interior Design')
+  setEmailBody(`Dear ${client?.name || 'Client'},
+
+Please review and sign the following document:
+
+Task: ${task.name}${task.phase_name ? '\nPhase: ' + task.phase_name : ''}
+
+If you have any questions, please don't hesitate to reach out.
+
+Best regards,
+Yael Siso | Interior Design`)
+  setAttachedFiles([])
+  setShowEmailPreview(true)
+ }
+
+ // העלאת קובץ
+ async function handleFileUpload(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  setUploadingFile(true)
+  const fileName = `signatures/${Date.now()}_${file.name}`
+  const { error } = await supabase.storage.from('attachments').upload(fileName, file)
+  if (!error) {
+   const { data: urlData } = supabase.storage.from('attachments').getPublicUrl(fileName)
+   setAttachedFiles(prev => [...prev, { name: file.name, url: urlData.publicUrl }])
+  }
+  setUploadingFile(false)
+  e.target.value = ''
+ }
+
+ // שלב 2 — שליחה בפועל
+ async function confirmAndSend() {
+  if (!emailTo) return
 
   // שמירת בקשת חתימה ב-DB
+  const token = pendingSigUrl.split('/sign/')[1]
   const { error } = await supabase.from('signatures').insert({
    task_id: task.id,
    token: token,
@@ -127,47 +171,50 @@ function TaskPanel({ task, onClose, onUpdate, client }) {
   })
 
   if (error) {
-   await supabase.from('task_logs').insert({ task_id: task.id, note: '✍️ Signature link: ' + url })
+   await supabase.from('task_logs').insert({ task_id: task.id, note: '✍️ Signature link: ' + pendingSigUrl })
   } else {
    await supabase.from('task_logs').insert({ task_id: task.id, note: '✍️ Signature request created — waiting for client' })
   }
 
-  setSigUrl(url)
+  setSigUrl(pendingSigUrl)
   fetchLogs()
   onUpdate()
-  navigator.clipboard?.writeText(url)
+  navigator.clipboard?.writeText(pendingSigUrl)
 
-  // שליחת מייל דרך Gmail API
-  if (client?.email) {
-   setSendingEmail(true)
-   try {
-    const res = await fetch('/api/send-email', {
-     method: 'POST',
-     headers: { 'Content-Type': 'application/json' },
-     body: JSON.stringify({
-      to: client.email,
-      subject: 'Document for Your Approval — Yael Siso Interior Design',
-      body: `
-       <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px;">
-        <h2 style="color: #091426; font-size: 18px; margin-bottom: 8px;">Document Approval</h2>
-        <p style="color: #6B7A90; font-size: 14px; margin-bottom: 4px;">Task: <strong>${task.name}</strong></p>
-        ${task.phase_name ? `<p style="color: #6B7A90; font-size: 14px; margin-bottom: 16px;">Phase: ${task.phase_name}</p>` : ''}
-        <p style="color: #333; font-size: 14px; margin-bottom: 24px;">Please review and sign the following document by clicking the button below:</p>
-        <a href="${url}" style="background: #091426; color: #fff; padding: 12px 32px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 600; display: inline-block;">Review & Sign</a>
-        <p style="color: #6B7A90; font-size: 12px; margin-top: 32px;">If you have any questions, please don't hesitate to reach out.</p>
-        <p style="color: #B8960B; font-size: 11px; margin-top: 24px; letter-spacing: 2px; text-transform: uppercase;">Yael Siso — Interior Design</p>
-       </div>
-      `,
-     }),
-    })
-    if (res.ok) {
-     setEmailSent(true)
-     await supabase.from('task_logs').insert({ task_id: task.id, note: `📧 Signature email sent to ${client.email}` })
-     fetchLogs()
-    }
-   } catch (e) { /* שגיאה בשליחה — הלינק כבר הועתק */ }
-   setSendingEmail(false)
-  }
+  // בניית גוף המייל כ-HTML
+  const attachmentsHtml = attachedFiles.length > 0
+   ? `<div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #eee;">
+      <p style="color: #091426; font-size: 13px; font-weight: 600; margin-bottom: 8px;">Attached Documents:</p>
+      ${attachedFiles.map(f => `<a href="${f.url}" style="display: block; color: #7B5800; font-size: 13px; margin-bottom: 4px; text-decoration: underline;">📎 ${f.name}</a>`).join('')}
+     </div>`
+   : ''
+
+  const htmlBody = `
+   <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px;">
+    <h2 style="color: #091426; font-size: 18px; margin-bottom: 16px;">Document Approval</h2>
+    <div style="color: #333; font-size: 14px; white-space: pre-line; margin-bottom: 24px;">${emailBody}</div>
+    <a href="${pendingSigUrl}" style="background: #091426; color: #fff; padding: 12px 32px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 600; display: inline-block;">Review & Sign</a>
+    ${attachmentsHtml}
+    <p style="color: #B8960B; font-size: 11px; margin-top: 32px; letter-spacing: 2px; text-transform: uppercase;">Yael Siso — Interior Design</p>
+   </div>
+  `
+
+  setSendingEmail(true)
+  try {
+   const res = await fetch('/api/send-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ to: emailTo, subject: emailSubject, body: htmlBody }),
+   })
+   if (res.ok) {
+    setEmailSent(true)
+    const filesNote = attachedFiles.length > 0 ? ` (+ ${attachedFiles.length} files)` : ''
+    await supabase.from('task_logs').insert({ task_id: task.id, note: `📧 Signature email sent to ${emailTo}${filesNote}` })
+    fetchLogs()
+   }
+  } catch (e) { /* שגיאה — הלינק כבר הועתק */ }
+  setSendingEmail(false)
+  setShowEmailPreview(false)
  }
 
  async function updateField(field, value) {
@@ -281,19 +328,77 @@ function TaskPanel({ task, onClose, onUpdate, client }) {
        {task.status === 'done' ? (
         <div className="bg-emerald-50 rounded-xl px-3 py-2 text-xs text-emerald-700 font-medium">✓ Signed & Completed</div>
        ) : (
-        <button onClick={sendForSignature} disabled={sendingEmail}
-         className="bg-gradient-to-r from-[#7B5800] to-[#B8960B] text-white px-4 py-2 rounded-xl text-xs font-medium hover:opacity-90 transition-all w-full disabled:opacity-50">
-         {sendingEmail ? 'Sending...' : 'Send for Signature'}
+        <button onClick={prepareSignature}
+         className="bg-gradient-to-r from-[#7B5800] to-[#B8960B] text-white px-4 py-2 rounded-xl text-xs font-medium hover:opacity-90 transition-all w-full">
+         Send for Signature
         </button>
        )}
        {emailSent && (
         <p className="text-[10px] text-emerald-600 mt-2 font-medium">📧 Email sent to {client?.email}</p>
        )}
-       {sigUrl && !client?.email && (
-        <p className="text-[10px] text-amber-600 mt-2">⚠️ No client email — link copied to clipboard</p>
-       )}
        {sigUrl && (
         <p className="text-[10px] text-[#6B7A90] mt-2 break-all">Link: {sigUrl}</p>
+       )}
+
+       {/* מודאל תצוגה מקדימה */}
+       {showEmailPreview && (
+        <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4" onClick={() => setShowEmailPreview(false)}>
+         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
+          <div className="px-6 py-4 border-b border-[#F3F3F3] flex items-center justify-between">
+           <h3 className="text-sm font-bold text-[#091426] font-[Manrope]">Email Preview</h3>
+           <button onClick={() => setShowEmailPreview(false)} className="text-[#6B7A90] hover:text-[#091426] transition">✕</button>
+          </div>
+          <div className="px-6 py-4 space-y-3">
+           <div>
+            <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1">To</label>
+            <input value={emailTo} onChange={e => setEmailTo(e.target.value)}
+             className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+           </div>
+           <div>
+            <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1">Subject</label>
+            <input value={emailSubject} onChange={e => setEmailSubject(e.target.value)}
+             className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+           </div>
+           <div>
+            <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1">Message</label>
+            <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} rows={6}
+             className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 resize-none" />
+           </div>
+
+           {/* קבצים מצורפים */}
+           <div>
+            <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1">Attachments</label>
+            {attachedFiles.map((f, i) => (
+             <div key={i} className="flex items-center gap-2 bg-[#F3F3F3] rounded-lg px-3 py-1.5 mb-1.5 text-xs">
+              <span className="flex-1 truncate">📎 {f.name}</span>
+              <button onClick={() => setAttachedFiles(prev => prev.filter((_, j) => j !== i))}
+               className="text-red-400 hover:text-red-600 text-xs">✕</button>
+             </div>
+            ))}
+            <label className={`inline-flex items-center gap-1.5 text-xs text-[#7B5800] font-medium cursor-pointer hover:underline ${uploadingFile ? 'opacity-50 pointer-events-none' : ''}`}>
+             {uploadingFile ? 'Uploading...' : '+ Add File'}
+             <input type="file" className="hidden" onChange={handleFileUpload} />
+            </label>
+           </div>
+
+           {/* תצוגה מקדימה של הלינק */}
+           <div className="bg-[#F9F9F9] rounded-xl p-3 border border-[#F3F3F3]">
+            <p className="text-[10px] text-[#6B7A90] mb-1">The email will include a signing button:</p>
+            <div className="bg-[#091426] text-white text-xs text-center py-2 px-4 rounded-lg inline-block font-medium">Review & Sign</div>
+           </div>
+          </div>
+          <div className="px-6 py-4 border-t border-[#F3F3F3] flex gap-2">
+           <button onClick={() => setShowEmailPreview(false)}
+            className="flex-1 bg-[#F3F3F3] text-[#091426] py-2.5 rounded-xl text-sm font-medium hover:bg-[#E8E8E8] transition">
+            Cancel
+           </button>
+           <button onClick={confirmAndSend} disabled={sendingEmail || !emailTo}
+            className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition disabled:opacity-50">
+            {sendingEmail ? 'Sending...' : 'Send Email'}
+           </button>
+          </div>
+         </div>
+        </div>
        )}
       </div>
      )}
