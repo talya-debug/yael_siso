@@ -73,7 +73,7 @@ function buildGantt(tasks, projectStartDate) {
 }
 
 // ── פאנל פרטי משימה ──
-function TaskPanel({ task, onClose, onUpdate }) {
+function TaskPanel({ task, onClose, onUpdate, client }) {
  const [name, setName]    = useState(task.name)
  const [editing, setEditing] = useState(false)
  const [logs, setLogs]    = useState([])
@@ -112,11 +112,14 @@ function TaskPanel({ task, onClose, onUpdate }) {
  // Check if this task needs a signature
  const needsSignature = /sign|approv|חתימ|אישור/i.test(task.name)
 
+ const [sendingEmail, setSendingEmail] = useState(false)
+ const [emailSent, setEmailSent] = useState(false)
+
  async function sendForSignature() {
   const token = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substr(2, 16)
   const url = window.location.origin + '/sign/' + token
 
-  // Save signature request in DB
+  // שמירת בקשת חתימה ב-DB
   const { error } = await supabase.from('signatures').insert({
    task_id: task.id,
    token: token,
@@ -124,7 +127,6 @@ function TaskPanel({ task, onClose, onUpdate }) {
   })
 
   if (error) {
-   // If signatures table doesn't exist yet, fallback to log only
    await supabase.from('task_logs').insert({ task_id: task.id, note: '✍️ Signature link: ' + url })
   } else {
    await supabase.from('task_logs').insert({ task_id: task.id, note: '✍️ Signature request created — waiting for client' })
@@ -133,28 +135,39 @@ function TaskPanel({ task, onClose, onUpdate }) {
   setSigUrl(url)
   fetchLogs()
   onUpdate()
-
   navigator.clipboard?.writeText(url)
 
-  // Open email with signature link
-  const subject = encodeURIComponent('Document for Your Approval — Yael Siso Interior Design')
-  const body = encodeURIComponent(
-`Dear Client,
-
-Please review and sign the following document:
-
-Task: ${task.name}
-${task.phase_name ? 'Phase: ' + task.phase_name : ''}
-
-Click the link below to sign:
-${url}
-
-If you have any questions, please don't hesitate to reach out.
-
-Best regards,
-Yael Siso | Interior Design`
-  )
-  window.open('mailto:?subject=' + subject + '&body=' + body)
+  // שליחת מייל דרך Gmail API
+  if (client?.email) {
+   setSendingEmail(true)
+   try {
+    const res = await fetch('/api/send-email', {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     body: JSON.stringify({
+      to: client.email,
+      subject: 'Document for Your Approval — Yael Siso Interior Design',
+      body: `
+       <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px;">
+        <h2 style="color: #091426; font-size: 18px; margin-bottom: 8px;">Document Approval</h2>
+        <p style="color: #6B7A90; font-size: 14px; margin-bottom: 4px;">Task: <strong>${task.name}</strong></p>
+        ${task.phase_name ? `<p style="color: #6B7A90; font-size: 14px; margin-bottom: 16px;">Phase: ${task.phase_name}</p>` : ''}
+        <p style="color: #333; font-size: 14px; margin-bottom: 24px;">Please review and sign the following document by clicking the button below:</p>
+        <a href="${url}" style="background: #091426; color: #fff; padding: 12px 32px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 600; display: inline-block;">Review & Sign</a>
+        <p style="color: #6B7A90; font-size: 12px; margin-top: 32px;">If you have any questions, please don't hesitate to reach out.</p>
+        <p style="color: #B8960B; font-size: 11px; margin-top: 24px; letter-spacing: 2px; text-transform: uppercase;">Yael Siso — Interior Design</p>
+       </div>
+      `,
+     }),
+    })
+    if (res.ok) {
+     setEmailSent(true)
+     await supabase.from('task_logs').insert({ task_id: task.id, note: `📧 Signature email sent to ${client.email}` })
+     fetchLogs()
+    }
+   } catch (e) { /* שגיאה בשליחה — הלינק כבר הועתק */ }
+   setSendingEmail(false)
+  }
  }
 
  async function updateField(field, value) {
@@ -268,10 +281,16 @@ Yael Siso | Interior Design`
        {task.status === 'done' ? (
         <div className="bg-emerald-50 rounded-xl px-3 py-2 text-xs text-emerald-700 font-medium">✓ Signed & Completed</div>
        ) : (
-        <button onClick={sendForSignature}
-         className="bg-gradient-to-r from-[#7B5800] to-[#B8960B] text-white px-4 py-2 rounded-xl text-xs font-medium hover:opacity-90 transition-all w-full">
-         Send for Signature
+        <button onClick={sendForSignature} disabled={sendingEmail}
+         className="bg-gradient-to-r from-[#7B5800] to-[#B8960B] text-white px-4 py-2 rounded-xl text-xs font-medium hover:opacity-90 transition-all w-full disabled:opacity-50">
+         {sendingEmail ? 'Sending...' : 'Send for Signature'}
         </button>
+       )}
+       {emailSent && (
+        <p className="text-[10px] text-emerald-600 mt-2 font-medium">📧 Email sent to {client?.email}</p>
+       )}
+       {sigUrl && !client?.email && (
+        <p className="text-[10px] text-amber-600 mt-2">⚠️ No client email — link copied to clipboard</p>
        )}
        {sigUrl && (
         <p className="text-[10px] text-[#6B7A90] mt-2 break-all">Link: {sigUrl}</p>
@@ -1196,6 +1215,7 @@ function ProjectDetail({ project, clients, onBack }) {
    {selectedTask && (
     <TaskPanel
      task={selectedTask}
+     client={client}
      onClose={() => setSelectedTask(null)}
      onUpdate={() => {
       fetchTasks()
