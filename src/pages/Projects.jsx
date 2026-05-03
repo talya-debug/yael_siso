@@ -1242,7 +1242,7 @@ export default function Projects() {
  async function fetchAll() {
   const [{ data: p }, { data: c }] = await Promise.all([
    supabase.from('projects').select('*, clients(name)').order('created_at', { ascending: false }),
-   supabase.from('clients').select('id, name').order('name'),
+   supabase.from('clients').select('id, name, email').order('name'),
   ])
   setProjects(p || [])
   setClients(c || [])
