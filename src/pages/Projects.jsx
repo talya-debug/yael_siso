@@ -82,8 +82,19 @@ function TaskPanel({ task, onClose, onUpdate, client }) {
  const [resources, setResources] = useState([])
  const [viewingResource, setViewingResource] = useState(null)
  const [sigUrl, setSigUrl] = useState(null)
+ const [signatureInfo, setSignatureInfo] = useState(null)
 
- useEffect(() => { fetchLogs(); fetchResources() }, [task.id])
+ useEffect(() => { fetchLogs(); fetchResources(); fetchSignature() }, [task.id])
+
+ // שליפת חתימה קיימת
+ async function fetchSignature() {
+  const { data } = await supabase.from('signatures')
+   .select('signer_name, signed_at, signature_data, status')
+   .eq('task_id', task.id)
+   .eq('status', 'signed')
+   .maybeSingle()
+  setSignatureInfo(data)
+ }
 
  // רענון אוטומטי — בודק כל 5 שניות אם הסטטוס השתנה (למשל אחרי חתימה)
  useEffect(() => {
@@ -337,7 +348,20 @@ Yael Siso | Interior Design`)
         ✍️ Digital Signature
        </h4>
        {task.status === 'done' ? (
-        <div className="bg-emerald-50 rounded-xl px-3 py-2 text-xs text-emerald-700 font-medium">✓ Signed & Completed</div>
+        <div className="space-y-2">
+         <div className="bg-emerald-50 rounded-xl px-3 py-2 text-xs text-emerald-700 font-medium">✓ Signed & Completed</div>
+         {signatureInfo && (
+          <div className="bg-[#F9F9F9] rounded-xl p-3 border border-[#F3F3F3]">
+           <p className="text-[10px] text-[#6B7A90] mb-1">Signed by: <span className="font-semibold text-[#091426]">{signatureInfo.signer_name}</span></p>
+           {signatureInfo.signed_at && <p className="text-[10px] text-[#6B7A90] mb-2">Date: {new Date(signatureInfo.signed_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>}
+           {signatureInfo.signature_data && (
+            <div className="bg-white rounded-lg border border-[#F3F3F3] p-2">
+             <img src={signatureInfo.signature_data} alt="Client signature" className="max-h-20 mx-auto" />
+            </div>
+           )}
+          </div>
+         )}
+        </div>
        ) : (
         <button onClick={prepareSignature}
          className="bg-gradient-to-r from-[#7B5800] to-[#B8960B] text-white px-4 py-2 rounded-xl text-xs font-medium hover:opacity-90 transition-all w-full">

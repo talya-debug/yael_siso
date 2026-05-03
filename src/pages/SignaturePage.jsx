@@ -75,26 +75,25 @@ export default function SignaturePage() {
 
     const signatureData = canvasRef.current?.toDataURL('image/png')
 
-    // Update signature record
-    const { error } = await supabase.from('signatures').update({
-      status: 'signed',
-      signed_at: new Date().toISOString(),
-      signer_name: signerName.trim(),
-      signature_data: signatureData,
-    }).eq('token', token)
-
-    if (error) {
+    // עדכון חתימה + סטטוס משימה דרך API (עוקף RLS)
+    try {
+      const res = await fetch('/api/update-signature', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token,
+          signer_name: signerName.trim(),
+          signature_data: signatureData,
+        }),
+      })
+      const result = await res.json()
+      if (!res.ok) {
+        setSignError(result.error || 'Failed to save signature. Please try again.')
+        return
+      }
+    } catch (e) {
       setSignError('Failed to save signature. Please try again.')
       return
-    }
-
-    // Update task status and log
-    if (sigRequest?.task_id) {
-      await supabase.from('tasks').update({ status: 'done' }).eq('id', sigRequest.task_id)
-      await supabase.from('task_logs').insert({
-        task_id: sigRequest.task_id,
-        note: '✅ Signed by ' + signerName.trim(),
-      })
     }
 
     setSigned(true)
@@ -109,6 +108,9 @@ export default function SignaturePage() {
   if (!sigRequest) return (
     <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center p-6">
       <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
+        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#7B5800] to-[#B8960B] flex items-center justify-center mx-auto mb-4">
+          <span className="text-white font-bold text-base font-[Manrope]">YS</span>
+        </div>
         <p className="text-[#6B7A90]">This signature link is invalid or has expired.</p>
       </div>
     </div>
@@ -117,6 +119,9 @@ export default function SignaturePage() {
   if (signed) return (
     <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center p-6">
       <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
+        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#7B5800] to-[#B8960B] flex items-center justify-center mx-auto mb-4">
+          <span className="text-white font-bold text-base font-[Manrope]">YS</span>
+        </div>
         <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
           <span className="text-3xl">✓</span>
         </div>
@@ -130,7 +135,11 @@ export default function SignaturePage() {
   return (
     <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center p-6">
       <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
-        <div className="text-center mb-6">
+        {/* לוגו */}
+        <div className="flex flex-col items-center mb-6">
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#7B5800] to-[#B8960B] flex items-center justify-center mb-3">
+            <span className="text-white font-bold text-base font-[Manrope]">YS</span>
+          </div>
           <h1 className="text-lg font-bold text-[#091426] font-[Manrope] tracking-[0.2em] uppercase mb-1">YAEL SISO</h1>
           <p className="text-[10px] text-[#6B7A90] tracking-widest uppercase">Architecture \ Interior Design</p>
         </div>
