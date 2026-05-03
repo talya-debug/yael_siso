@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import yaelLogo from '../assets/yael-logo.jpeg'
 
 export default function SignaturePage() {
   const { token } = useParams()
@@ -108,9 +109,7 @@ export default function SignaturePage() {
   if (!sigRequest) return (
     <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center p-6">
       <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#7B5800] to-[#B8960B] flex items-center justify-center mx-auto mb-4">
-          <span className="text-white font-bold text-base font-[Manrope]">YS</span>
-        </div>
+        <img src={yaelLogo} alt="Yael Siso" className="h-12 mx-auto mb-4" />
         <p className="text-[#6B7A90]">This signature link is invalid or has expired.</p>
       </div>
     </div>
@@ -119,9 +118,7 @@ export default function SignaturePage() {
   if (signed) return (
     <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center p-6">
       <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#7B5800] to-[#B8960B] flex items-center justify-center mx-auto mb-4">
-          <span className="text-white font-bold text-base font-[Manrope]">YS</span>
-        </div>
+        <img src={yaelLogo} alt="Yael Siso" className="h-12 mx-auto mb-4" />
         <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
           <span className="text-3xl">✓</span>
         </div>
@@ -137,11 +134,7 @@ export default function SignaturePage() {
       <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
         {/* לוגו */}
         <div className="flex flex-col items-center mb-6">
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#7B5800] to-[#B8960B] flex items-center justify-center mb-3">
-            <span className="text-white font-bold text-base font-[Manrope]">YS</span>
-          </div>
-          <h1 className="text-lg font-bold text-[#091426] font-[Manrope] tracking-[0.2em] uppercase mb-1">YAEL SISO</h1>
-          <p className="text-[10px] text-[#6B7A90] tracking-widest uppercase">Architecture \ Interior Design</p>
+          <img src={yaelLogo} alt="Yael Siso" className="h-14 mb-2" />
         </div>
 
         <div className="border-t border-[#F3F3F3] pt-5 mb-5">
