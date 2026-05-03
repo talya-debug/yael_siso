@@ -247,6 +247,7 @@ function PaymentRow({ payment, project, onEdit, onStatusChange, onDelete, onSend
 export default function Billing() {
   const [payments, setPayments]         = useState([])
   const [projects, setProjects]         = useState([])
+  const [clients, setClients]           = useState([])
   const [loading, setLoading]           = useState(true)
   const [showNew, setShowNew]           = useState(false)
   const [showTemplate, setShowTemplate] = useState(false)
@@ -254,16 +255,23 @@ export default function Billing() {
   const [filterProject, setFilterProject] = useState('')
   const [filterStatus, setFilterStatus]   = useState('')
   const [collapsed, setCollapsed]       = useState({})
+  // מודאל מייל
+  const [emailModal, setEmailModal]     = useState(null)
+  const [emailTo, setEmailTo]           = useState('')
+  const [emailSubject, setEmailSubject] = useState('')
+  const [emailBody, setEmailBody]       = useState('')
+  const [sendingEmail, setSendingEmail] = useState(false)
 
   useEffect(() => { fetchAll() }, [])
 
   async function fetchAll() {
     const [{ data: pay }, { data: proj }] = await Promise.all([
       supabase.from('payments').select('*').order('due_date'),
-      supabase.from('projects').select('id, name').order('name'),
+      supabase.from('projects').select('id, name, client_id, clients(name, email)').order('name'),
     ])
     setPayments(pay || [])
     setProjects(proj || [])
+    setClients((proj || []).reduce((map, p) => { if (p.clients) map[p.id] = p.clients; return map }, {}))
     setLoading(false)
   }
 
@@ -303,11 +311,51 @@ export default function Billing() {
   }
 
   function sendEmail(payment, project) {
-    const subject = encodeURIComponent(`Payment Required: ${payment.name} — ${project?.name || ''}`)
-    const body    = encodeURIComponent(
-      `Hello,\n\nAs agreed, we would like to arrange the payment "${payment.name}" of ${fmt(payment.amount)}.\n\nDue date: ${fmtDate(payment.due_date)}\n\nThank you,\nYael Siso Interior Design`
-    )
-    window.open(`mailto:?subject=${subject}&body=${body}`)
+    const client = clients[project?.id]
+    setEmailTo(client?.email || '')
+    setEmailSubject(`Payment Required: ${payment.name} — ${project?.name || ''}`)
+    setEmailBody(`Dear ${client?.name || 'Client'},
+
+As agreed, we would like to arrange the following payment:
+
+Payment: ${payment.name}
+Amount: ${fmt(payment.amount)}
+Due date: ${fmtDate(payment.due_date)}
+${payment.notes ? 'Notes: ' + payment.notes : ''}
+
+Please let us know once the transfer has been made.
+
+Best regards,
+Yael Siso | Interior Design`)
+    setEmailModal(payment)
+  }
+
+  async function confirmSendEmail() {
+    if (!emailTo || !emailModal) return
+    setSendingEmail(true)
+    try {
+      const res = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: emailTo,
+          subject: emailSubject,
+          body: `
+            <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px;">
+              <h2 style="color: #091426; font-size: 18px; margin-bottom: 16px;">Payment Request</h2>
+              <div style="color: #333; font-size: 14px; white-space: pre-line; margin-bottom: 24px;">${emailBody}</div>
+              <p style="color: #B8960B; font-size: 11px; margin-top: 32px; letter-spacing: 2px; text-transform: uppercase;">Yael Siso — Interior Design</p>
+            </div>
+          `,
+        }),
+      })
+      if (res.ok) {
+        // עדכון סטטוס ל-Current
+        await updateStatus(emailModal.id, 'sent')
+      }
+    } catch (e) { /* שגיאה */ }
+    setSendingEmail(false)
+    setEmailModal(null)
   }
 
   function exportCSV() {
@@ -464,6 +512,45 @@ export default function Billing() {
           onSave={saveTemplate}
           projects={projects}
         />
+      )}
+
+      {/* מודאל מייל גבייה */}
+      {emailModal && (
+        <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4" onClick={() => setEmailModal(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b border-[#F3F3F3] flex items-center justify-between">
+              <h3 className="text-sm font-bold text-[#091426] font-[Manrope]">Send Payment Request</h3>
+              <button onClick={() => setEmailModal(null)} className="text-[#6B7A90] hover:text-[#091426] transition">✕</button>
+            </div>
+            <div className="px-6 py-4 space-y-3">
+              <div>
+                <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1">To</label>
+                <input value={emailTo} onChange={e => setEmailTo(e.target.value)}
+                  className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1">Subject</label>
+                <input value={emailSubject} onChange={e => setEmailSubject(e.target.value)}
+                  className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1">Message</label>
+                <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} rows={8}
+                  className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 resize-none" />
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-[#F3F3F3] flex gap-2">
+              <button onClick={() => setEmailModal(null)}
+                className="flex-1 bg-[#F3F3F3] text-[#091426] py-2.5 rounded-xl text-sm font-medium hover:bg-[#E8E8E8] transition">
+                Cancel
+              </button>
+              <button onClick={confirmSendEmail} disabled={sendingEmail || !emailTo}
+                className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition disabled:opacity-50">
+                {sendingEmail ? 'Sending...' : 'Send Email'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

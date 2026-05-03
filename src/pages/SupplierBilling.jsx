@@ -7,11 +7,12 @@ const STATUS = {
   paid:    { label: 'Paid',     color: 'bg-emerald-50 text-emerald-700' },
 }
 
-// מייל דרישת עמלה בעברית
-function sendCommissionEmail(payment, supplier, project) {
+// הכנת מייל דרישת עמלה — פותח מודאל תצוגה מקדימה
+function prepareCommissionEmail(payment, supplier, project, setters) {
   const commission = payment.commission_pct ? (payment.amount * payment.commission_pct / 100) : 0
-  const subject = encodeURIComponent(`דרישת תשלום עמלה — ${project?.name || 'הזמנה'}`)
-  const body = encodeURIComponent(
+  setters.setEmailTo(supplier?.email || '')
+  setters.setEmailSubject(`דרישת תשלום עמלה — ${project?.name || 'הזמנה'}`)
+  setters.setEmailBody(
 `שלום ${supplier?.name || ''},
 
 בהמשך להזמנה שבוצעה${project ? ` עבור פרויקט "${project.name}"` : ''}${payment.description ? ` (${payment.description})` : ''}, בסך ₪${payment.amount.toLocaleString('he-IL')},
@@ -26,10 +27,8 @@ function sendCommissionEmail(payment, supplier, project) {
 נודה להעברה בהקדם.
 
 בברכה,
-יעל סיסו — עיצוב פנים`
-  )
-  const to = supplier?.email ? encodeURIComponent(supplier.email) : ''
-  window.open(`mailto:${to}?subject=${subject}&body=${body}`)
+יעל סיסו — עיצוב פנים`)
+  setters.setEmailModal(payment)
 }
 
 // ── מודאל הוספה/עריכה ──
@@ -284,6 +283,12 @@ export default function SupplierBilling() {
   const [modal,     setModal]     = useState(null)
   const [filterSup, setFilterSup] = useState('all')
   const [filterSt,  setFilterSt]  = useState('all')
+  // מודאל מייל
+  const [emailModal, setEmailModal]     = useState(null)
+  const [emailTo, setEmailTo]           = useState('')
+  const [emailSubject, setEmailSubject] = useState('')
+  const [emailBody, setEmailBody]       = useState('')
+  const [sendingEmail, setSendingEmail] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -463,7 +468,7 @@ export default function SupplierBilling() {
                   onEdit={pay => setModal(pay)}
                   onDelete={handleDelete}
                   onToggleStatus={handleToggleStatus}
-                  onSendEmail={pay => sendCommissionEmail(pay, supMap[pay.supplier_id], projMap[pay.project_id])}
+                  onSendEmail={pay => prepareCommissionEmail(pay, supMap[pay.supplier_id], projMap[pay.project_id], { setEmailTo, setEmailSubject, setEmailBody, setEmailModal })}
                 />
               ))}
             </tbody>
@@ -479,6 +484,64 @@ export default function SupplierBilling() {
           onClose={() => setModal(null)}
           onSaved={handleSaved}
         />
+      )}
+
+      {/* מודאל מייל דרישת עמלה */}
+      {emailModal && (
+        <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4" onClick={() => setEmailModal(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-auto" dir="rtl" onClick={e => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b border-[#F3F3F3] flex items-center justify-between">
+              <h3 className="text-sm font-bold text-[#091426] font-[Manrope]">שליחת דרישת עמלה</h3>
+              <button onClick={() => setEmailModal(null)} className="text-[#6B7A90] hover:text-[#091426] transition">✕</button>
+            </div>
+            <div className="px-6 py-4 space-y-3">
+              <div>
+                <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1">אל</label>
+                <input value={emailTo} onChange={e => setEmailTo(e.target.value)} dir="ltr"
+                  className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1">נושא</label>
+                <input value={emailSubject} onChange={e => setEmailSubject(e.target.value)}
+                  className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1">הודעה</label>
+                <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} rows={10}
+                  className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 resize-none" />
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-[#F3F3F3] flex gap-2">
+              <button onClick={() => setEmailModal(null)}
+                className="flex-1 bg-[#F3F3F3] text-[#091426] py-2.5 rounded-xl text-sm font-medium hover:bg-[#E8E8E8] transition">
+                ביטול
+              </button>
+              <button onClick={async () => {
+                if (!emailTo) return
+                setSendingEmail(true)
+                try {
+                  await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      to: emailTo,
+                      subject: emailSubject,
+                      body: `<div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px;" dir="rtl">
+                        <div style="color: #333; font-size: 14px; white-space: pre-line;">${emailBody}</div>
+                        <p style="color: #B8960B; font-size: 11px; margin-top: 32px; letter-spacing: 2px;">YAEL SISO — Interior Design</p>
+                      </div>`,
+                    }),
+                  })
+                } catch (e) { /* שגיאה */ }
+                setSendingEmail(false)
+                setEmailModal(null)
+              }} disabled={sendingEmail || !emailTo}
+                className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition disabled:opacity-50">
+                {sendingEmail ? 'שולח...' : 'שלח מייל'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
