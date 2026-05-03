@@ -85,6 +85,17 @@ function TaskPanel({ task, onClose, onUpdate, client }) {
 
  useEffect(() => { fetchLogs(); fetchResources() }, [task.id])
 
+ // רענון אוטומטי — בודק כל 5 שניות אם הסטטוס השתנה (למשל אחרי חתימה)
+ useEffect(() => {
+  const interval = setInterval(async () => {
+   const { data } = await supabase.from('tasks').select('status').eq('id', task.id).single()
+   if (data && data.status !== task.status) {
+    onUpdate()
+   }
+  }, 5000)
+  return () => clearInterval(interval)
+ }, [task.id, task.status])
+
  async function fetchLogs() {
   const { data } = await supabase
    .from('task_logs').select('*').eq('task_id', task.id)
