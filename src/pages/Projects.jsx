@@ -330,8 +330,8 @@ Yael Siso | Interior Design`)
       </div>
      </div>
 
-     {/* Signature */}
-     {needsSignature && (
+     {/* Signature — זמין לכל משימה */}
+     {(
       <div className="px-5 py-4 border-b border-[#F3F3F3]">
        <h4 className="text-[10px] font-semibold tracking-widest uppercase text-[#7B5800] mb-2 flex items-center gap-1.5">
         ✍️ Digital Signature
