@@ -2,7 +2,7 @@
 export default function handler(req, res) {
   const params = new URLSearchParams({
     client_id: process.env.GOOGLE_CLIENT_ID,
-    redirect_uri: 'https://yaelsiso.vercel.app/api/auth/callback',
+    redirect_uri: 'https://yaelsiso.vercel.app/auth/callback',
     response_type: 'code',
     scope: 'https://www.googleapis.com/auth/gmail.send',
     access_type: 'offline',
