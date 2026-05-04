@@ -1,0 +1,13 @@
+משימה: הרצת SQL להקמת טבלאות תקציב
+
+1. היכנסי ל:
+https://supabase.com/dashboard/project/ztbckbcwefnjpwgrdwkl/sql
+
+2. העתיקי את כל התוכן מהקובץ:
+sql_budget_setup.sql (נמצא בתיקיית הפרויקט)
+
+3. הדביקי בתיבה ולחצי Run
+
+4. צפוי להופיע: Success. No rows returned.
+
+זהו — הטבלאות מוכנות.
