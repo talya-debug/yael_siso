@@ -5,6 +5,7 @@ import {
  Calendar, User, MessageSquare, Plus, X, Trash2, Send,
  LayoutList, BarChart2, Flag, Pencil,
  Users, FileText, MapPin, ExternalLink, Link2, ContactRound,
+ Check, Download, CreditCard,
 } from 'lucide-react'
 
 // ── קבועים ──
@@ -1007,6 +1008,142 @@ function ClientCard({ project }) {
 }
 
 // ── פרטי פרויקט ──
+// ── תבנית ברירת מחדל לגבייה ──
+const DEFAULT_BILLING_MILESTONES = [
+ { name: 'Advance Payment', pct: 30 },
+ { name: 'Layout Approval', pct: 20 },
+ { name: 'Working Drawings', pct: 30 },
+ { name: 'Project Completion', pct: 20 },
+]
+
+function fmtCurrency(n) {
+ if (!n && n !== 0) return '—'
+ return Number(n).toLocaleString('en-US', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 })
+}
+
+// בניית עץ תכולות לבחירה
+function buildScopeTree(items) {
+ const phases = items.filter(i => i.level === 'phase').sort((a, b) => a.sort_order - b.sort_order)
+ return phases.map(phase => ({
+  ...phase,
+  tasks: items
+   .filter(i => i.level === 'task' && i.parent_id === phase.id)
+   .sort((a, b) => a.sort_order - b.sort_order)
+   .map(task => ({
+    ...task,
+    subtasks: items
+     .filter(i => i.level === 'subtask' && i.parent_id === task.id)
+     .sort((a, b) => a.sort_order - b.sort_order)
+   }))
+ }))
+}
+
+// ── בורר תכולות (עץ צ'קבוקסים) ──
+function ScopeSelectorModal({ tree, selected, onChange }) {
+ const [expanded, setExpanded] = useState({})
+ function toggle(id) { setExpanded(p => ({ ...p, [id]: !p[id] })) }
+ function isSelected(id) { return selected.has(id) }
+
+ function togglePhase(phase) {
+  const allIds = [phase.id, ...phase.tasks.map(t => t.id), ...phase.tasks.flatMap(t => t.subtasks.map(s => s.id))]
+  const allSelected = allIds.every(id => selected.has(id))
+  const next = new Set(selected)
+  allIds.forEach(id => allSelected ? next.delete(id) : next.add(id))
+  onChange(next)
+ }
+
+ function toggleTask(task) {
+  const allIds = [task.id, ...task.subtasks.map(s => s.id)]
+  const allSelected = allIds.every(id => selected.has(id))
+  const next = new Set(selected)
+  allIds.forEach(id => allSelected ? next.delete(id) : next.add(id))
+  onChange(next)
+ }
+
+ function toggleSub(subId) {
+  const next = new Set(selected)
+  next.has(subId) ? next.delete(subId) : next.add(subId)
+  onChange(next)
+ }
+
+ if (tree.length === 0) return (
+  <div className="text-center py-8 text-[#6B7A90] text-sm">No scope items — add some in "Scope Templates" first</div>
+ )
+
+ return (
+  <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+   {tree.map(phase => {
+    const phaseTaskIds = phase.tasks.map(t => t.id)
+    const phaseSubIds = phase.tasks.flatMap(t => t.subtasks.map(s => s.id))
+    const allPhaseIds = [phase.id, ...phaseTaskIds, ...phaseSubIds]
+    const phaseAll = allPhaseIds.every(id => selected.has(id))
+    const phaseSome = allPhaseIds.some(id => selected.has(id)) && !phaseAll
+
+    return (
+     <div key={phase.id} className="rounded-xl overflow-hidden shadow-[0_2px_20px_rgba(9,20,38,0.04)]">
+      <div className={`flex items-center gap-3 px-3 py-2.5 ${phaseAll ? 'bg-[#091426]' : 'bg-[#F3F3F3]'} cursor-pointer`}
+       onClick={() => togglePhase(phase)}>
+       <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 border ${
+        phaseAll ? 'bg-white border-white' : phaseSome ? 'border-[#6B7A90] bg-white' : 'border-[#6B7A90]/40 bg-white'
+       }`}>
+        {phaseAll && <Check size={10} className="text-[#091426]" />}
+        {phaseSome && <div className="w-2 h-0.5 bg-[#6B7A90] rounded" />}
+       </div>
+       <span className={`font-semibold text-sm flex-1 ${phaseAll ? 'text-white' : 'text-[#091426]'}`}>{phase.name}</span>
+       <button onClick={e => { e.stopPropagation(); toggle(phase.id) }}
+        className={`${phaseAll ? 'text-gray-300' : 'text-[#6B7A90]'}`}>
+        {expanded[phase.id] ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+       </button>
+      </div>
+      {expanded[phase.id] && (
+       <div>
+        {phase.tasks.map(task => {
+         const taskIds = [task.id, ...task.subtasks.map(s => s.id)]
+         const taskAll = taskIds.every(id => selected.has(id))
+         const taskSome = taskIds.some(id => selected.has(id)) && !taskAll
+         return (
+          <div key={task.id}>
+           <div className="flex items-center gap-3 px-5 py-2 cursor-pointer hover:bg-[#F9F9F9] transition"
+            onClick={() => toggleTask(task)}>
+            <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 border ${
+             taskAll ? 'bg-[#091426] border-[#091426]' : taskSome ? 'border-[#6B7A90] bg-white' : 'border-[#6B7A90]/40 bg-white'
+            }`}>
+             {taskAll && <Check size={10} className="text-white" />}
+             {taskSome && <div className="w-2 h-0.5 bg-[#6B7A90] rounded" />}
+            </div>
+            <span className="text-sm text-[#091426] flex-1">{task.name}</span>
+            {task.subtasks.length > 0 && (
+             <>
+              <span className="text-xs text-[#6B7A90]">{task.subtasks.length}</span>
+              <button onClick={e => { e.stopPropagation(); toggle(task.id) }} className="text-[#6B7A90]">
+               {expanded[task.id] ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+              </button>
+             </>
+            )}
+           </div>
+           {expanded[task.id] && task.subtasks.map(sub => (
+            <div key={sub.id} className="flex items-center gap-3 px-9 py-1.5 cursor-pointer hover:bg-[#F9F9F9] transition"
+             onClick={() => toggleSub(sub.id)}>
+             <div className={`w-3.5 h-3.5 rounded flex items-center justify-center shrink-0 border ${
+              isSelected(sub.id) ? 'bg-[#091426] border-[#091426]' : 'border-[#6B7A90]/40 bg-white'
+             }`}>
+              {isSelected(sub.id) && <Check size={9} className="text-white" />}
+             </div>
+             <span className="text-xs text-[#6B7A90]">{sub.name}</span>
+            </div>
+           ))}
+          </div>
+         )
+        })}
+       </div>
+      )}
+     </div>
+    )
+   })}
+  </div>
+ )
+}
+
 function ProjectDetail({ project, clients, onBack }) {
  const [tasks, setTasks]         = useState([])
  const [loading, setLoading]       = useState(true)
@@ -1018,7 +1155,20 @@ function ProjectDetail({ project, clients, onBack }) {
  const [projectStatus, setProjectStatus] = useState(project.status)
  const [knowledgeItems, setKnowledgeItems] = useState([])
 
- useEffect(() => { fetchTasks(); fetchKnowledge() }, [project.id])
+ // ── Import Scope ──
+ const [showImportScope, setShowImportScope] = useState(false)
+ const [scopeTree, setScopeTree] = useState([])
+ const [selectedScope, setSelectedScope] = useState(new Set())
+ const [importingScope, setImportingScope] = useState(false)
+
+ // ── Setup Billing ──
+ const [showBilling, setShowBilling] = useState(false)
+ const [billingPrice, setBillingPrice] = useState('')
+ const [billingRows, setBillingRows] = useState([])
+ const [hasPayments, setHasPayments] = useState(null)
+ const [creatingBilling, setCreatingBilling] = useState(false)
+
+ useEffect(() => { fetchTasks(); fetchKnowledge(); checkPayments() }, [project.id])
 
  async function fetchKnowledge() {
   const { data } = await supabase.from('knowledge').select('related_task').not('related_task', 'is', null)
@@ -1115,6 +1265,161 @@ function ProjectDetail({ project, clients, onBack }) {
   setProjectStatus(status)
  }
 
+ // ── בדיקה אם יש תשלומים לפרויקט ──
+ async function checkPayments() {
+  const { data } = await supabase.from('payments').select('id').eq('project_id', project.id).limit(1)
+  setHasPayments(data && data.length > 0)
+ }
+
+ // ── פתיחת מודאל ייבוא תכולות ──
+ async function openImportScope() {
+  const { data } = await supabase.from('contents').select('*').order('sort_order')
+  setScopeTree(buildScopeTree(data || []))
+  setSelectedScope(new Set())
+  setShowImportScope(true)
+ }
+
+ // ── ייבוא תכולות לפרויקט (מוסיף משימות, לא מוחק קיימות) ──
+ async function importScope() {
+  if (selectedScope.size === 0) return
+  setImportingScope(true)
+  try {
+   const { data: allContents } = await supabase.from('contents').select('*')
+   const getContent = id => allContents?.find(c => c.id === id)
+
+   // סינון רק פריטים שנבחרו ושהם tasks
+   const selectedTaskContents = allContents.filter(c =>
+    c.level === 'task' && selectedScope.has(c.id)
+   )
+
+   // קיבוץ לפי שלבים
+   const phaseMap = {}
+   selectedTaskContents.forEach(c => {
+    const phase = getContent(c.parent_id)
+    const phaseKey = phase?.id || 'general'
+    if (!phaseMap[phaseKey]) phaseMap[phaseKey] = { phase, tasks: [] }
+    phaseMap[phaseKey].tasks.push(c)
+   })
+   const byPhase = Object.values(phaseMap).sort((a, b) =>
+    (a.phase?.sort_order || 0) - (b.phase?.sort_order || 0)
+   )
+   byPhase.forEach(p => p.tasks.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)))
+
+   const pStart = project.start_date ? new Date(project.start_date) : new Date()
+   // מציאת הנקודה האחרונה של משימות קיימות
+   const existingTasks = tasks.filter(t => t.level !== 'subtask' && t.due_date)
+   let cursor = new Date(pStart)
+   if (existingTasks.length > 0) {
+    const maxDate = existingTasks.reduce((max, t) => {
+     const d = new Date(t.due_date)
+     return d > max ? d : max
+    }, new Date(pStart))
+    cursor = new Date(maxDate)
+   }
+
+   const taskMap = {}
+
+   for (const { phase, tasks: phTasks } of byPhase) {
+    const phaseName = phase?.name || 'General'
+    let taskCursor = new Date(cursor)
+
+    for (const c of phTasks) {
+     const days = c.estimated_days || 7
+     const startDate = taskCursor.toISOString().split('T')[0]
+     const endDate = new Date(taskCursor)
+     endDate.setDate(endDate.getDate() + days)
+     const dueDate = endDate.toISOString().split('T')[0]
+
+     const { data: t } = await supabase
+      .from('tasks')
+      .insert({
+       project_id: project.id,
+       name: c.name,
+       status: 'pending',
+       level: 'task',
+       phase_name: phaseName,
+       content_ref_id: c.id,
+       sort_order: (phase?.sort_order || 0) * 100 + (c.sort_order || 0),
+       estimated_days: days,
+       start_date: startDate,
+       due_date: dueDate,
+      })
+      .select()
+      .single()
+     if (t) taskMap[c.id] = t.id
+     taskCursor = new Date(endDate)
+    }
+    cursor = new Date(taskCursor)
+   }
+
+   // יצירת תת-משימות
+   const allSubContents = allContents.filter(c => c.level === 'subtask') || []
+   const subBatch = []
+   for (const [contentId, taskId] of Object.entries(taskMap)) {
+    const taskSubs = allSubContents.filter(s => s.parent_id === contentId && selectedScope.has(s.id))
+    taskSubs.forEach(s => {
+     const phase = getContent(getContent(s.parent_id)?.parent_id)
+     subBatch.push({
+      project_id: project.id,
+      name: s.name,
+      status: 'pending',
+      level: 'subtask',
+      parent_task_id: taskId,
+      phase_name: phase?.name || '',
+      content_ref_id: s.id,
+      sort_order: s.sort_order || 0,
+     })
+    })
+   }
+   for (let i = 0; i < subBatch.length; i += 50) {
+    await supabase.from('tasks').insert(subBatch.slice(i, i + 50))
+   }
+
+   setShowImportScope(false)
+   fetchTasks()
+  } finally {
+   setImportingScope(false)
+  }
+ }
+
+ // ── פתיחת מודאל הגדרת גבייה ──
+ function openBillingSetup() {
+  setBillingPrice(project.project_price?.toString() || '')
+  setBillingRows(DEFAULT_BILLING_MILESTONES.map(m => ({ ...m })))
+  setShowBilling(true)
+ }
+
+ // ── יצירת תשלומים ──
+ async function createBillingPayments() {
+  const price = parseFloat(billingPrice) || 0
+  if (price <= 0) return
+  setCreatingBilling(true)
+  try {
+   const items = billingRows
+    .filter(r => Number(r.pct || 0) > 0)
+    .map(r => ({
+     project_id: project.id,
+     name: r.name,
+     pct: Number(r.pct),
+     amount: Math.round(price * Number(r.pct) / 100),
+     status: 'pending',
+    }))
+   if (items.length > 0) {
+    await supabase.from('payments').insert(items)
+   }
+   // עדכון מחיר הפרויקט
+   if (price !== project.project_price) {
+    await supabase.from('projects').update({ project_price: price }).eq('id', project.id)
+   }
+   setShowBilling(false)
+   setHasPayments(true)
+  } finally {
+   setCreatingBilling(false)
+  }
+ }
+
+ const billingTotalPct = billingRows.reduce((s, r) => s + Number(r.pct || 0), 0)
+
  const mainTasks = tasks.filter(t => t.level !== 'subtask')
  const doneTasks = mainTasks.filter(t => t.status === 'done').length
  const progress  = mainTasks.length ? Math.round(doneTasks / mainTasks.length * 100) : 0
@@ -1163,6 +1468,16 @@ function ProjectDetail({ project, clients, onBack }) {
       </button>
      </div>
 
+     <button onClick={openImportScope}
+      className="bg-white text-[#091426] border border-[#091426]/20 px-3 py-1.5 rounded-xl text-xs font-medium hover:bg-[#F3F3F3] transition-all flex items-center gap-1">
+      <Download size={13} strokeWidth={1.8} /> Import Scope
+     </button>
+     {hasPayments === false && (
+      <button onClick={openBillingSetup}
+       className="bg-[#B8960B] text-white px-3 py-1.5 rounded-xl text-xs font-medium hover:bg-[#9A7D09] transition-all flex items-center gap-1">
+       <CreditCard size={13} strokeWidth={1.8} /> Setup Billing
+      </button>
+     )}
      <button onClick={() => setShowNewTask(true)}
       className="bg-[#091426] text-white px-3 py-1.5 rounded-xl text-xs font-medium hover:bg-[#1E293B] transition-all flex items-center gap-1">
       <Plus size={13} strokeWidth={1.8} /> Task
@@ -1361,6 +1676,91 @@ function ProjectDetail({ project, clients, onBack }) {
        .then(({ data }) => { if (data) setSelectedTask(data) })
      }}
     />
+   )}
+
+   {/* ── מודאל ייבוא תכולות ── */}
+   {showImportScope && (
+    <div className="fixed inset-0 bg-[#091426]/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-[#F3F3F3]">
+       <h2 className="text-base font-semibold text-[#091426] font-[Manrope] tracking-tight">Import Scope</h2>
+       <button onClick={() => setShowImportScope(false)} className="w-8 h-8 rounded-xl hover:bg-[#F3F3F3] flex items-center justify-center text-[#6B7A90]"><X size={16} strokeWidth={1.8} /></button>
+      </div>
+      <div className="px-6 py-5">
+       <p className="text-xs text-[#6B7A90] mb-3">Select scope items to import as tasks. Existing tasks will not be affected.</p>
+       <ScopeSelectorModal tree={scopeTree} selected={selectedScope} onChange={setSelectedScope} />
+      </div>
+      <div className="flex gap-2 px-6 py-4 border-t border-[#F3F3F3]">
+       <button onClick={importScope}
+        disabled={selectedScope.size === 0 || importingScope}
+        className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all disabled:opacity-40">
+        {importingScope ? 'Importing...' : `Import ${selectedScope.size} Items`}
+       </button>
+       <button onClick={() => setShowImportScope(false)} className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F9F9F9] transition-all">Cancel</button>
+      </div>
+     </div>
+    </div>
+   )}
+
+   {/* ── מודאל הגדרת גבייה ── */}
+   {showBilling && (
+    <div className="fixed inset-0 bg-[#091426]/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-[#F3F3F3]">
+       <h2 className="text-base font-semibold text-[#091426] font-[Manrope] tracking-tight">Setup Billing</h2>
+       <button onClick={() => setShowBilling(false)} className="w-8 h-8 rounded-xl hover:bg-[#F3F3F3] flex items-center justify-center text-[#6B7A90]"><X size={16} strokeWidth={1.8} /></button>
+      </div>
+      <div className="px-6 py-5 space-y-4">
+       <div>
+        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Project Price (₪) *</label>
+        <input type="number" value={billingPrice} onChange={e => setBillingPrice(e.target.value)}
+         placeholder="100000"
+         className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+       </div>
+       <div className="space-y-2">
+        <div className="grid grid-cols-12 gap-2 text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] px-1">
+         <span className="col-span-6">Milestone</span>
+         <span className="col-span-2 text-center">%</span>
+         <span className="col-span-3 text-right">Amount</span>
+        </div>
+        {billingRows.map((r, i) => (
+         <div key={i} className="grid grid-cols-12 gap-2 items-center">
+          <input value={r.name} onChange={e => setBillingRows(prev => prev.map((row, idx) => idx === i ? { ...row, name: e.target.value } : row))}
+           className="col-span-6 bg-[#F3F3F3] rounded-xl px-2.5 py-2 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+          <div className="col-span-2 flex items-center gap-1">
+           <input type="number" value={r.pct} onChange={e => setBillingRows(prev => prev.map((row, idx) => idx === i ? { ...row, pct: e.target.value } : row))}
+            className="w-full bg-[#F3F3F3] rounded-xl px-2 py-2 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 text-center" />
+          </div>
+          <div className="col-span-3 text-sm text-[#6B7A90] font-medium text-right">
+           {billingPrice ? fmtCurrency(Math.round(Number(billingPrice) * Number(r.pct || 0) / 100)) : '—'}
+          </div>
+          <button onClick={() => setBillingRows(prev => prev.filter((_, idx) => idx !== i))}
+           className="col-span-1 text-[#6B7A90] hover:text-red-500 transition flex justify-center">
+           <X size={14} strokeWidth={1.8} />
+          </button>
+         </div>
+        ))}
+       </div>
+       <div className="flex items-center justify-between">
+        <button onClick={() => setBillingRows(prev => [...prev, { name: 'Additional Payment', pct: 0 }])}
+         className="text-xs text-[#091426] hover:text-[#091426] font-medium flex items-center gap-1">
+         <Plus size={12} strokeWidth={1.8} /> Add Row
+        </button>
+        <span className={`text-xs font-semibold ${billingTotalPct === 100 ? 'text-emerald-600' : 'text-amber-600'}`}>
+         Total: {billingTotalPct}% {billingTotalPct !== 100 ? '⚠ Should be 100%' : '✓'}
+        </span>
+       </div>
+      </div>
+      <div className="flex gap-2 px-6 py-4 border-t border-[#F3F3F3]">
+       <button onClick={createBillingPayments}
+        disabled={!billingPrice || billingTotalPct !== 100 || creatingBilling}
+        className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all disabled:opacity-40">
+        {creatingBilling ? 'Creating...' : `Create ${billingRows.length} Payments`}
+       </button>
+       <button onClick={() => setShowBilling(false)} className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F9F9F9] transition-all">Cancel</button>
+      </div>
+     </div>
+    </div>
    )}
   </div>
  )
