@@ -59,6 +59,7 @@ export default async function handler(req, res) {
 
     const email = [
       `From: Yael Siso Studio <hello@yaelsiso.com>`,
+      `Reply-To: hello@yaelsiso.com`,
       `To: ${to}`,
       `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
       `MIME-Version: 1.0`,
@@ -70,15 +71,32 @@ export default async function handler(req, res) {
 
     raw = Buffer.from(email).toString('base64url')
   } else {
-    // מייל פשוט בלי קבצים
+    // מייל פשוט בלי קבצים — multipart/alternative לשיפור deliverability
+    const boundary = 'alt_' + Date.now()
+    // יצירת גרסת טקסט פשוט מ-HTML
+    const plainText = body.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim()
+
+    const htmlDoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${body}</body></html>`
+
     const email = [
       `From: Yael Siso Studio <hello@yaelsiso.com>`,
+      `Reply-To: hello@yaelsiso.com`,
       `To: ${to}`,
       `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
       `MIME-Version: 1.0`,
-      `Content-Type: text/html; charset=UTF-8`,
+      `Content-Type: multipart/alternative; boundary="${boundary}"`,
       ``,
-      body,
+      `--${boundary}`,
+      `Content-Type: text/plain; charset=UTF-8`,
+      `Content-Transfer-Encoding: quoted-printable`,
+      ``,
+      plainText,
+      `--${boundary}`,
+      `Content-Type: text/html; charset=UTF-8`,
+      `Content-Transfer-Encoding: quoted-printable`,
+      ``,
+      htmlDoc,
+      `--${boundary}--`,
     ].join('\r\n')
 
     raw = Buffer.from(email).toString('base64url')

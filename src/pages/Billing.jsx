@@ -261,6 +261,8 @@ export default function Billing() {
   const [emailSubject, setEmailSubject] = useState('')
   const [emailBody, setEmailBody]       = useState('')
   const [sendingEmail, setSendingEmail] = useState(false)
+  // הודעת הצלחה
+  const [toast, setToast] = useState(null)
 
   useEffect(() => { fetchAll() }, [])
 
@@ -342,6 +344,7 @@ Yael Siso | Interior Design`)
           subject: emailSubject,
           body: `
             <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px;">
+              <img src="https://yaelsiso.vercel.app/yael-logo.jpeg" alt="Yael Siso" style="height: 40px; margin-bottom: 16px;">
               <h2 style="color: #091426; font-size: 18px; margin-bottom: 16px;">Payment Request</h2>
               <div style="color: #333; font-size: 14px; white-space: pre-line; margin-bottom: 24px;">${emailBody}</div>
               <p style="color: #B8960B; font-size: 11px; margin-top: 32px; letter-spacing: 2px; text-transform: uppercase;">Yael Siso — Interior Design</p>
@@ -352,8 +355,16 @@ Yael Siso | Interior Design`)
       if (res.ok) {
         // עדכון סטטוס ל-Current
         await updateStatus(emailModal.id, 'sent')
+        setToast('Email sent successfully')
+        setTimeout(() => setToast(null), 3000)
+      } else {
+        setToast('Failed to send email')
+        setTimeout(() => setToast(null), 3000)
       }
-    } catch (e) { /* שגיאה */ }
+    } catch (e) {
+      setToast('Failed to send email')
+      setTimeout(() => setToast(null), 3000)
+    }
     setSendingEmail(false)
     setEmailModal(null)
   }
@@ -550,6 +561,13 @@ Yael Siso | Interior Design`)
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* הודעת הצלחה/שגיאה */}
+      {toast && (
+        <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] px-5 py-3 rounded-xl shadow-lg text-sm font-medium text-white transition-all ${toast.includes('Failed') ? 'bg-red-500' : 'bg-emerald-500'}`}>
+          {toast}
         </div>
       )}
     </div>

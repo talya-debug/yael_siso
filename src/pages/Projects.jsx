@@ -207,6 +207,7 @@ Yael Siso | Interior Design`)
   // בניית גוף המייל כ-HTML
   const htmlBody = `
    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px;">
+    <img src="https://yaelsiso.vercel.app/yael-logo.jpeg" alt="Yael Siso" style="height: 40px; margin-bottom: 16px;">
     <h2 style="color: #091426; font-size: 18px; margin-bottom: 16px;">Document Approval</h2>
     <div style="color: #333; font-size: 14px; white-space: pre-line; margin-bottom: 24px;">${emailBody}</div>
     <a href="${pendingSigUrl}" style="background: #091426; color: #fff; padding: 12px 32px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 600; display: inline-block;">Review & Sign</a>

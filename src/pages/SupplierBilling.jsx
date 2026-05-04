@@ -289,6 +289,8 @@ export default function SupplierBilling() {
   const [emailSubject, setEmailSubject] = useState('')
   const [emailBody, setEmailBody]       = useState('')
   const [sendingEmail, setSendingEmail] = useState(false)
+  // הודעת הצלחה
+  const [toast, setToast] = useState(null)
 
   useEffect(() => {
     async function load() {
@@ -527,12 +529,30 @@ export default function SupplierBilling() {
                       to: emailTo,
                       subject: emailSubject,
                       body: `<div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px;" dir="rtl">
+                        <img src="https://yaelsiso.vercel.app/yael-logo.jpeg" alt="Yael Siso" style="height: 40px; margin-bottom: 16px;">
                         <div style="color: #333; font-size: 14px; white-space: pre-line;">${emailBody}</div>
                         <p style="color: #B8960B; font-size: 11px; margin-top: 32px; letter-spacing: 2px;">YAEL SISO — Interior Design</p>
                       </div>`,
                     }),
                   })
-                } catch (e) { /* שגיאה */ }
+                  if (res.ok) {
+                    // עדכון הערות התשלום עם תיעוד השליחה
+                    const now = new Date().toLocaleDateString('he-IL')
+                    const noteAppend = `\u{1F4E7} דרישת עמלה נשלחה ${now}`
+                    const currentNotes = emailModal.notes || ''
+                    const updatedNotes = currentNotes ? `${currentNotes}\n${noteAppend}` : noteAppend
+                    const { data: updated } = await supabase.from('supplier_payments').update({ notes: updatedNotes }).eq('id', emailModal.id).select().single()
+                    if (updated) setPayments(prev => prev.map(p => p.id === updated.id ? updated : p))
+                    setToast('המייל נשלח בהצלחה')
+                    setTimeout(() => setToast(null), 3000)
+                  } else {
+                    setToast('שגיאה בשליחת המייל')
+                    setTimeout(() => setToast(null), 3000)
+                  }
+                } catch (e) {
+                  setToast('שגיאה בשליחת המייל')
+                  setTimeout(() => setToast(null), 3000)
+                }
                 setSendingEmail(false)
                 setEmailModal(null)
               }} disabled={sendingEmail || !emailTo}
@@ -541,6 +561,13 @@ export default function SupplierBilling() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* הודעת הצלחה/שגיאה */}
+      {toast && (
+        <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] px-5 py-3 rounded-xl shadow-lg text-sm font-medium text-white transition-all ${toast.includes('שגיאה') ? 'bg-red-500' : 'bg-emerald-500'}`}>
+          {toast}
         </div>
       )}
     </div>
