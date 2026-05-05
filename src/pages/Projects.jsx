@@ -2227,6 +2227,7 @@ export default function Projects() {
  const [loading, setLoading]  = useState(true)
  const [selected, setSelected] = useState(null)
  const [showNew, setShowNew]  = useState(false)
+ const [search, setSearch]   = useState('')
  const [form, setForm]     = useState({ name: '', client_id: '', start_date: '', end_date: '' })
 
  useEffect(() => { fetchAll() }, [])
@@ -2275,6 +2276,13 @@ export default function Projects() {
     </button>
    </div>
 
+   {/* חיפוש */}
+   {projects.length > 0 && (
+    <input value={search} onChange={e => setSearch(e.target.value)}
+     placeholder="Search by project name or client..."
+     className="w-full bg-white rounded-xl px-4 py-2.5 text-sm border-0 shadow-[0_2px_20px_rgba(9,20,38,0.04)] focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 mb-4" />
+   )}
+
    {projects.length === 0 && (
     <div className="flex flex-col items-center justify-center py-20 text-center">
      <div className="w-16 h-16 bg-[#F3F3F3] rounded-2xl flex items-center justify-center text-3xl mb-4">📐</div>
@@ -2284,7 +2292,11 @@ export default function Projects() {
    )}
 
    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-    {projects.map(p => {
+    {projects.filter(p => {
+     if (!search.trim()) return true
+     const q = search.toLowerCase()
+     return p.name.toLowerCase().includes(q) || (p.clients?.name || '').toLowerCase().includes(q)
+    }).map(p => {
      const meta = PROJECT_STATUS[p.status] || PROJECT_STATUS.active
      return (
       <div key={p.id} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-5 cursor-pointer hover:shadow-[0_4px_30px_rgba(9,20,38,0.08)] transition-all group relative"
