@@ -1059,17 +1059,18 @@ function BudgetView({ project, client }) {
   setLoading(false)
  }
 
- // חישוב סטטוס אוטומטי
+ // חישוב סטטוס אוטומטי — רק תשלומים עם status=paid נספרים
  function calcStatus(item) {
-  const paid = payments.filter(p => p.budget_item_id === item.id).reduce((s, p) => s + Number(p.amount), 0)
+  const paid = payments.filter(p => p.budget_item_id === item.id && (p.status || 'draft') === 'paid').reduce((s, p) => s + Number(p.amount), 0)
   const totalInclVat = Number(item.planned_amount) * (1 + VAT_RATE / 100)
   if (paid >= totalInclVat) return 'paid'
   if (paid > 0) return 'partial'
   return 'pending'
  }
 
+ // סכום ששולם — רק תשלומים עם status=paid
  function getItemPaid(item) {
-  return payments.filter(p => p.budget_item_id === item.id).reduce((s, p) => s + Number(p.amount), 0)
+  return payments.filter(p => p.budget_item_id === item.id && (p.status || 'draft') === 'paid').reduce((s, p) => s + Number(p.amount), 0)
  }
 
  function getItemPayments(item) {
@@ -1172,7 +1173,7 @@ function BudgetView({ project, client }) {
   setShowSupplierDropdown(false)
  }
 
- // רישום תשלום
+ // רישום תשלום — נשמר כ-draft (לא נספר כשולם עד שמעדכנים ל-paid)
  async function recordPayment() {
   if (!payForm.amount) return
   const { data, error } = await supabase.from('budget_payments').insert({
@@ -1180,17 +1181,38 @@ function BudgetView({ project, client }) {
    amount: Number(payForm.amount),
    payment_date: payForm.payment_date,
    note: payForm.note,
+   status: 'draft',
   }).select().single()
   if (error) { alert('Error: ' + error.message); return }
   setPayments(prev => [...prev, data])
-  // עדכון סטטוס אוטומטי
-  const newPaid = getItemPaid(showPayment) + Number(payForm.amount)
-  const totalWithVat = Number(showPayment.planned_amount) * (1 + VAT_RATE / 100)
-  const newStatus = newPaid >= totalWithVat ? 'paid' : 'partial'
-  await supabase.from('budget_items').update({ status: newStatus }).eq('id', showPayment.id)
-  setItems(prev => prev.map(i => i.id === showPayment.id ? { ...i, status: newStatus } : i))
   setShowPayment(null)
   setPayForm({ amount: '', percentage: '', mode: 'amount', payment_date: new Date().toISOString().split('T')[0], note: '' })
+ }
+
+ // עדכון סטטוס תשלום בודד
+ async function changePaymentStatus(paymentId, itemId, newStatus) {
+  await supabase.from('budget_payments').update({ status: newStatus }).eq('id', paymentId)
+  setPayments(prev => prev.map(p => p.id === paymentId ? { ...p, status: newStatus } : p))
+  // עדכון סטטוס הפריט בהתאם
+  const item = items.find(i => i.id === itemId)
+  if (item) {
+   const updatedPayments = payments.map(p => p.id === paymentId ? { ...p, status: newStatus } : p)
+   const paidSum = updatedPayments.filter(p => p.budget_item_id === itemId && (p.status || 'draft') === 'paid').reduce((s, p) => s + Number(p.amount), 0)
+   const totalWithVat = Number(item.planned_amount) * (1 + VAT_RATE / 100)
+   const itemStatus = paidSum >= totalWithVat ? 'paid' : paidSum > 0 ? 'partial' : 'pending'
+   await supabase.from('budget_items').update({ status: itemStatus }).eq('id', itemId)
+   setItems(prev => prev.map(i => i.id === itemId ? { ...i, status: itemStatus } : i))
+  }
+ }
+
+ // שליחת בקשת תשלום לתשלום בודד
+ function openPaymentEmailModal(payment, item) {
+  const supplier = suppliers.find(s => s.id === item.supplier_id)
+  const bankInfo = supplier?.bank_name ? `\n\nBank Details:\nBank: ${supplier.bank_name}\nBranch: ${supplier.bank_branch || ''}\nAccount: ${supplier.bank_account || ''}\nHolder: ${supplier.account_holder || ''}` : ''
+  setEmailTo(client?.email || '')
+  setEmailSubject(`Payment Request: ${item.category} — ${project.name}`)
+  setEmailBody(`Dear ${client?.name || 'Client'},\n\nPlease process the following payment:\n\nSupplier: ${supplier?.name || 'N/A'}\nCategory: ${item.category}\nAmount: ${fmtCurrency(Number(payment.amount))}\nPayment Terms: ${item.payment_terms || 'N/A'}${bankInfo}\n\nThank you,\nYael Siso | Interior Design`)
+  setShowEmail({ ...item, _paymentId: payment.id })
  }
 
  // מחיקת תשלום בודד
@@ -1201,7 +1223,7 @@ function BudgetView({ project, client }) {
   // עדכון סטטוס
   const item = items.find(i => i.id === itemId)
   if (item) {
-   const remainingPayments = payments.filter(p => p.budget_item_id === itemId && p.id !== paymentId)
+   const remainingPayments = payments.filter(p => p.budget_item_id === itemId && p.id !== paymentId && (p.status || 'draft') === 'paid')
    const newPaid = remainingPayments.reduce((s, p) => s + Number(p.amount), 0)
    const totalWithVat = Number(item.planned_amount) * (1 + VAT_RATE / 100)
    const newStatus = newPaid >= totalWithVat ? 'paid' : newPaid > 0 ? 'partial' : 'pending'
@@ -1273,7 +1295,7 @@ function BudgetView({ project, client }) {
   }
  }
 
- // שליחת בקשת תשלום — הסכום הנשלח הוא היתרה לתשלום
+ // שליחת בקשת תשלום — הסכום הנשלח הוא היתרה לתשלום (שליחה ברמת פריט)
  function openEmailModal(item) {
   const supplier = suppliers.find(s => s.id === item.supplier_id)
   const totalWithVat = Number(item.planned_amount) * (1 + VAT_RATE / 100)
@@ -1283,7 +1305,7 @@ function BudgetView({ project, client }) {
   setEmailTo(client?.email || '')
   setEmailSubject(`Payment Request: ${item.category} — ${project.name}`)
   setEmailBody(`Dear ${client?.name || 'Client'},\n\nPlease process the following payment:\n\nSupplier: ${supplier?.name || 'N/A'}\nCategory: ${item.category}\nRemaining Amount: ${fmtCurrency(Math.round(itemRemaining))}\nPayment Terms: ${item.payment_terms || 'N/A'}${bankInfo}\n\nThank you,\nYael Siso | Interior Design`)
-  setShowEmail(item)
+  setShowEmail(item) // ללא _paymentId — שליחה כללית
  }
 
  async function sendPaymentEmail() {
@@ -1304,13 +1326,11 @@ function BudgetView({ project, client }) {
     body: JSON.stringify({ to: emailTo, subject: emailSubject, body: htmlBody }),
    })
    if (res.ok) {
-    // רישום בהיסטוריית תשלומים
-    await supabase.from('budget_payments').insert({
-     budget_item_id: showEmail.id,
-     amount: 0,
-     payment_date: new Date().toISOString().split('T')[0],
-     note: `Payment request sent to ${emailTo}`,
-    })
+    // עדכון סטטוס התשלום ל-sent
+    if (showEmail._paymentId) {
+     await supabase.from('budget_payments').update({ status: 'sent' }).eq('id', showEmail._paymentId)
+     setPayments(prev => prev.map(p => p.id === showEmail._paymentId ? { ...p, status: 'sent' } : p))
+    }
     alert('Email sent successfully!')
    } else alert('Failed to send email')
   } catch (e) { alert('Error sending email') }
@@ -1445,19 +1465,38 @@ function BudgetView({ project, client }) {
              {itemPayments.length > 0 ? (
               <div className="space-y-2">
                <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mb-2">Payment History</p>
-               {itemPayments.filter(p => Number(p.amount) > 0 || p.note).map(p => (
+               {itemPayments.filter(p => Number(p.amount) > 0 || p.note).map(p => {
+               const pStatus = p.status || 'draft'
+               const pStatusChip = { draft: 'bg-[#F3F3F3] text-[#6B7A90]', sent: 'bg-amber-50 text-amber-700', paid: 'bg-emerald-50 text-emerald-700' }
+               const pStatusLabel = { draft: 'Draft', sent: 'Sent', paid: 'Paid' }
+               return (
                 <div key={p.id} className="flex items-center justify-between bg-white rounded-xl px-4 py-2.5 shadow-sm">
                  <div className="flex items-center gap-4">
                   <span className="text-xs text-[#6B7A90]">{fmtDate(p.payment_date)}</span>
                   <span className="text-sm font-medium text-[#091426]">{Number(p.amount) > 0 ? fmtCurrency(Number(p.amount)) : ''}</span>
                   {p.note && <span className="text-xs text-[#6B7A90]">{p.note}</span>}
+                  <select value={pStatus} onChange={e => changePaymentStatus(p.id, item.id, e.target.value)}
+                   className={`text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full border-0 cursor-pointer ${pStatusChip[pStatus]}`}>
+                   <option value="draft">Draft</option>
+                   <option value="sent">Sent</option>
+                   <option value="paid">Paid</option>
+                  </select>
                  </div>
-                 <button onClick={() => deletePayment(p.id, item.id)}
-                  className="p-1 rounded-lg text-[#6B7A90] hover:text-red-500 hover:bg-red-50 transition">
-                  <Trash2 size={12} strokeWidth={1.8} />
-                 </button>
+                 <div className="flex items-center gap-1">
+                  {pStatus !== 'paid' && (
+                   <button onClick={() => openPaymentEmailModal(p, item)}
+                    className="p-1 rounded-lg text-[#6B7A90] hover:text-[#B8960B] hover:bg-amber-50 transition" title="Send to Client">
+                    <Send size={12} strokeWidth={1.8} />
+                   </button>
+                  )}
+                  <button onClick={() => deletePayment(p.id, item.id)}
+                   className="p-1 rounded-lg text-[#6B7A90] hover:text-red-500 hover:bg-red-50 transition">
+                   <Trash2 size={12} strokeWidth={1.8} />
+                  </button>
+                 </div>
                 </div>
-               ))}
+               )
+              })}
               </div>
              ) : (
               <p className="text-xs text-[#6B7A90]">No payments recorded yet</p>
