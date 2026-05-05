@@ -1021,6 +1021,389 @@ function fmtCurrency(n) {
  return Number(n).toLocaleString('en-US', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 })
 }
 
+// ── רכיב תקציב פרויקט ──
+function BudgetView({ project, client }) {
+ const [items, setItems] = useState([])
+ const [payments, setPayments] = useState([])
+ const [suppliers, setSuppliers] = useState([])
+ const [loading, setLoading] = useState(true)
+ const [showAdd, setShowAdd] = useState(false)
+ const [addForm, setAddForm] = useState({ category: '', supplier_id: '', planned_amount: '', payment_terms: '', notes: '', drive_link: '' })
+ const [showPayment, setShowPayment] = useState(null)
+ const [payForm, setPayForm] = useState({ amount: '', payment_date: new Date().toISOString().split('T')[0], note: '' })
+ const [showEmail, setShowEmail] = useState(null)
+ const [emailTo, setEmailTo] = useState('')
+ const [emailSubject, setEmailSubject] = useState('')
+ const [emailBody, setEmailBody] = useState('')
+ const [sendingEmail, setSendingEmail] = useState(false)
+
+ useEffect(() => { fetchBudget() }, [project.id])
+
+ async function fetchBudget() {
+  const [{ data: bi }, { data: bp }, { data: sp }] = await Promise.all([
+   supabase.from('budget_items').select('*').eq('project_id', project.id).order('sort_order'),
+   supabase.from('budget_payments').select('*'),
+   supabase.from('suppliers').select('id, name, bank_name, bank_branch, bank_account, account_holder'),
+  ])
+  setItems(bi || [])
+  setPayments(bp || [])
+  setSuppliers(sp || [])
+  setLoading(false)
+ }
+
+ // חישוב סטטוס אוטומטי
+ function getItemStatus(item) {
+  const paid = payments.filter(p => p.budget_item_id === item.id).reduce((s, p) => s + Number(p.amount), 0)
+  if (paid >= Number(item.planned_amount)) return 'paid'
+  if (paid > 0) return 'partial'
+  return 'pending'
+ }
+
+ function getItemPaid(item) {
+  return payments.filter(p => p.budget_item_id === item.id).reduce((s, p) => s + Number(p.amount), 0)
+ }
+
+ // סיכומים
+ const totalPlanned = items.reduce((s, i) => s + Number(i.planned_amount) * (1 + Number(i.vat_rate || 17) / 100), 0)
+ const totalPaid = items.reduce((s, i) => s + getItemPaid(i), 0)
+ const remaining = totalPlanned - totalPaid
+ const progressPct = totalPlanned > 0 ? Math.min(100, Math.round(totalPaid / totalPlanned * 100)) : 0
+
+ // הוספת פריט תקציב
+ async function addItem() {
+  if (!addForm.category || !addForm.planned_amount) return
+  const maxSort = items.length > 0 ? Math.max(...items.map(i => i.sort_order || 0)) : 0
+  const { data, error } = await supabase.from('budget_items').insert({
+   project_id: project.id,
+   category: addForm.category,
+   supplier_id: addForm.supplier_id || null,
+   planned_amount: Number(addForm.planned_amount),
+   payment_terms: addForm.payment_terms,
+   notes: addForm.notes,
+   drive_link: addForm.drive_link,
+   sort_order: maxSort + 1,
+  }).select().single()
+  if (error) { alert('Error: ' + error.message); return }
+  setItems(prev => [...prev, data])
+  setShowAdd(false)
+  setAddForm({ category: '', supplier_id: '', planned_amount: '', payment_terms: '', notes: '', drive_link: '' })
+ }
+
+ // רישום תשלום
+ async function recordPayment() {
+  if (!payForm.amount) return
+  const { data, error } = await supabase.from('budget_payments').insert({
+   budget_item_id: showPayment.id,
+   amount: Number(payForm.amount),
+   payment_date: payForm.payment_date,
+   note: payForm.note,
+  }).select().single()
+  if (error) { alert('Error: ' + error.message); return }
+  setPayments(prev => [...prev, data])
+  // עדכון סטטוס אוטומטי
+  const newPaid = getItemPaid(showPayment) + Number(payForm.amount)
+  const newStatus = newPaid >= Number(showPayment.planned_amount) ? 'paid' : 'partial'
+  await supabase.from('budget_items').update({ status: newStatus }).eq('id', showPayment.id)
+  setItems(prev => prev.map(i => i.id === showPayment.id ? { ...i, status: newStatus } : i))
+  setShowPayment(null)
+  setPayForm({ amount: '', payment_date: new Date().toISOString().split('T')[0], note: '' })
+ }
+
+ // מחיקת פריט
+ async function deleteItem(item) {
+  if (!confirm('Delete this budget item?')) return
+  await supabase.from('budget_payments').delete().eq('budget_item_id', item.id)
+  await supabase.from('budget_items').delete().eq('id', item.id)
+  setItems(prev => prev.filter(i => i.id !== item.id))
+  setPayments(prev => prev.filter(p => p.budget_item_id !== item.id))
+ }
+
+ // שליחת בקשת תשלום
+ function openEmailModal(item) {
+  const supplier = suppliers.find(s => s.id === item.supplier_id)
+  const bankInfo = supplier?.bank_name ? `\n\nBank Details:\nBank: ${supplier.bank_name}\nBranch: ${supplier.bank_branch || ''}\nAccount: ${supplier.bank_account || ''}\nHolder: ${supplier.account_holder || ''}` : ''
+  setEmailTo(client?.email || '')
+  setEmailSubject(`Payment Request — ${item.category} — ${project.name}`)
+  setEmailBody(`Dear ${client?.name || 'Client'},\n\nPlease process the following payment:\n\nCategory: ${item.category}\nAmount: ${fmtCurrency(Number(item.planned_amount) * 1.17)}\nPayment Terms: ${item.payment_terms || 'N/A'}${bankInfo}\n\nThank you,\nYael Siso | Interior Design`)
+  setShowEmail(item)
+ }
+
+ async function sendPaymentEmail() {
+  if (!emailTo) return
+  setSendingEmail(true)
+  const htmlBody = `
+   <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px;">
+    <img src="https://yaelsiso.vercel.app/yael-logo.jpeg" alt="Yael Siso" style="height: 40px; margin-bottom: 16px;">
+    <h2 style="color: #091426; font-size: 18px; margin-bottom: 16px;">Payment Request</h2>
+    <div style="color: #333; font-size: 14px; white-space: pre-line; margin-bottom: 24px;">${emailBody}</div>
+    <p style="color: #B8960B; font-size: 11px; margin-top: 32px; letter-spacing: 2px; text-transform: uppercase;">Yael Siso — Interior Design</p>
+   </div>
+  `
+  try {
+   const res = await fetch('/api/send-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ to: emailTo, subject: emailSubject, body: htmlBody }),
+   })
+   if (res.ok) alert('Email sent successfully!')
+   else alert('Failed to send email')
+  } catch (e) { alert('Error sending email') }
+  setSendingEmail(false)
+  setShowEmail(null)
+ }
+
+ const statusChip = { pending: 'bg-[#F3F3F3] text-[#6B7A90]', partial: 'bg-amber-50 text-amber-700', paid: 'bg-emerald-50 text-emerald-700' }
+ const statusLabel = { pending: 'Pending', partial: 'Partial', paid: 'Paid' }
+
+ if (loading) return <div className="flex items-center justify-center p-8"><div className="w-6 h-6 border-2 border-[#091426] border-t-transparent rounded-full animate-spin" /></div>
+
+ return (
+  <div className="space-y-4">
+   {/* סרגל סיכום */}
+   <div className="bg-white rounded-2xl p-5 shadow-[0_2px_20px_rgba(9,20,38,0.04)]">
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-3">
+     <div>
+      <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Total Planned</p>
+      <p className="text-lg font-bold text-[#091426] font-[Manrope]">{fmtCurrency(Math.round(totalPlanned))}</p>
+     </div>
+     <div>
+      <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Total Paid</p>
+      <p className="text-lg font-bold text-emerald-600 font-[Manrope]">{fmtCurrency(Math.round(totalPaid))}</p>
+     </div>
+     <div>
+      <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Remaining</p>
+      <p className="text-lg font-bold text-[#091426] font-[Manrope]">{fmtCurrency(Math.round(remaining))}</p>
+     </div>
+     <div>
+      <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Progress</p>
+      <p className="text-lg font-bold text-[#091426] font-[Manrope]">{progressPct}%</p>
+     </div>
+    </div>
+    <div className="w-full h-2 bg-[#F3F3F3] rounded-full overflow-hidden">
+     <div className="h-full bg-[#B8960B] rounded-full transition-all" style={{ width: `${progressPct}%` }} />
+    </div>
+   </div>
+
+   {/* טבלת פריטי תקציב */}
+   <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] overflow-hidden">
+    <div className="overflow-x-auto">
+     <table className="w-full text-sm">
+      <thead>
+       <tr className="border-b border-[#F3F3F3] text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">
+        <th className="text-left px-4 py-3">Category</th>
+        <th className="text-left px-4 py-3">Supplier</th>
+        <th className="text-right px-4 py-3">Planned</th>
+        <th className="text-right px-4 py-3">VAT</th>
+        <th className="text-right px-4 py-3">Total</th>
+        <th className="text-left px-4 py-3">Terms</th>
+        <th className="text-center px-4 py-3">Status</th>
+        <th className="text-center px-4 py-3">Link</th>
+        <th className="text-center px-4 py-3">Actions</th>
+       </tr>
+      </thead>
+      <tbody>
+       {items.map(item => {
+        const supplier = suppliers.find(s => s.id === item.supplier_id)
+        const status = getItemStatus(item)
+        const totalInclVat = Number(item.planned_amount) * (1 + Number(item.vat_rate || 17) / 100)
+        return (
+         <tr key={item.id} className="border-b border-[#F3F3F3] hover:bg-[#F9F9F9] transition">
+          <td className="px-4 py-3 font-medium text-[#091426]">{item.category}</td>
+          <td className="px-4 py-3 text-[#6B7A90]">{supplier?.name || '—'}</td>
+          <td className="px-4 py-3 text-right text-[#091426]">{fmtCurrency(Number(item.planned_amount))}</td>
+          <td className="px-4 py-3 text-right text-[#6B7A90]">{item.vat_rate || 17}%</td>
+          <td className="px-4 py-3 text-right font-medium text-[#091426]">{fmtCurrency(Math.round(totalInclVat))}</td>
+          <td className="px-4 py-3 text-[#6B7A90]">{item.payment_terms || '—'}</td>
+          <td className="px-4 py-3 text-center">
+           <span className={`inline-flex text-[10px] font-bold tracking-wider px-2.5 py-0.5 rounded-full ${statusChip[status]}`}>
+            {statusLabel[status]}
+           </span>
+          </td>
+          <td className="px-4 py-3 text-center">
+           {item.drive_link ? (
+            <a href={item.drive_link} target="_blank" rel="noopener noreferrer" className="text-[#6B7A90] hover:text-[#091426] transition">
+             <ExternalLink size={14} strokeWidth={1.8} />
+            </a>
+           ) : '—'}
+          </td>
+          <td className="px-4 py-3">
+           <div className="flex items-center justify-center gap-1">
+            <button onClick={() => { setShowPayment(item); setPayForm({ amount: '', payment_date: new Date().toISOString().split('T')[0], note: '' }) }}
+             className="p-1.5 rounded-lg text-[#6B7A90] hover:text-emerald-600 hover:bg-emerald-50 transition" title="Record Payment">
+             <CreditCard size={13} strokeWidth={1.8} />
+            </button>
+            <button onClick={() => openEmailModal(item)}
+             className="p-1.5 rounded-lg text-[#6B7A90] hover:text-[#B8960B] hover:bg-amber-50 transition" title="Send Payment Request">
+             <Send size={13} strokeWidth={1.8} />
+            </button>
+            <button onClick={() => deleteItem(item)}
+             className="p-1.5 rounded-lg text-[#6B7A90] hover:text-red-500 hover:bg-red-50 transition" title="Delete">
+             <Trash2 size={13} strokeWidth={1.8} />
+            </button>
+           </div>
+          </td>
+         </tr>
+        )
+       })}
+      </tbody>
+     </table>
+    </div>
+    {items.length === 0 && (
+     <div className="text-center py-12 text-[#6B7A90] text-sm">No budget items yet</div>
+    )}
+    <div className="p-4 border-t border-[#F3F3F3]">
+     <button onClick={() => setShowAdd(true)}
+      className="flex items-center gap-2 text-sm font-medium text-[#091426] hover:text-[#091426] transition">
+      <Plus size={14} strokeWidth={1.8} /> Add Budget Item
+     </button>
+    </div>
+   </div>
+
+   {/* מודאל הוספת פריט */}
+   {showAdd && (
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-[#091426]/60" onClick={() => setShowAdd(false)}>
+     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
+      <div className="flex items-center justify-between p-5 border-b border-[#F3F3F3]">
+       <h2 className="font-semibold text-[#091426] font-[Manrope] tracking-tight">Add Budget Item</h2>
+       <button onClick={() => setShowAdd(false)} className="text-[#6B7A90] hover:text-[#091426] p-1 rounded-xl hover:bg-[#F3F3F3] transition"><X size={18} strokeWidth={1.8} /></button>
+      </div>
+      <div className="p-5 space-y-4">
+       <div>
+        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Category *</label>
+        <input value={addForm.category} onChange={e => setAddForm(f => ({ ...f, category: e.target.value }))}
+         placeholder="e.g. Flooring, Electrical, Kitchen..."
+         className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" autoFocus />
+       </div>
+       <div>
+        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Supplier</label>
+        <select value={addForm.supplier_id} onChange={e => setAddForm(f => ({ ...f, supplier_id: e.target.value }))}
+         className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20">
+         <option value="">— Select Supplier —</option>
+         {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+        </select>
+       </div>
+       <div>
+        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Planned Amount (excl. VAT) *</label>
+        <input type="number" value={addForm.planned_amount} onChange={e => setAddForm(f => ({ ...f, planned_amount: e.target.value }))}
+         placeholder="0" className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+       </div>
+       <div>
+        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Payment Terms</label>
+        <input value={addForm.payment_terms} onChange={e => setAddForm(f => ({ ...f, payment_terms: e.target.value }))}
+         placeholder="e.g. Net 30, 50% advance..."
+         className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+       </div>
+       <div>
+        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Drive Link</label>
+        <input value={addForm.drive_link} onChange={e => setAddForm(f => ({ ...f, drive_link: e.target.value }))}
+         placeholder="https://drive.google.com/..."
+         className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+       </div>
+       <div>
+        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Notes</label>
+        <textarea value={addForm.notes} onChange={e => setAddForm(f => ({ ...f, notes: e.target.value }))}
+         rows={2} className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 resize-none" />
+       </div>
+      </div>
+      <div className="flex gap-3 p-5 border-t border-[#F3F3F3]">
+       <button onClick={addItem} className="flex-1 bg-[#091426] text-white rounded-xl py-2.5 text-sm font-medium hover:bg-[#1E293B] transition-all">Add Item</button>
+       <button onClick={() => setShowAdd(false)} className="px-4 py-2.5 rounded-xl text-sm text-[#6B7A90] hover:bg-[#F9F9F9] bg-[#F3F3F3] transition-all">Cancel</button>
+      </div>
+     </div>
+    </div>
+   )}
+
+   {/* מודאל רישום תשלום */}
+   {showPayment && (
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-[#091426]/60" onClick={() => setShowPayment(null)}>
+     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
+      <div className="flex items-center justify-between p-5 border-b border-[#F3F3F3]">
+       <div>
+        <h2 className="font-semibold text-[#091426] font-[Manrope] tracking-tight">Record Payment</h2>
+        <p className="text-xs text-[#6B7A90] mt-0.5">{showPayment.category}</p>
+       </div>
+       <button onClick={() => setShowPayment(null)} className="text-[#6B7A90] hover:text-[#091426] p-1 rounded-xl hover:bg-[#F3F3F3] transition"><X size={18} strokeWidth={1.8} /></button>
+      </div>
+      <div className="p-5 space-y-4">
+       <div className="grid grid-cols-3 gap-3 text-center bg-[#F3F3F3] rounded-xl p-3">
+        <div>
+         <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Planned</p>
+         <p className="text-sm font-bold text-[#091426]">{fmtCurrency(Number(showPayment.planned_amount))}</p>
+        </div>
+        <div>
+         <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Paid</p>
+         <p className="text-sm font-bold text-emerald-600">{fmtCurrency(getItemPaid(showPayment))}</p>
+        </div>
+        <div>
+         <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Remaining</p>
+         <p className="text-sm font-bold text-[#091426]">{fmtCurrency(Number(showPayment.planned_amount) - getItemPaid(showPayment))}</p>
+        </div>
+       </div>
+       <div>
+        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Amount *</label>
+        <input type="number" value={payForm.amount} onChange={e => setPayForm(f => ({ ...f, amount: e.target.value }))}
+         placeholder="0" className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" autoFocus />
+       </div>
+       <div>
+        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Date</label>
+        <input type="date" value={payForm.payment_date} onChange={e => setPayForm(f => ({ ...f, payment_date: e.target.value }))}
+         className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+       </div>
+       <div>
+        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Note</label>
+        <input value={payForm.note} onChange={e => setPayForm(f => ({ ...f, note: e.target.value }))}
+         placeholder="Optional note..."
+         className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+       </div>
+      </div>
+      <div className="flex gap-3 p-5 border-t border-[#F3F3F3]">
+       <button onClick={recordPayment} disabled={!payForm.amount}
+        className="flex-1 bg-[#091426] text-white rounded-xl py-2.5 text-sm font-medium hover:bg-[#1E293B] transition-all disabled:opacity-40">Record Payment</button>
+       <button onClick={() => setShowPayment(null)} className="px-4 py-2.5 rounded-xl text-sm text-[#6B7A90] hover:bg-[#F9F9F9] bg-[#F3F3F3] transition-all">Cancel</button>
+      </div>
+     </div>
+    </div>
+   )}
+
+   {/* מודאל שליחת בקשת תשלום */}
+   {showEmail && (
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-[#091426]/60" onClick={() => setShowEmail(null)}>
+     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4" onClick={e => e.stopPropagation()}>
+      <div className="flex items-center justify-between p-5 border-b border-[#F3F3F3]">
+       <h2 className="font-semibold text-[#091426] font-[Manrope] tracking-tight">Send Payment Request</h2>
+       <button onClick={() => setShowEmail(null)} className="text-[#6B7A90] hover:text-[#091426] p-1 rounded-xl hover:bg-[#F3F3F3] transition"><X size={18} strokeWidth={1.8} /></button>
+      </div>
+      <div className="p-5 space-y-4">
+       <div>
+        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">To</label>
+        <input value={emailTo} onChange={e => setEmailTo(e.target.value)}
+         className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+       </div>
+       <div>
+        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Subject</label>
+        <input value={emailSubject} onChange={e => setEmailSubject(e.target.value)}
+         className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+       </div>
+       <div>
+        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Body</label>
+        <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)}
+         rows={8} className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 resize-none" />
+       </div>
+      </div>
+      <div className="flex gap-3 p-5 border-t border-[#F3F3F3]">
+       <button onClick={sendPaymentEmail} disabled={!emailTo || sendingEmail}
+        className="flex-1 bg-[#091426] text-white rounded-xl py-2.5 text-sm font-medium hover:bg-[#1E293B] transition-all disabled:opacity-40 flex items-center justify-center gap-2">
+        <Send size={14} strokeWidth={1.8} /> {sendingEmail ? 'Sending...' : 'Send Email'}
+       </button>
+       <button onClick={() => setShowEmail(null)} className="px-4 py-2.5 rounded-xl text-sm text-[#6B7A90] hover:bg-[#F9F9F9] bg-[#F3F3F3] transition-all">Cancel</button>
+      </div>
+     </div>
+    </div>
+   )}
+  </div>
+ )
+}
+
 // בניית עץ תכולות לבחירה
 function buildScopeTree(items) {
  const phases = items.filter(i => i.level === 'phase').sort((a, b) => a.sort_order - b.sort_order)
@@ -1466,6 +1849,11 @@ function ProjectDetail({ project, clients, onBack }) {
         view === 'client' ? 'bg-white text-[#091426] shadow-sm' : 'text-[#6B7A90] hover:text-[#091426]'}`}>
        <ContactRound size={13} strokeWidth={1.8} /> Client Card
       </button>
+      <button onClick={() => setView('budget')}
+       className={`px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${
+        view === 'budget' ? 'bg-white text-[#091426] shadow-sm' : 'text-[#6B7A90] hover:text-[#091426]'}`}>
+       <CreditCard size={13} strokeWidth={1.8} /> Budget
+      </button>
      </div>
 
      <button onClick={openImportScope}
@@ -1614,6 +2002,11 @@ function ProjectDetail({ project, clients, onBack }) {
    {/* ── כרטיס לקוח ── */}
    {view === 'client' && (
     <ClientCard project={project} />
+   )}
+
+   {/* ── תקציב ── */}
+   {view === 'budget' && (
+    <BudgetView project={project} client={client} />
    )}
 
    {/* Modal משימה חדשה */}

@@ -33,6 +33,10 @@ function SupplierModal({ supplier, onClose, onSaved }) {
     website: '',
     notes: '',
     commission_pct: '',
+    bank_name: '',
+    bank_branch: '',
+    bank_account: '',
+    account_holder: '',
     ...supplier,
   })
   const [saving, setSaving] = useState(false)
@@ -53,6 +57,10 @@ function SupplierModal({ supplier, onClose, onSaved }) {
       website: form.website.trim(),
       notes: form.notes.trim(),
       commission_pct: form.commission_pct !== '' ? parseFloat(form.commission_pct) : null,
+      bank_name: form.bank_name.trim(),
+      bank_branch: form.bank_branch.trim(),
+      bank_account: form.bank_account.trim(),
+      account_holder: form.account_holder.trim(),
       updated_at: new Date().toISOString(),
     }
 
@@ -124,6 +132,33 @@ function SupplierModal({ supplier, onClose, onSaved }) {
               <label className={lbl}>Commission (%)</label>
               <input type="number" value={form.commission_pct} onChange={e => set('commission_pct', e.target.value)}
                 placeholder="10" min="0" max="100" className={inp} />
+            </div>
+          </div>
+
+          {/* פרטי בנק — Admin בלבד */}
+          <div className="border-t border-[#F3F3F3] pt-4 mt-4">
+            <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mb-3">Bank Details (Admin Only)</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className={lbl}>Bank Name</label>
+                <input value={form.bank_name} onChange={e => set('bank_name', e.target.value)}
+                  placeholder="שם בנק" className={inp} />
+              </div>
+              <div>
+                <label className={lbl}>Branch</label>
+                <input value={form.bank_branch} onChange={e => set('bank_branch', e.target.value)}
+                  placeholder="סניף" className={inp} />
+              </div>
+              <div>
+                <label className={lbl}>Account Number</label>
+                <input value={form.bank_account} onChange={e => set('bank_account', e.target.value)}
+                  placeholder="מספר חשבון" className={inp} />
+              </div>
+              <div>
+                <label className={lbl}>Account Holder</label>
+                <input value={form.account_holder} onChange={e => set('account_holder', e.target.value)}
+                  placeholder="שם בעל החשבון" className={inp} />
+              </div>
             </div>
           </div>
 
