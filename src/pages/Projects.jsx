@@ -1932,7 +1932,8 @@ function ProjectDetail({ project, clients, onBack }) {
     </div>
    </div>
 
-   {/* KPI strip */}
+   {/* KPI strip — רק בטאב Tasks */}
+   {(view === 'tasks' || view === 'gantt') && (
    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
     {[
      { label: 'Tasks', value: mainTasks.length,                     color: 'text-[#091426]' },
@@ -1946,9 +1947,10 @@ function ProjectDetail({ project, clients, onBack }) {
      </div>
     ))}
    </div>
+   )}
 
-   {/* Progress bar */}
-   {mainTasks.length > 0 && (
+   {/* Progress bar — רק בטאב Tasks */}
+   {(view === 'tasks' || view === 'gantt') && mainTasks.length > 0 && (
     <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] px-5 py-3 mb-4 flex items-center gap-4">
      <span className="text-sm font-medium text-[#091426] shrink-0">Progress</span>
      <div className="flex-1 bg-[#F3F3F3] rounded-full h-2">
@@ -1959,7 +1961,7 @@ function ProjectDetail({ project, clients, onBack }) {
    )}
 
    {/* Empty state */}
-   {mainTasks.length === 0 && (
+   {view === 'tasks' && mainTasks.length === 0 && (
     <div className="flex flex-col items-center justify-center py-20 text-center">
      <div className="w-16 h-16 bg-[#F3F3F3] rounded-2xl flex items-center justify-center text-3xl mb-4">📋</div>
      <h3 className="text-base font-semibold text-[#091426] font-[Manrope] tracking-tight mb-1">No tasks yet</h3>
