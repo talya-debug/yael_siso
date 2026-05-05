@@ -5,7 +5,7 @@ import {
  Calendar, User, MessageSquare, Plus, X, Trash2, Send,
  LayoutList, BarChart2, Flag, Pencil,
  Users, FileText, MapPin, ExternalLink, Link2, ContactRound,
- Check, Download, CreditCard, Upload,
+ Check, Download, CreditCard, Upload, Search,
 } from 'lucide-react'
 import * as XLSX from 'xlsx'
 
@@ -1029,14 +1029,21 @@ function BudgetView({ project, client }) {
  const [suppliers, setSuppliers] = useState([])
  const [loading, setLoading] = useState(true)
  const [showAdd, setShowAdd] = useState(false)
+ const [editItem, setEditItem] = useState(null)
  const [addForm, setAddForm] = useState({ category: '', supplier_id: '', planned_amount: '', payment_terms: '', notes: '', drive_link: '' })
+ const [supplierSearch, setSupplierSearch] = useState('')
+ const [showSupplierDropdown, setShowSupplierDropdown] = useState(false)
  const [showPayment, setShowPayment] = useState(null)
- const [payForm, setPayForm] = useState({ amount: '', payment_date: new Date().toISOString().split('T')[0], note: '' })
+ const [payForm, setPayForm] = useState({ amount: '', percentage: '', mode: 'amount', payment_date: new Date().toISOString().split('T')[0], note: '' })
  const [showEmail, setShowEmail] = useState(null)
  const [emailTo, setEmailTo] = useState('')
  const [emailSubject, setEmailSubject] = useState('')
  const [emailBody, setEmailBody] = useState('')
  const [sendingEmail, setSendingEmail] = useState(false)
+ const [expandedRows, setExpandedRows] = useState(new Set())
+
+ // מע"מ 18% — ישראל
+ const VAT_RATE = 18
 
  useEffect(() => { fetchBudget() }, [project.id])
 
@@ -1053,9 +1060,10 @@ function BudgetView({ project, client }) {
  }
 
  // חישוב סטטוס אוטומטי
- function getItemStatus(item) {
+ function calcStatus(item) {
   const paid = payments.filter(p => p.budget_item_id === item.id).reduce((s, p) => s + Number(p.amount), 0)
-  if (paid >= Number(item.planned_amount)) return 'paid'
+  const totalInclVat = Number(item.planned_amount) * (1 + VAT_RATE / 100)
+  if (paid >= totalInclVat) return 'paid'
   if (paid > 0) return 'partial'
   return 'pending'
  }
@@ -1064,30 +1072,104 @@ function BudgetView({ project, client }) {
   return payments.filter(p => p.budget_item_id === item.id).reduce((s, p) => s + Number(p.amount), 0)
  }
 
- // סיכומים
- const totalPlanned = items.reduce((s, i) => s + Number(i.planned_amount) * (1 + Number(i.vat_rate || 17) / 100), 0)
- const totalPaid = items.reduce((s, i) => s + getItemPaid(i), 0)
- const remaining = totalPlanned - totalPaid
- const progressPct = totalPlanned > 0 ? Math.min(100, Math.round(totalPaid / totalPlanned * 100)) : 0
+ function getItemPayments(item) {
+  return payments.filter(p => p.budget_item_id === item.id).sort((a, b) => new Date(b.payment_date) - new Date(a.payment_date))
+ }
 
- // הוספת פריט תקציב
- async function addItem() {
+ // סיכומים — לפני מע"מ, כולל מע"מ, שולם, יתרה
+ const totalBeforeVat = items.reduce((s, i) => s + Number(i.planned_amount), 0)
+ const totalInclVat = totalBeforeVat * (1 + VAT_RATE / 100)
+ const totalPaid = items.reduce((s, i) => s + getItemPaid(i), 0)
+ const remaining = totalInclVat - totalPaid
+ const progressPct = totalInclVat > 0 ? Math.min(100, Math.round(totalPaid / totalInclVat * 100)) : 0
+
+ // פתיחה/סגירה של שורה מורחבת
+ function toggleRow(id) {
+  setExpandedRows(prev => {
+   const next = new Set(prev)
+   next.has(id) ? next.delete(id) : next.add(id)
+   return next
+  })
+ }
+
+ // שינוי סטטוס ידני
+ async function changeStatus(item, newStatus) {
+  await supabase.from('budget_items').update({ status: newStatus }).eq('id', item.id)
+  setItems(prev => prev.map(i => i.id === item.id ? { ...i, status: newStatus } : i))
+ }
+
+ // פתיחת מודאל הוספה/עריכה
+ function openAddModal(item = null) {
+  if (item) {
+   setEditItem(item)
+   setAddForm({
+    category: item.category || '',
+    supplier_id: item.supplier_id || '',
+    planned_amount: item.planned_amount || '',
+    payment_terms: item.payment_terms || '',
+    notes: item.notes || '',
+    drive_link: item.drive_link || '',
+   })
+   const sup = suppliers.find(s => s.id === item.supplier_id)
+   setSupplierSearch(sup?.name || '')
+  } else {
+   setEditItem(null)
+   setAddForm({ category: '', supplier_id: '', planned_amount: '', payment_terms: '', notes: '', drive_link: '' })
+   setSupplierSearch('')
+  }
+  setShowAdd(true)
+ }
+
+ // שמירת פריט תקציב (הוספה או עריכה)
+ async function saveItem() {
   if (!addForm.category || !addForm.planned_amount) return
-  const maxSort = items.length > 0 ? Math.max(...items.map(i => i.sort_order || 0)) : 0
-  const { data, error } = await supabase.from('budget_items').insert({
-   project_id: project.id,
-   category: addForm.category,
-   supplier_id: addForm.supplier_id || null,
-   planned_amount: Number(addForm.planned_amount),
-   payment_terms: addForm.payment_terms,
-   notes: addForm.notes,
-   drive_link: addForm.drive_link,
-   sort_order: maxSort + 1,
-  }).select().single()
-  if (error) { alert('Error: ' + error.message); return }
-  setItems(prev => [...prev, data])
+  if (editItem) {
+   // עריכה
+   const { data, error } = await supabase.from('budget_items').update({
+    category: addForm.category,
+    supplier_id: addForm.supplier_id || null,
+    planned_amount: Number(addForm.planned_amount),
+    vat_rate: VAT_RATE,
+    payment_terms: addForm.payment_terms,
+    notes: addForm.notes,
+    drive_link: addForm.drive_link,
+   }).eq('id', editItem.id).select().single()
+   if (error) { alert('Error: ' + error.message); return }
+   setItems(prev => prev.map(i => i.id === editItem.id ? data : i))
+  } else {
+   // הוספה
+   const maxSort = items.length > 0 ? Math.max(...items.map(i => i.sort_order || 0)) : 0
+   const { data, error } = await supabase.from('budget_items').insert({
+    project_id: project.id,
+    category: addForm.category,
+    supplier_id: addForm.supplier_id || null,
+    planned_amount: Number(addForm.planned_amount),
+    vat_rate: VAT_RATE,
+    payment_terms: addForm.payment_terms,
+    notes: addForm.notes,
+    drive_link: addForm.drive_link,
+    sort_order: maxSort + 1,
+   }).select().single()
+   if (error) { alert('Error: ' + error.message); return }
+   setItems(prev => [...prev, data])
+  }
   setShowAdd(false)
+  setEditItem(null)
   setAddForm({ category: '', supplier_id: '', planned_amount: '', payment_terms: '', notes: '', drive_link: '' })
+  setSupplierSearch('')
+ }
+
+ // יצירת ספק חדש מתוך חיפוש
+ async function createSupplierFromSearch() {
+  if (!supplierSearch.trim()) return
+  const { data, error } = await supabase.from('suppliers').insert({
+   name: supplierSearch.trim(),
+   updated_at: new Date().toISOString(),
+  }).select().single()
+  if (error) { alert('Error creating supplier: ' + error.message); return }
+  setSuppliers(prev => [...prev, data])
+  setAddForm(f => ({ ...f, supplier_id: data.id }))
+  setShowSupplierDropdown(false)
  }
 
  // רישום תשלום
@@ -1103,11 +1185,29 @@ function BudgetView({ project, client }) {
   setPayments(prev => [...prev, data])
   // עדכון סטטוס אוטומטי
   const newPaid = getItemPaid(showPayment) + Number(payForm.amount)
-  const newStatus = newPaid >= Number(showPayment.planned_amount) ? 'paid' : 'partial'
+  const totalWithVat = Number(showPayment.planned_amount) * (1 + VAT_RATE / 100)
+  const newStatus = newPaid >= totalWithVat ? 'paid' : 'partial'
   await supabase.from('budget_items').update({ status: newStatus }).eq('id', showPayment.id)
   setItems(prev => prev.map(i => i.id === showPayment.id ? { ...i, status: newStatus } : i))
   setShowPayment(null)
-  setPayForm({ amount: '', payment_date: new Date().toISOString().split('T')[0], note: '' })
+  setPayForm({ amount: '', percentage: '', mode: 'amount', payment_date: new Date().toISOString().split('T')[0], note: '' })
+ }
+
+ // מחיקת תשלום בודד
+ async function deletePayment(paymentId, itemId) {
+  if (!confirm('Delete this payment?')) return
+  await supabase.from('budget_payments').delete().eq('id', paymentId)
+  setPayments(prev => prev.filter(p => p.id !== paymentId))
+  // עדכון סטטוס
+  const item = items.find(i => i.id === itemId)
+  if (item) {
+   const remainingPayments = payments.filter(p => p.budget_item_id === itemId && p.id !== paymentId)
+   const newPaid = remainingPayments.reduce((s, p) => s + Number(p.amount), 0)
+   const totalWithVat = Number(item.planned_amount) * (1 + VAT_RATE / 100)
+   const newStatus = newPaid >= totalWithVat ? 'paid' : newPaid > 0 ? 'partial' : 'pending'
+   await supabase.from('budget_items').update({ status: newStatus }).eq('id', itemId)
+   setItems(prev => prev.map(i => i.id === itemId ? { ...i, status: newStatus } : i))
+  }
  }
 
  // מחיקת פריט
@@ -1153,7 +1253,7 @@ function BudgetView({ project, client }) {
      category,
      supplier_id: matchedSupplier?.id || null,
      planned_amount,
-     vat_rate: 17,
+     vat_rate: VAT_RATE,
      payment_terms: notes,
      notes,
      drive_link: '',
@@ -1173,13 +1273,16 @@ function BudgetView({ project, client }) {
   }
  }
 
- // שליחת בקשת תשלום
+ // שליחת בקשת תשלום — הסכום הנשלח הוא היתרה לתשלום
  function openEmailModal(item) {
   const supplier = suppliers.find(s => s.id === item.supplier_id)
+  const totalWithVat = Number(item.planned_amount) * (1 + VAT_RATE / 100)
+  const paid = getItemPaid(item)
+  const itemRemaining = totalWithVat - paid
   const bankInfo = supplier?.bank_name ? `\n\nBank Details:\nBank: ${supplier.bank_name}\nBranch: ${supplier.bank_branch || ''}\nAccount: ${supplier.bank_account || ''}\nHolder: ${supplier.account_holder || ''}` : ''
   setEmailTo(client?.email || '')
-  setEmailSubject(`Payment Request — ${item.category} — ${project.name}`)
-  setEmailBody(`Dear ${client?.name || 'Client'},\n\nPlease process the following payment:\n\nCategory: ${item.category}\nAmount: ${fmtCurrency(Number(item.planned_amount) * 1.17)}\nPayment Terms: ${item.payment_terms || 'N/A'}${bankInfo}\n\nThank you,\nYael Siso | Interior Design`)
+  setEmailSubject(`Payment Request: ${item.category} — ${project.name}`)
+  setEmailBody(`Dear ${client?.name || 'Client'},\n\nPlease process the following payment:\n\nSupplier: ${supplier?.name || 'N/A'}\nCategory: ${item.category}\nRemaining Amount: ${fmtCurrency(Math.round(itemRemaining))}\nPayment Terms: ${item.payment_terms || 'N/A'}${bankInfo}\n\nThank you,\nYael Siso | Interior Design`)
   setShowEmail(item)
  }
 
@@ -1200,8 +1303,16 @@ function BudgetView({ project, client }) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ to: emailTo, subject: emailSubject, body: htmlBody }),
    })
-   if (res.ok) alert('Email sent successfully!')
-   else alert('Failed to send email')
+   if (res.ok) {
+    // רישום בהיסטוריית תשלומים
+    await supabase.from('budget_payments').insert({
+     budget_item_id: showEmail.id,
+     amount: 0,
+     payment_date: new Date().toISOString().split('T')[0],
+     note: `Payment request sent to ${emailTo}`,
+    })
+    alert('Email sent successfully!')
+   } else alert('Failed to send email')
   } catch (e) { alert('Error sending email') }
   setSendingEmail(false)
   setShowEmail(null)
@@ -1209,8 +1320,15 @@ function BudgetView({ project, client }) {
 
  const statusChip = { pending: 'bg-[#F3F3F3] text-[#6B7A90]', partial: 'bg-amber-50 text-amber-700', paid: 'bg-emerald-50 text-emerald-700' }
  const statusLabel = { pending: 'Pending', partial: 'Partial', paid: 'Paid' }
+ const inp = "w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 transition"
+ const lbl = "text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5"
 
  if (loading) return <div className="flex items-center justify-center p-8"><div className="w-6 h-6 border-2 border-[#091426] border-t-transparent rounded-full animate-spin" /></div>
+
+ // סינון ספקים לפי חיפוש
+ const filteredSuppliers = supplierSearch.trim()
+  ? suppliers.filter(s => s.name.toLowerCase().includes(supplierSearch.toLowerCase()))
+  : suppliers
 
  return (
   <div className="space-y-4">
@@ -1218,8 +1336,12 @@ function BudgetView({ project, client }) {
    <div className="bg-white rounded-2xl p-5 shadow-[0_2px_20px_rgba(9,20,38,0.04)]">
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-3">
      <div>
-      <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Total Planned</p>
-      <p className="text-lg font-bold text-[#091426] font-[Manrope]">{fmtCurrency(Math.round(totalPlanned))}</p>
+      <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Total (excl. VAT)</p>
+      <p className="text-lg font-bold text-[#091426] font-[Manrope]">{fmtCurrency(Math.round(totalBeforeVat))}</p>
+     </div>
+     <div>
+      <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Total (incl. VAT 18%)</p>
+      <p className="text-lg font-bold text-[#091426] font-[Manrope]">{fmtCurrency(Math.round(totalInclVat))}</p>
      </div>
      <div>
       <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Total Paid</p>
@@ -1229,13 +1351,12 @@ function BudgetView({ project, client }) {
       <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Remaining</p>
       <p className="text-lg font-bold text-[#091426] font-[Manrope]">{fmtCurrency(Math.round(remaining))}</p>
      </div>
-     <div>
-      <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Progress</p>
-      <p className="text-lg font-bold text-[#091426] font-[Manrope]">{progressPct}%</p>
-     </div>
     </div>
-    <div className="w-full h-2 bg-[#F3F3F3] rounded-full overflow-hidden">
-     <div className="h-full bg-[#B8960B] rounded-full transition-all" style={{ width: `${progressPct}%` }} />
+    <div className="flex items-center gap-3">
+     <div className="flex-1 h-2 bg-[#F3F3F3] rounded-full overflow-hidden">
+      <div className="h-full bg-[#B8960B] rounded-full transition-all" style={{ width: `${progressPct}%` }} />
+     </div>
+     <span className="text-xs font-bold text-[#091426] font-[Manrope]">{progressPct}%</span>
     </div>
    </div>
 
@@ -1245,12 +1366,13 @@ function BudgetView({ project, client }) {
      <table className="w-full text-sm">
       <thead>
        <tr className="border-b border-[#F3F3F3] text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">
+        <th className="w-8 px-2 py-3"></th>
         <th className="text-left px-4 py-3">Category</th>
         <th className="text-left px-4 py-3">Supplier</th>
-        <th className="text-right px-4 py-3">Planned</th>
-        <th className="text-right px-4 py-3">VAT</th>
-        <th className="text-right px-4 py-3">Total</th>
-        <th className="text-left px-4 py-3">Terms</th>
+        <th className="text-right px-4 py-3">Before VAT</th>
+        <th className="text-right px-4 py-3">Incl. VAT</th>
+        <th className="text-right px-4 py-3">Paid</th>
+        <th className="text-right px-4 py-3">Remaining</th>
         <th className="text-center px-4 py-3">Status</th>
         <th className="text-center px-4 py-3">Link</th>
         <th className="text-center px-4 py-3">Actions</th>
@@ -1259,45 +1381,95 @@ function BudgetView({ project, client }) {
       <tbody>
        {items.map(item => {
         const supplier = suppliers.find(s => s.id === item.supplier_id)
-        const status = getItemStatus(item)
-        const totalInclVat = Number(item.planned_amount) * (1 + Number(item.vat_rate || 17) / 100)
+        const status = item.status || calcStatus(item)
+        const itemTotalVat = Number(item.planned_amount) * (1 + VAT_RATE / 100)
+        const itemPaid = getItemPaid(item)
+        const itemRemaining = itemTotalVat - itemPaid
+        const isExpanded = expandedRows.has(item.id)
+        const itemPayments = getItemPayments(item)
+
         return (
-         <tr key={item.id} className="border-b border-[#F3F3F3] hover:bg-[#F9F9F9] transition">
-          <td className="px-4 py-3 font-medium text-[#091426]">{item.category}</td>
-          <td className="px-4 py-3 text-[#6B7A90]">{supplier?.name || '—'}</td>
-          <td className="px-4 py-3 text-right text-[#091426]">{fmtCurrency(Number(item.planned_amount))}</td>
-          <td className="px-4 py-3 text-right text-[#6B7A90]">{item.vat_rate || 17}%</td>
-          <td className="px-4 py-3 text-right font-medium text-[#091426]">{fmtCurrency(Math.round(totalInclVat))}</td>
-          <td className="px-4 py-3 text-[#6B7A90]">{item.payment_terms || '—'}</td>
-          <td className="px-4 py-3 text-center">
-           <span className={`inline-flex text-[10px] font-bold tracking-wider px-2.5 py-0.5 rounded-full ${statusChip[status]}`}>
-            {statusLabel[status]}
-           </span>
-          </td>
-          <td className="px-4 py-3 text-center">
-           {item.drive_link ? (
-            <a href={item.drive_link} target="_blank" rel="noopener noreferrer" className="text-[#6B7A90] hover:text-[#091426] transition">
-             <ExternalLink size={14} strokeWidth={1.8} />
-            </a>
-           ) : '—'}
-          </td>
-          <td className="px-4 py-3">
-           <div className="flex items-center justify-center gap-1">
-            <button onClick={() => { setShowPayment(item); setPayForm({ amount: '', payment_date: new Date().toISOString().split('T')[0], note: '' }) }}
-             className="p-1.5 rounded-lg text-[#6B7A90] hover:text-emerald-600 hover:bg-emerald-50 transition" title="Record Payment">
-             <CreditCard size={13} strokeWidth={1.8} />
+         <>
+          <tr key={item.id} className="border-b border-[#F3F3F3] hover:bg-[#F9F9F9] transition">
+           <td className="px-2 py-3 text-center">
+            <button onClick={() => toggleRow(item.id)} className="text-[#6B7A90] hover:text-[#091426] transition p-0.5">
+             {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
             </button>
-            <button onClick={() => openEmailModal(item)}
-             className="p-1.5 rounded-lg text-[#6B7A90] hover:text-[#B8960B] hover:bg-amber-50 transition" title="Send Payment Request">
-             <Send size={13} strokeWidth={1.8} />
-            </button>
-            <button onClick={() => deleteItem(item)}
-             className="p-1.5 rounded-lg text-[#6B7A90] hover:text-red-500 hover:bg-red-50 transition" title="Delete">
-             <Trash2 size={13} strokeWidth={1.8} />
-            </button>
-           </div>
-          </td>
-         </tr>
+           </td>
+           <td className="px-4 py-3 font-medium text-[#091426]">{item.category}</td>
+           <td className="px-4 py-3 text-[#6B7A90]">{supplier?.name || '—'}</td>
+           <td className="px-4 py-3 text-right text-[#091426]">{fmtCurrency(Number(item.planned_amount))}</td>
+           <td className="px-4 py-3 text-right font-medium text-[#091426]">{fmtCurrency(Math.round(itemTotalVat))}</td>
+           <td className="px-4 py-3 text-right text-emerald-600">{fmtCurrency(Math.round(itemPaid))}</td>
+           <td className="px-4 py-3 text-right text-[#091426]">{fmtCurrency(Math.round(itemRemaining))}</td>
+           <td className="px-4 py-3 text-center">
+            <select value={status} onChange={e => changeStatus(item, e.target.value)}
+             className={`text-[10px] font-bold tracking-wider px-2.5 py-0.5 rounded-full border-0 cursor-pointer ${statusChip[status]}`}>
+             <option value="pending">Pending</option>
+             <option value="partial">Partial</option>
+             <option value="paid">Paid</option>
+            </select>
+           </td>
+           <td className="px-4 py-3 text-center">
+            {item.drive_link ? (
+             <a href={item.drive_link} target="_blank" rel="noopener noreferrer" className="text-[#6B7A90] hover:text-[#091426] transition">
+              <ExternalLink size={14} strokeWidth={1.8} />
+             </a>
+            ) : <span className="text-[#6B7A90]">—</span>}
+           </td>
+           <td className="px-4 py-3">
+            <div className="flex items-center justify-center gap-1">
+             <button onClick={() => openAddModal(item)}
+              className="p-1.5 rounded-lg text-[#6B7A90] hover:text-[#091426] hover:bg-[#F3F3F3] transition" title="Edit">
+              <Pencil size={13} strokeWidth={1.8} />
+             </button>
+             <button onClick={() => { setShowPayment(item); setPayForm({ amount: '', percentage: '', mode: 'amount', payment_date: new Date().toISOString().split('T')[0], note: '' }) }}
+              className="p-1.5 rounded-lg text-[#6B7A90] hover:text-emerald-600 hover:bg-emerald-50 transition" title="Add Payment">
+              <CreditCard size={13} strokeWidth={1.8} />
+             </button>
+             <button onClick={() => openEmailModal(item)}
+              className="p-1.5 rounded-lg text-[#6B7A90] hover:text-[#B8960B] hover:bg-amber-50 transition" title="Send to Client">
+              <Send size={13} strokeWidth={1.8} />
+             </button>
+             <button onClick={() => deleteItem(item)}
+              className="p-1.5 rounded-lg text-[#6B7A90] hover:text-red-500 hover:bg-red-50 transition" title="Delete">
+              <Trash2 size={13} strokeWidth={1.8} />
+             </button>
+            </div>
+           </td>
+          </tr>
+          {/* שורה מורחבת — היסטוריית תשלומים */}
+          {isExpanded && (
+           <tr key={`${item.id}-expanded`} className="bg-[#F9F9F9]">
+            <td colSpan={10} className="px-6 py-3">
+             {itemPayments.length > 0 ? (
+              <div className="space-y-2">
+               <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mb-2">Payment History</p>
+               {itemPayments.filter(p => Number(p.amount) > 0 || p.note).map(p => (
+                <div key={p.id} className="flex items-center justify-between bg-white rounded-xl px-4 py-2.5 shadow-sm">
+                 <div className="flex items-center gap-4">
+                  <span className="text-xs text-[#6B7A90]">{fmtDate(p.payment_date)}</span>
+                  <span className="text-sm font-medium text-[#091426]">{Number(p.amount) > 0 ? fmtCurrency(Number(p.amount)) : ''}</span>
+                  {p.note && <span className="text-xs text-[#6B7A90]">{p.note}</span>}
+                 </div>
+                 <button onClick={() => deletePayment(p.id, item.id)}
+                  className="p-1 rounded-lg text-[#6B7A90] hover:text-red-500 hover:bg-red-50 transition">
+                  <Trash2 size={12} strokeWidth={1.8} />
+                 </button>
+                </div>
+               ))}
+              </div>
+             ) : (
+              <p className="text-xs text-[#6B7A90]">No payments recorded yet</p>
+             )}
+             <button onClick={() => { setShowPayment(item); setPayForm({ amount: '', percentage: '', mode: 'amount', payment_date: new Date().toISOString().split('T')[0], note: '' }) }}
+              className="mt-3 flex items-center gap-1.5 text-xs font-medium text-[#091426] hover:text-[#B8960B] transition">
+              <Plus size={12} strokeWidth={2} /> Add Payment
+             </button>
+            </td>
+           </tr>
+          )}
+         </>
         )
        })}
       </tbody>
@@ -1307,8 +1479,8 @@ function BudgetView({ project, client }) {
      <div className="text-center py-12 text-[#6B7A90] text-sm">No budget items yet</div>
     )}
     <div className="p-4 border-t border-[#F3F3F3] flex items-center gap-4">
-     <button onClick={() => setShowAdd(true)}
-      className="flex items-center gap-2 text-sm font-medium text-[#091426] hover:text-[#091426] transition">
+     <button onClick={() => openAddModal()}
+      className="flex items-center gap-2 text-sm font-medium text-[#091426] hover:text-[#B8960B] transition">
       <Plus size={14} strokeWidth={1.8} /> Add Budget Item
      </button>
      <label className={`flex items-center gap-2 text-sm font-medium text-[#091426] hover:text-[#B8960B] transition cursor-pointer ${importing ? 'opacity-50 pointer-events-none' : ''}`}>
@@ -1318,111 +1490,174 @@ function BudgetView({ project, client }) {
     </div>
    </div>
 
-   {/* מודאל הוספת פריט */}
+   {/* מודאל הוספה / עריכה של פריט תקציב */}
    {showAdd && (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-[#091426]/60" onClick={() => setShowAdd(false)}>
-     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-[#091426]/60" onClick={() => { setShowAdd(false); setEditItem(null) }}>
+     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
       <div className="flex items-center justify-between p-5 border-b border-[#F3F3F3]">
-       <h2 className="font-semibold text-[#091426] font-[Manrope] tracking-tight">Add Budget Item</h2>
-       <button onClick={() => setShowAdd(false)} className="text-[#6B7A90] hover:text-[#091426] p-1 rounded-xl hover:bg-[#F3F3F3] transition"><X size={18} strokeWidth={1.8} /></button>
+       <h2 className="font-semibold text-[#091426] font-[Manrope] tracking-tight">{editItem ? 'Edit Budget Item' : 'Add Budget Item'}</h2>
+       <button onClick={() => { setShowAdd(false); setEditItem(null) }} className="text-[#6B7A90] hover:text-[#091426] p-1 rounded-xl hover:bg-[#F3F3F3] transition"><X size={18} strokeWidth={1.8} /></button>
       </div>
       <div className="p-5 space-y-4">
+       {/* ספק — חיפוש אוטוקומפליט */}
+       <div className="relative">
+        <label className={lbl}>Supplier</label>
+        <div className="relative">
+         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7A90]" />
+         <input value={supplierSearch}
+          onChange={e => { setSupplierSearch(e.target.value); setShowSupplierDropdown(true); setAddForm(f => ({ ...f, supplier_id: '' })) }}
+          onFocus={() => setShowSupplierDropdown(true)}
+          placeholder="Search supplier..."
+          className={`${inp} pl-8`} />
+        </div>
+        {showSupplierDropdown && (
+         <div className="absolute z-10 w-full mt-1 bg-white rounded-xl shadow-lg border border-[#F3F3F3] max-h-40 overflow-y-auto">
+          {filteredSuppliers.map(s => (
+           <button key={s.id} onClick={() => { setAddForm(f => ({ ...f, supplier_id: s.id })); setSupplierSearch(s.name); setShowSupplierDropdown(false) }}
+            className="w-full text-left px-3 py-2 text-sm hover:bg-[#F9F9F9] transition">
+            {s.name}
+           </button>
+          ))}
+          {filteredSuppliers.length === 0 && supplierSearch.trim() && (
+           <button onClick={createSupplierFromSearch}
+            className="w-full text-left px-3 py-2 text-sm text-[#B8960B] font-medium hover:bg-amber-50 transition">
+            + Create "{supplierSearch.trim()}"
+           </button>
+          )}
+         </div>
+        )}
+        {addForm.supplier_id && (
+         <p className="text-[10px] text-emerald-600 mt-1">Linked to supplier</p>
+        )}
+       </div>
        <div>
-        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Category *</label>
+        <label className={lbl}>Category *</label>
         <input value={addForm.category} onChange={e => setAddForm(f => ({ ...f, category: e.target.value }))}
          placeholder="e.g. Flooring, Electrical, Kitchen..."
-         className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" autoFocus />
+         className={inp} autoFocus />
        </div>
        <div>
-        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Supplier</label>
-        <select value={addForm.supplier_id} onChange={e => setAddForm(f => ({ ...f, supplier_id: e.target.value }))}
-         className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20">
-         <option value="">— Select Supplier —</option>
-         {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-        </select>
-       </div>
-       <div>
-        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Planned Amount (excl. VAT) *</label>
+        <label className={lbl}>Amount (before VAT) *</label>
         <input type="number" value={addForm.planned_amount} onChange={e => setAddForm(f => ({ ...f, planned_amount: e.target.value }))}
-         placeholder="0" className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+         placeholder="0" className={inp} />
+        {addForm.planned_amount && (
+         <p className="text-[10px] text-[#6B7A90] mt-1">Incl. VAT (18%): {fmtCurrency(Math.round(Number(addForm.planned_amount) * 1.18))}</p>
+        )}
        </div>
        <div>
-        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Payment Terms</label>
+        <label className={lbl}>Payment Terms</label>
         <input value={addForm.payment_terms} onChange={e => setAddForm(f => ({ ...f, payment_terms: e.target.value }))}
          placeholder="e.g. Net 30, 50% advance..."
-         className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+         className={inp} />
        </div>
        <div>
-        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Drive Link</label>
+        <label className={lbl}>Notes</label>
+        <textarea value={addForm.notes} onChange={e => setAddForm(f => ({ ...f, notes: e.target.value }))}
+         rows={2} className={`${inp} resize-none`} />
+       </div>
+       <div>
+        <label className={lbl}>Drive Link</label>
         <input value={addForm.drive_link} onChange={e => setAddForm(f => ({ ...f, drive_link: e.target.value }))}
          placeholder="https://drive.google.com/..."
-         className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
-       </div>
-       <div>
-        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Notes</label>
-        <textarea value={addForm.notes} onChange={e => setAddForm(f => ({ ...f, notes: e.target.value }))}
-         rows={2} className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 resize-none" />
+         className={inp} />
        </div>
       </div>
       <div className="flex gap-3 p-5 border-t border-[#F3F3F3]">
-       <button onClick={addItem} className="flex-1 bg-[#091426] text-white rounded-xl py-2.5 text-sm font-medium hover:bg-[#1E293B] transition-all">Add Item</button>
-       <button onClick={() => setShowAdd(false)} className="px-4 py-2.5 rounded-xl text-sm text-[#6B7A90] hover:bg-[#F9F9F9] bg-[#F3F3F3] transition-all">Cancel</button>
+       <button onClick={saveItem} className="flex-1 bg-[#091426] text-white rounded-xl py-2.5 text-sm font-medium hover:bg-[#1E293B] transition-all">
+        {editItem ? 'Save Changes' : 'Add Item'}
+       </button>
+       <button onClick={() => { setShowAdd(false); setEditItem(null) }} className="px-4 py-2.5 rounded-xl text-sm text-[#6B7A90] hover:bg-[#F9F9F9] bg-[#F3F3F3] transition-all">Cancel</button>
       </div>
      </div>
     </div>
    )}
 
    {/* מודאל רישום תשלום */}
-   {showPayment && (
-    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-[#091426]/60" onClick={() => setShowPayment(null)}>
-     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
-      <div className="flex items-center justify-between p-5 border-b border-[#F3F3F3]">
-       <div>
-        <h2 className="font-semibold text-[#091426] font-[Manrope] tracking-tight">Record Payment</h2>
-        <p className="text-xs text-[#6B7A90] mt-0.5">{showPayment.category}</p>
-       </div>
-       <button onClick={() => setShowPayment(null)} className="text-[#6B7A90] hover:text-[#091426] p-1 rounded-xl hover:bg-[#F3F3F3] transition"><X size={18} strokeWidth={1.8} /></button>
-      </div>
-      <div className="p-5 space-y-4">
-       <div className="grid grid-cols-3 gap-3 text-center bg-[#F3F3F3] rounded-xl p-3">
+   {showPayment && (() => {
+    const paySupplier = suppliers.find(s => s.id === showPayment.supplier_id)
+    const payTotalVat = Number(showPayment.planned_amount) * (1 + VAT_RATE / 100)
+    const payAlreadyPaid = getItemPaid(showPayment)
+    const payRemaining = payTotalVat - payAlreadyPaid
+    return (
+     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-[#091426]/60" onClick={() => setShowPayment(null)}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
+       <div className="flex items-center justify-between p-5 border-b border-[#F3F3F3]">
         <div>
-         <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Planned</p>
-         <p className="text-sm font-bold text-[#091426]">{fmtCurrency(Number(showPayment.planned_amount))}</p>
+         <h2 className="font-semibold text-[#091426] font-[Manrope] tracking-tight">Add Payment</h2>
+         <p className="text-xs text-[#6B7A90] mt-0.5">{showPayment.category}{paySupplier ? ` — ${paySupplier.name}` : ''}</p>
+        </div>
+        <button onClick={() => setShowPayment(null)} className="text-[#6B7A90] hover:text-[#091426] p-1 rounded-xl hover:bg-[#F3F3F3] transition"><X size={18} strokeWidth={1.8} /></button>
+       </div>
+       <div className="p-5 space-y-4">
+        <div className="grid grid-cols-3 gap-3 text-center bg-[#F3F3F3] rounded-xl p-3">
+         <div>
+          <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Total (VAT)</p>
+          <p className="text-sm font-bold text-[#091426]">{fmtCurrency(Math.round(payTotalVat))}</p>
+         </div>
+         <div>
+          <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Paid</p>
+          <p className="text-sm font-bold text-emerald-600">{fmtCurrency(Math.round(payAlreadyPaid))}</p>
+         </div>
+         <div>
+          <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Remaining</p>
+          <p className="text-sm font-bold text-[#091426]">{fmtCurrency(Math.round(payRemaining))}</p>
+         </div>
+        </div>
+        {/* מצב הזנה: סכום או אחוז */}
+        <div className="flex items-center gap-2 bg-[#F3F3F3] rounded-xl p-1">
+         <button onClick={() => setPayForm(f => ({ ...f, mode: 'amount' }))}
+          className={`flex-1 text-xs font-medium py-1.5 rounded-lg transition ${payForm.mode === 'amount' ? 'bg-white text-[#091426] shadow-sm' : 'text-[#6B7A90]'}`}>
+          Amount
+         </button>
+         <button onClick={() => setPayForm(f => ({ ...f, mode: 'percentage' }))}
+          className={`flex-1 text-xs font-medium py-1.5 rounded-lg transition ${payForm.mode === 'percentage' ? 'bg-white text-[#091426] shadow-sm' : 'text-[#6B7A90]'}`}>
+          Percentage
+         </button>
+        </div>
+        {payForm.mode === 'amount' ? (
+         <div>
+          <label className={lbl}>Amount *</label>
+          <input type="number" value={payForm.amount}
+           onChange={e => {
+            const amt = e.target.value
+            setPayForm(f => ({ ...f, amount: amt, percentage: payTotalVat > 0 ? (Number(amt) / payTotalVat * 100).toFixed(1) : '' }))
+           }}
+           placeholder="0" className={inp} autoFocus />
+          {payForm.amount && <p className="text-[10px] text-[#6B7A90] mt-1">= {payTotalVat > 0 ? (Number(payForm.amount) / payTotalVat * 100).toFixed(1) : 0}% of total</p>}
+         </div>
+        ) : (
+         <div>
+          <label className={lbl}>Percentage *</label>
+          <input type="number" value={payForm.percentage}
+           onChange={e => {
+            const pct = e.target.value
+            setPayForm(f => ({ ...f, percentage: pct, amount: (Number(pct) / 100 * payTotalVat).toFixed(0) }))
+           }}
+           placeholder="0" className={inp} autoFocus />
+          {payForm.percentage && <p className="text-[10px] text-[#6B7A90] mt-1">= {fmtCurrency(Math.round(Number(payForm.percentage) / 100 * payTotalVat))}</p>}
+         </div>
+        )}
+        <div>
+         <label className={lbl}>Date</label>
+         <input type="date" value={payForm.payment_date} onChange={e => setPayForm(f => ({ ...f, payment_date: e.target.value }))}
+          className={inp} />
         </div>
         <div>
-         <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Paid</p>
-         <p className="text-sm font-bold text-emerald-600">{fmtCurrency(getItemPaid(showPayment))}</p>
-        </div>
-        <div>
-         <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Remaining</p>
-         <p className="text-sm font-bold text-[#091426]">{fmtCurrency(Number(showPayment.planned_amount) - getItemPaid(showPayment))}</p>
+         <label className={lbl}>Note</label>
+         <input value={payForm.note} onChange={e => setPayForm(f => ({ ...f, note: e.target.value }))}
+          placeholder="Optional note..."
+          className={inp} />
         </div>
        </div>
-       <div>
-        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Amount *</label>
-        <input type="number" value={payForm.amount} onChange={e => setPayForm(f => ({ ...f, amount: e.target.value }))}
-         placeholder="0" className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" autoFocus />
+       <div className="flex gap-3 p-5 border-t border-[#F3F3F3]">
+        <button onClick={recordPayment} disabled={!payForm.amount}
+         className="flex-1 bg-[#091426] text-white rounded-xl py-2.5 text-sm font-medium hover:bg-[#1E293B] transition-all disabled:opacity-40">Record Payment</button>
+        <button onClick={() => setShowPayment(null)} className="px-4 py-2.5 rounded-xl text-sm text-[#6B7A90] hover:bg-[#F9F9F9] bg-[#F3F3F3] transition-all">Cancel</button>
        </div>
-       <div>
-        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Date</label>
-        <input type="date" value={payForm.payment_date} onChange={e => setPayForm(f => ({ ...f, payment_date: e.target.value }))}
-         className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
-       </div>
-       <div>
-        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Note</label>
-        <input value={payForm.note} onChange={e => setPayForm(f => ({ ...f, note: e.target.value }))}
-         placeholder="Optional note..."
-         className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
-       </div>
-      </div>
-      <div className="flex gap-3 p-5 border-t border-[#F3F3F3]">
-       <button onClick={recordPayment} disabled={!payForm.amount}
-        className="flex-1 bg-[#091426] text-white rounded-xl py-2.5 text-sm font-medium hover:bg-[#1E293B] transition-all disabled:opacity-40">Record Payment</button>
-       <button onClick={() => setShowPayment(null)} className="px-4 py-2.5 rounded-xl text-sm text-[#6B7A90] hover:bg-[#F9F9F9] bg-[#F3F3F3] transition-all">Cancel</button>
       </div>
      </div>
-    </div>
-   )}
+    )
+   })()}
 
    {/* מודאל שליחת בקשת תשלום */}
    {showEmail && (
@@ -1434,19 +1669,17 @@ function BudgetView({ project, client }) {
       </div>
       <div className="p-5 space-y-4">
        <div>
-        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">To</label>
-        <input value={emailTo} onChange={e => setEmailTo(e.target.value)}
-         className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+        <label className={lbl}>To</label>
+        <input value={emailTo} onChange={e => setEmailTo(e.target.value)} className={inp} />
        </div>
        <div>
-        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Subject</label>
-        <input value={emailSubject} onChange={e => setEmailSubject(e.target.value)}
-         className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+        <label className={lbl}>Subject</label>
+        <input value={emailSubject} onChange={e => setEmailSubject(e.target.value)} className={inp} />
        </div>
        <div>
-        <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Body</label>
+        <label className={lbl}>Body</label>
         <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)}
-         rows={8} className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 resize-none" />
+         rows={8} className={`${inp} resize-none`} />
        </div>
       </div>
       <div className="flex gap-3 p-5 border-t border-[#F3F3F3]">
