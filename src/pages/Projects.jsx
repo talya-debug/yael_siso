@@ -5,8 +5,9 @@ import {
  Calendar, User, MessageSquare, Plus, X, Trash2, Send,
  LayoutList, BarChart2, Flag, Pencil,
  Users, FileText, MapPin, ExternalLink, Link2, ContactRound,
- Check, Download, CreditCard,
+ Check, Download, CreditCard, Upload,
 } from 'lucide-react'
+import * as XLSX from 'xlsx'
 
 // ── קבועים ──
 const STATUS = {
@@ -1118,6 +1119,60 @@ function BudgetView({ project, client }) {
   setPayments(prev => prev.filter(p => p.budget_item_id !== item.id))
  }
 
+ // ייבוא מאקסל
+ const [importing, setImporting] = useState(false)
+ async function importFromExcel(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  setImporting(true)
+  try {
+   const data = await file.arrayBuffer()
+   const wb = XLSX.read(data)
+   const ws = wb.Sheets[wb.SheetNames[0]]
+   const rows = XLSX.utils.sheet_to_json(ws, { header: 1 })
+   // דילוג על שורת כותרת ושורת סיכום
+   const dataRows = rows.slice(1).filter(row => {
+    const subject = row[0]
+    const amount = row[8]
+    if (!subject || String(subject).trim() === '') return false
+    if (String(subject).toLowerCase().includes('total') || String(subject).includes('סה"כ')) return false
+    return typeof amount === 'number' || (amount && !isNaN(Number(amount)))
+   })
+   let count = 0
+   const maxSort = items.length > 0 ? Math.max(...items.map(i => i.sort_order || 0)) : 0
+   for (let idx = 0; idx < dataRows.length; idx++) {
+    const row = dataRows[idx]
+    const category = String(row[0]).trim()
+    const supplierName = row[1] ? String(row[1]).trim() : ''
+    const planned_amount = Number(row[8])
+    const notes = row[10] ? String(row[10]).trim() : ''
+    // התאמת ספק קיים
+    const matchedSupplier = supplierName ? suppliers.find(s => s.name.toLowerCase() === supplierName.toLowerCase()) : null
+    const { data: inserted, error } = await supabase.from('budget_items').insert({
+     project_id: project.id,
+     category,
+     supplier_id: matchedSupplier?.id || null,
+     planned_amount,
+     vat_rate: 17,
+     payment_terms: notes,
+     notes,
+     drive_link: '',
+     sort_order: maxSort + idx + 1,
+    }).select().single()
+    if (!error && inserted) {
+     setItems(prev => [...prev, inserted])
+     count++
+    }
+   }
+   alert(`Imported ${count} budget items successfully`)
+  } catch (err) {
+   alert('Error importing Excel: ' + err.message)
+  } finally {
+   setImporting(false)
+   e.target.value = ''
+  }
+ }
+
  // שליחת בקשת תשלום
  function openEmailModal(item) {
   const supplier = suppliers.find(s => s.id === item.supplier_id)
@@ -1251,11 +1306,15 @@ function BudgetView({ project, client }) {
     {items.length === 0 && (
      <div className="text-center py-12 text-[#6B7A90] text-sm">No budget items yet</div>
     )}
-    <div className="p-4 border-t border-[#F3F3F3]">
+    <div className="p-4 border-t border-[#F3F3F3] flex items-center gap-4">
      <button onClick={() => setShowAdd(true)}
       className="flex items-center gap-2 text-sm font-medium text-[#091426] hover:text-[#091426] transition">
       <Plus size={14} strokeWidth={1.8} /> Add Budget Item
      </button>
+     <label className={`flex items-center gap-2 text-sm font-medium text-[#091426] hover:text-[#B8960B] transition cursor-pointer ${importing ? 'opacity-50 pointer-events-none' : ''}`}>
+      <Upload size={14} strokeWidth={1.8} /> {importing ? 'Importing...' : 'Import from Excel'}
+      <input type="file" accept=".xlsx,.xls" className="hidden" onChange={importFromExcel} />
+     </label>
     </div>
    </div>
 
