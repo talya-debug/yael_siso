@@ -2142,6 +2142,22 @@ function ProjectDetail({ project, clients, onBack }) {
     }))
    if (items.length > 0) {
     await supabase.from('payments').insert(items)
+    // בדיקת שלבים שכבר הושלמו — עדכון אוטומטי של גבייה
+    const { data: allTasks } = await supabase.from('tasks').select('phase_name, status, level').eq('project_id', project.id)
+    if (allTasks) {
+     const phases = [...new Set(allTasks.filter(t => t.phase_name).map(t => t.phase_name))]
+     for (const phase of phases) {
+      const phaseMains = allTasks.filter(t => t.phase_name === phase && t.level !== 'subtask')
+      const allDone = phaseMains.length > 0 && phaseMains.every(t => t.status === 'done')
+      if (allDone) {
+       const matchItem = items.find(i => i.phase_name === phase)
+       if (matchItem) {
+        await supabase.from('payments').update({ status: 'sent', due_date: new Date().toISOString().split('T')[0] })
+         .eq('project_id', project.id).eq('phase_name', phase).eq('status', 'pending')
+       }
+      }
+     }
+    }
    }
    // עדכון מחיר הפרויקט
    if (price !== project.project_price) {
