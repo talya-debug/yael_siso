@@ -1940,14 +1940,12 @@ function ProjectDetail({ project, clients, onBack }) {
      // העברת אבן דרך גבייה מ-future ל-current
      const { data: matchingPayments } = await supabase
       .from('payments')
-      .select('id, name, status')
+      .select('id, name, status, phase_name')
       .eq('project_id', project.id)
       .eq('status', 'pending')
      if (matchingPayments) {
-      const match = matchingPayments.find(p =>
-       p.name.toLowerCase().includes(task.phase_name.toLowerCase()) ||
-       task.phase_name.toLowerCase().includes(p.name.toLowerCase())
-      )
+      // התאמה מדויקת לפי phase_name במקום השוואת מחרוזות
+      const match = matchingPayments.find(p => p.phase_name === task.phase_name)
       if (match) {
        await supabase.from('payments').update({ status: 'sent', due_date: new Date().toISOString().split('T')[0] }).eq('id', match.id)
        console.log(`[Billing] Milestone "${match.name}" moved to current`)
@@ -2098,10 +2096,30 @@ function ProjectDetail({ project, clients, onBack }) {
   }
  }
 
- // ── פתיחת מודאל הגדרת גבייה ──
- function openBillingSetup() {
+ // ── פתיחת מודאל הגדרת גבייה — שליפת שלבים אמיתיים מהמשימות ──
+ async function openBillingSetup() {
   setBillingPrice(project.project_price?.toString() || '')
-  setBillingRows(DEFAULT_BILLING_MILESTONES.map(m => ({ ...m })))
+  // שליפת שמות שלבים ייחודיים מהמשימות
+  const { data: phases } = await supabase
+   .from('tasks')
+   .select('phase_name')
+   .eq('project_id', project.id)
+   .not('phase_name', 'is', null)
+  const uniquePhases = [...new Set((phases || []).map(p => p.phase_name).filter(Boolean))]
+  if (uniquePhases.length > 0) {
+   const pctPerPhase = Math.floor(70 / uniquePhases.length) // 30% מקדמה, השאר מחולק שווה
+   const rows = [
+    { name: 'Advance Payment', pct: 30, phase_name: null },
+    ...uniquePhases.map((ph, i) => ({
+     name: ph,
+     pct: i === uniquePhases.length - 1 ? 70 - pctPerPhase * (uniquePhases.length - 1) : pctPerPhase,
+     phase_name: ph,
+    }))
+   ]
+   setBillingRows(rows)
+  } else {
+   setBillingRows(DEFAULT_BILLING_MILESTONES.map(m => ({ ...m })))
+  }
   setShowBilling(true)
  }
 
@@ -2111,6 +2129,7 @@ function ProjectDetail({ project, clients, onBack }) {
   if (price <= 0) return
   setCreatingBilling(true)
   try {
+   // יצירת תשלומים עם phase_name לחיבור לשלבים
    const items = billingRows
     .filter(r => Number(r.pct || 0) > 0)
     .map(r => ({
@@ -2119,6 +2138,7 @@ function ProjectDetail({ project, clients, onBack }) {
      pct: Number(r.pct),
      amount: Math.round(price * Number(r.pct) / 100),
      status: 'pending',
+     phase_name: r.phase_name || null,
     }))
    if (items.length > 0) {
     await supabase.from('payments').insert(items)

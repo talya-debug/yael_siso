@@ -396,15 +396,17 @@ export default function Clients() {
       }
 
       // 3. יצירת אבני דרך גבייה
+      // יצירת רשומות תשלום עם phase_name לחיבור לשלבי הפרויקט
       const paymentRows = billingRows
         .filter(r => (parseFloat(r.amount) || 0) > 0)
         .map(r => ({
           project_id: project.id,
-          name: r.name,
+          name: r.milestone === '__advance__' ? 'Advance Payment' : (r.milestone || r.name),
           amount: parseFloat(r.amount) || 0,
           pct: Math.round(((parseFloat(r.amount) || 0) / projectPrice) * 100),
           status: r.milestone === '__advance__' ? 'sent' : 'pending',
           due_date: null,
+          phase_name: r.milestone === '__advance__' ? null : (r.milestone || null),
         }))
 
       if (paymentRows.length > 0) {
