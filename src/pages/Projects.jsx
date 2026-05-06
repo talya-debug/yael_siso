@@ -1213,7 +1213,7 @@ function BudgetView({ project, client }) {
   const bankInfo = supplier?.bank_name ? `\n\nBank details:\nName: ${supplier.account_holder || supplier.name}\nBank: ${supplier.bank_name}\nAccount No.: ${supplier.bank_account || ''}\nBranch No.: ${supplier.bank_branch || ''}` : ''
   setEmailTo(client?.email || '')
   setEmailSubject(`Payment Request: ${item.category} — ${project.name}`)
-  setEmailBody(`Good morning, how are you doing?\n\nThis email concerns the payment for the ${item.category.toLowerCase()}.\n\nDetails of ${item.category.toLowerCase()} payment:\n• Total amount (including tax): ${fmtCurrency(Math.round(totalWithVat))}\n• Deposit already paid: ${fmtCurrency(Math.round(paidSoFar))}\n• Remaining balance: ${fmtCurrency(Number(payment.amount))}${bankInfo}\n\nTHANKS!`)
+  setEmailBody(`Hi ${client?.name || ''},\n\nHope that you are doing well.\n\nThis email concerns the payment for the ${item.category.toLowerCase()}.\n\nDetails of ${item.category.toLowerCase()} payment:\n• Total amount (including tax): ${fmtCurrency(Math.round(totalWithVat))}\n• Deposit already paid: ${fmtCurrency(Math.round(paidSoFar))}\n• Remaining balance: ${fmtCurrency(Number(payment.amount))}${bankInfo}\n\nTHANKS!`)
   setShowEmail({ ...item, _paymentId: payment.id })
  }
 
@@ -1306,7 +1306,7 @@ function BudgetView({ project, client }) {
   const bankInfo = supplier?.bank_name ? `\n\nBank details:\nName: ${supplier.account_holder || supplier.name}\nBank: ${supplier.bank_name}\nAccount No.: ${supplier.bank_account || ''}\nBranch No.: ${supplier.bank_branch || ''}` : ''
   setEmailTo(client?.email || '')
   setEmailSubject(`Payment Request: ${item.category} — ${project.name}`)
-  setEmailBody(`Good morning, how are you doing?\n\nThis email concerns the payment for the ${item.category.toLowerCase()}.\n\nDetails of ${item.category.toLowerCase()} payment:\n• Total amount (including tax): ${fmtCurrency(Math.round(totalWithVat))}\n• Deposit already paid: ${fmtCurrency(Math.round(paid))}\n• Remaining balance: ${fmtCurrency(Math.round(itemRemaining))}${bankInfo}\n\nTHANKS!`)
+  setEmailBody(`Hi ${client?.name || ''},\n\nHope that you are doing well.\n\nThis email concerns the payment for the ${item.category.toLowerCase()}.\n\nDetails of ${item.category.toLowerCase()} payment:\n• Total amount (including tax): ${fmtCurrency(Math.round(totalWithVat))}\n• Deposit already paid: ${fmtCurrency(Math.round(paid))}\n• Remaining balance: ${fmtCurrency(Math.round(itemRemaining))}${bankInfo}\n\nTHANKS!`)
   setShowEmail(item) // ללא _paymentId — שליחה כללית
  }
 
