@@ -1210,10 +1210,10 @@ function BudgetView({ project, client }) {
   const supplier = suppliers.find(s => s.id === item.supplier_id)
   const totalWithVat = Number(item.planned_amount) * (1 + VAT_RATE / 100)
   const paidSoFar = getItemPaid(item)
-  const bankInfo = supplier?.bank_name ? `\n\nBank Details:\nBank: ${supplier.bank_name}\nBranch: ${supplier.bank_branch || ''}\nAccount: ${supplier.bank_account || ''}\nHolder: ${supplier.account_holder || ''}` : ''
+  const bankInfo = supplier?.bank_name ? `\n\nBank details:\nName: ${supplier.account_holder || supplier.name}\nBank: ${supplier.bank_name}\nAccount No.: ${supplier.bank_account || ''}\nBranch No.: ${supplier.bank_branch || ''}` : ''
   setEmailTo(client?.email || '')
   setEmailSubject(`Payment Request: ${item.category} — ${project.name}`)
-  setEmailBody(`Dear ${client?.name || 'Client'},\n\nPlease process the following payment:\n\nSupplier: ${supplier?.name || 'N/A'}\nCategory: ${item.category}\n\nTotal Amount (incl. VAT): ${fmtCurrency(Math.round(totalWithVat))}\nPaid So Far: ${fmtCurrency(Math.round(paidSoFar))}\nCurrent Payment Due: ${fmtCurrency(Number(payment.amount))}\n\nPayment Terms: ${item.payment_terms || 'N/A'}${bankInfo}\n\nThank you,\nYael Siso | Interior Design`)
+  setEmailBody(`Good morning, how are you doing?\n\nThis email concerns the payment for the ${item.category.toLowerCase()}.\n\nDetails of ${item.category.toLowerCase()} payment:\n• Total amount (including tax): ${fmtCurrency(Math.round(totalWithVat))}\n• Deposit already paid: ${fmtCurrency(Math.round(paidSoFar))}\n• Remaining balance: ${fmtCurrency(Number(payment.amount))}${bankInfo}\n\nTHANKS!`)
   setShowEmail({ ...item, _paymentId: payment.id })
  }
 
@@ -1303,10 +1303,10 @@ function BudgetView({ project, client }) {
   const totalWithVat = Number(item.planned_amount) * (1 + VAT_RATE / 100)
   const paid = getItemPaid(item)
   const itemRemaining = totalWithVat - paid
-  const bankInfo = supplier?.bank_name ? `\n\nBank Details:\nBank: ${supplier.bank_name}\nBranch: ${supplier.bank_branch || ''}\nAccount: ${supplier.bank_account || ''}\nHolder: ${supplier.account_holder || ''}` : ''
+  const bankInfo = supplier?.bank_name ? `\n\nBank details:\nName: ${supplier.account_holder || supplier.name}\nBank: ${supplier.bank_name}\nAccount No.: ${supplier.bank_account || ''}\nBranch No.: ${supplier.bank_branch || ''}` : ''
   setEmailTo(client?.email || '')
   setEmailSubject(`Payment Request: ${item.category} — ${project.name}`)
-  setEmailBody(`Dear ${client?.name || 'Client'},\n\nPlease process the following payment:\n\nSupplier: ${supplier?.name || 'N/A'}\nCategory: ${item.category}\n\nTotal Amount (incl. VAT): ${fmtCurrency(Math.round(totalWithVat))}\nPaid So Far: ${fmtCurrency(Math.round(paid))}\nRemaining Amount: ${fmtCurrency(Math.round(itemRemaining))}\n\nPayment Terms: ${item.payment_terms || 'N/A'}${bankInfo}\n\nThank you,\nYael Siso | Interior Design`)
+  setEmailBody(`Good morning, how are you doing?\n\nThis email concerns the payment for the ${item.category.toLowerCase()}.\n\nDetails of ${item.category.toLowerCase()} payment:\n• Total amount (including tax): ${fmtCurrency(Math.round(totalWithVat))}\n• Deposit already paid: ${fmtCurrency(Math.round(paid))}\n• Remaining balance: ${fmtCurrency(Math.round(itemRemaining))}${bankInfo}\n\nTHANKS!`)
   setShowEmail(item) // ללא _paymentId — שליחה כללית
  }
 
