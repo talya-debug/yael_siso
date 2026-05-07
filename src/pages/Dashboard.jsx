@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { LayoutDashboard, Users, FolderKanban, Boxes, Wallet, CalendarDays, BookOpen, BookUser, Receipt, FileBarChart, BarChart3, Bell, LogOut, Menu, X } from 'lucide-react'
+import { LayoutDashboard, Users, FolderKanban, Boxes, Wallet, CalendarDays, BookOpen, BookUser, Receipt, FileBarChart, BarChart3, Bell, LogOut, Menu, X, HelpCircle } from 'lucide-react'
 import Home from './Home'
 import Clients from './Clients'
 import Projects from './Projects'
@@ -126,6 +126,10 @@ export default function Dashboard({ userRole, onLogout }) {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <button onClick={() => window.open(isAdmin ? '/guide-admin.html' : '/guide-team.html', '_blank')}
+              className="w-9 h-9 rounded-xl bg-white hover:bg-[#F3F3F3] flex items-center justify-center transition-colors" aria-label="Help Guide">
+              <HelpCircle size={16} className="text-[#6B7A90]" />
+            </button>
             <button className="w-9 h-9 rounded-xl bg-white hover:bg-[#F3F3F3] flex items-center justify-center transition-colors" aria-label="Notifications">
               <Bell size={16} className="text-[#6B7A90]" />
             </button>
