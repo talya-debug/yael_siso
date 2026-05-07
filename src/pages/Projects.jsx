@@ -1994,8 +1994,12 @@ function ProjectDetail({ project, clients, onBack }) {
       // התאמה מדויקת לפי phase_name במקום השוואת מחרוזות
       const match = matchingPayments.find(p => p.phase_name === task.phase_name)
       if (match) {
-       await supabase.from('payments').update({ status: 'sent', due_date: new Date().toISOString().split('T')[0] }).eq('id', match.id)
-       console.log(`[Billing] Milestone "${match.name}" moved to current`)
+       // סימון תאריך השלמת שלב — Billing.jsx יחשב due_date לפי payment_terms_days
+       const today = new Date().toISOString().split('T')[0]
+       await supabase.from('payments').update({ phase_completed_at: today }).eq('id', match.id)
+       // רישום ביומן תשלומים
+       await supabase.from('payment_logs').insert({ payment_id: match.id, note: `Phase completed: "${task.phase_name}"` })
+       console.log(`[Billing] Milestone "${match.name}" — phase_completed_at set`)
       }
      }
     }

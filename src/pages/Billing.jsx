@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../lib/supabase'
-import { Plus, X, Send, CheckCircle2, Clock, AlertCircle, Circle, Download, ChevronDown, ChevronRight } from 'lucide-react'
+import { Plus, X, Send, CheckCircle2, Clock, AlertCircle, Circle, Download, ChevronDown, ChevronRight, FileText, MessageSquare } from 'lucide-react'
 
 // תבנית ברירת מחדל — 4 תשלומים לפי אבני דרך
 const DEFAULT_MILESTONES = [
@@ -10,27 +10,52 @@ const DEFAULT_MILESTONES = [
   { name: 'Project Completion',    pct: 20 },
 ]
 
-const STATUS_META = {
-  pending: { label: 'Future',    color: 'bg-[#F3F3F3] text-[#6B7A90]',     Icon: Circle },
-  sent:    { label: 'Current',   color: 'bg-amber-50 text-amber-700',     Icon: Clock },
-  paid:    { label: 'Paid',      color: 'bg-emerald-50 text-emerald-700', Icon: CheckCircle2 },
-  overdue: { label: 'Overdue',   color: 'bg-red-50 text-red-600',        Icon: AlertCircle },
-}
+// תנאי תשלום
+const TERMS_OPTIONS = [
+  { label: 'Immediate', days: 0 },
+  { label: 'Net 30',    days: 30 },
+  { label: 'Net 60',    days: 60 },
+  { label: 'Net 90',    days: 90 },
+]
 
+// פורמט מטבע
 function fmt(n) {
   if (!n && n !== 0) return '—'
   return Number(n).toLocaleString('en-US', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 })
 }
 
+// פורמט תאריך
 function fmtDate(d) {
   if (!d) return '—'
   return new Date(d).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
+// חישוב תאריך תשלום = תאריך השלמת שלב + ימי תשלום
+function calcDueDate(payment) {
+  if (!payment.phase_completed_at) return null
+  const d = new Date(payment.phase_completed_at)
+  d.setDate(d.getDate() + (payment.payment_terms_days || 0))
+  return d
+}
+
+// האם התשלום באיחור
+function isOverdue(payment) {
+  const due = calcDueDate(payment)
+  if (!due || payment.status === 'paid') return false
+  return due < new Date()
+}
+
+// סיווג תשלום: future / current / paid
+function classifyPayment(p) {
+  if (p.status === 'paid') return 'paid'
+  if (!p.phase_completed_at) return 'future'
+  return 'current'
+}
+
 // ── מודאל תשלום בודד ──
 function PaymentModal({ onClose, onSave, projects, editItem }) {
   const [form, setForm] = useState(editItem || {
-    project_id: '', name: '', amount: '', pct: '', due_date: '', status: 'pending', notes: ''
+    project_id: '', name: '', amount: '', pct: '', status: 'pending', notes: '', payment_terms_days: 0
   })
   const [contractTotal, setContractTotal] = useState('')
 
@@ -81,13 +106,9 @@ function PaymentModal({ onClose, onSave, projects, editItem }) {
               placeholder="30000" className={inp} />
           </div>
           <div>
-            <label className={lbl}>Due Date</label>
-            <input type="date" value={form.due_date || ''} onChange={e => setForm(p => ({ ...p, due_date: e.target.value }))} className={inp} />
-          </div>
-          <div>
-            <label className={lbl}>Status</label>
-            <select value={form.status} onChange={e => setForm(p => ({ ...p, status: e.target.value }))} className={inp}>
-              {Object.entries(STATUS_META).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+            <label className={lbl}>Payment Terms</label>
+            <select value={form.payment_terms_days || 0} onChange={e => setForm(p => ({ ...p, payment_terms_days: Number(e.target.value) }))} className={inp}>
+              {TERMS_OPTIONS.map(t => <option key={t.days} value={t.days}>{t.label}</option>)}
             </select>
           </div>
           <div>
@@ -97,7 +118,11 @@ function PaymentModal({ onClose, onSave, projects, editItem }) {
           </div>
         </div>
         <div className="flex gap-2 px-6 py-4 border-t border-[#F3F3F3]">
-          <button onClick={() => onSave(form)}
+          <button onClick={() => {
+            // לא לשלוח שדות מיותרים
+            const { due_date, ...rest } = form
+            onSave(rest)
+          }}
             disabled={!form.project_id || !form.name || !form.amount}
             className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all disabled:opacity-40">
             Save
@@ -175,7 +200,7 @@ function TemplateModal({ onClose, onSave, projects }) {
               <Plus size={12} strokeWidth={1.8} /> Add Row
             </button>
             <span className={`text-xs font-semibold ${totalPct === 100 ? 'text-emerald-600' : 'text-amber-600'}`}>
-              Total: {totalPct}% {totalPct !== 100 ? '⚠ Should be 100%' : '✓'}
+              Total: {totalPct}%
             </span>
           </div>
         </div>
@@ -192,53 +217,131 @@ function TemplateModal({ onClose, onSave, projects }) {
   )
 }
 
-// ── שורת תשלום ──
-function PaymentRow({ payment, project, onEdit, onStatusChange, onDelete, onSendEmail }) {
-  const meta     = STATUS_META[payment.status] || STATUS_META.pending
-  const { Icon } = meta
-  const isOverdue = payment.due_date && new Date(payment.due_date) < new Date() && payment.status !== 'paid'
+// ── שורת תשלום בודדת ──
+function PaymentRow({ payment, project, clients, onEdit, onStatusChange, onTermsChange, onDelete, onSendEmail, logs, onAddLog, expandedLog, onToggleLog }) {
+  const cls = classifyPayment(payment)
+  const due = calcDueDate(payment)
+  const overdue = isOverdue(payment)
+  const [logText, setLogText] = useState('')
+
+  // צ'יפ סטטוס
+  const chipStyle = cls === 'paid'
+    ? 'bg-emerald-50 text-emerald-700'
+    : cls === 'future'
+    ? 'bg-[#F3F3F3] text-[#6B7A90]'
+    : overdue
+    ? 'bg-red-50 text-red-600'
+    : 'bg-blue-50 text-[#091426]'
+
+  // שקיפות לשורות עתידיות
+  const rowOpacity = cls === 'future' ? 'opacity-60' : ''
 
   return (
-    <div className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3.5 border-b border-[#F3F3F3] last:border-0 hover:bg-[#F9F9F9] transition-colors group flex-wrap ${isOverdue ? 'bg-red-50/30' : ''}`}>
-      <button onClick={() => onStatusChange(payment.id, payment.status === 'paid' ? 'pending' : 'paid')} className="shrink-0">
-        <Icon size={16} strokeWidth={1.8} className={
-          payment.status === 'paid'    ? 'text-emerald-500' :
-          payment.status === 'overdue' ? 'text-red-500' :
-          payment.status === 'sent'    ? 'text-amber-500' :
-          'text-[#6B7A90] hover:text-[#091426]'
-        } />
-      </button>
-      <div className="flex-1 min-w-0">
-        <p className={`text-sm font-medium truncate ${payment.status === 'paid' ? 'line-through text-[#6B7A90]' : 'text-[#091426]'}`}>
-          {payment.name}
-        </p>
-        {project && <p className="text-xs text-[#6B7A90] truncate">{project.name}</p>}
+    <div className={`${rowOpacity} ${overdue ? 'bg-red-50/40' : ''}`}>
+      <div className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3.5 border-b border-[#F3F3F3] last:border-0 hover:bg-[#F9F9F9] transition-colors group flex-wrap`}>
+        {/* שם השלב */}
+        <div className="flex-1 min-w-0">
+          <p className={`text-sm font-medium truncate ${cls === 'paid' ? 'line-through text-[#6B7A90]' : 'text-[#091426]'}`}>
+            {payment.name}
+          </p>
+        </div>
+
+        {/* סכום */}
+        <span className={`text-sm font-bold shrink-0 min-w-[80px] text-right ${cls === 'paid' ? 'text-emerald-600' : 'text-[#091426]'}`}>
+          {fmt(payment.amount)}
+        </span>
+
+        {/* תאריך השלמת שלב */}
+        <span className="text-xs text-[#6B7A90] shrink-0 min-w-[80px] text-center">
+          {payment.phase_completed_at ? fmtDate(payment.phase_completed_at) : '—'}
+        </span>
+
+        {/* תנאי תשלום — דרופדאון */}
+        <select
+          value={payment.payment_terms_days || 0}
+          onChange={e => onTermsChange(payment.id, Number(e.target.value))}
+          className="text-xs bg-[#F3F3F3] rounded-lg px-2 py-1.5 border-0 cursor-pointer outline-none shrink-0 focus:ring-2 focus:ring-[#7B5800]/20"
+        >
+          {TERMS_OPTIONS.map(t => <option key={t.days} value={t.days}>{t.label}</option>)}
+        </select>
+
+        {/* תאריך תשלום מחושב */}
+        <span className={`text-xs shrink-0 min-w-[80px] text-center ${overdue ? 'text-red-500 font-bold' : 'text-[#6B7A90]'}`}>
+          {due ? fmtDate(due) : '—'}
+        </span>
+
+        {/* סטטוס */}
+        {cls === 'future' ? (
+          <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold tracking-wider shrink-0 ${chipStyle}`}>
+            Future
+          </span>
+        ) : (
+          <select
+            value={payment.status === 'pending' ? 'pending' : payment.status}
+            onChange={e => onStatusChange(payment.id, e.target.value)}
+            className={`text-[10px] px-2.5 py-1 rounded-full font-bold tracking-wider border-0 cursor-pointer outline-none shrink-0 ${chipStyle}`}
+          >
+            <option value="pending">Pending</option>
+            <option value="sent">Sent</option>
+            <option value="paid">Paid</option>
+          </select>
+        )}
+
+        {/* פעולות */}
+        <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition shrink-0">
+          {cls === 'current' && (
+            <button onClick={() => onSendEmail(payment, project)} title="Send email"
+              className="p-1.5 rounded-xl hover:bg-[#F3F3F3] text-[#6B7A90] hover:text-[#091426] transition">
+              <Send size={13} strokeWidth={1.8} />
+            </button>
+          )}
+          <button onClick={() => onToggleLog(payment.id)} title="Activity log"
+            className="p-1.5 rounded-xl hover:bg-[#F3F3F3] text-[#6B7A90] hover:text-[#091426] transition">
+            <MessageSquare size={13} strokeWidth={1.8} />
+          </button>
+          <button onClick={() => onEdit(payment)}
+            className="p-1.5 rounded-xl hover:bg-[#F3F3F3] text-[#6B7A90] hover:text-[#091426] transition text-xs font-medium">
+            Edit
+          </button>
+          <button onClick={() => onDelete(payment.id)}
+            className="p-1.5 rounded-xl hover:bg-red-50 text-[#6B7A90] hover:text-red-500 transition">
+            <X size={13} strokeWidth={1.8} />
+          </button>
+        </div>
       </div>
-      <span className={`text-xs shrink-0 ${isOverdue ? 'text-red-500 font-semibold' : 'text-[#6B7A90]'}`}>
-        {fmtDate(payment.due_date)}
-      </span>
-      <span className={`text-sm font-bold shrink-0 min-w-[90px] text-right ${payment.status === 'paid' ? 'text-emerald-600' : 'text-[#091426]'}`}>
-        {fmt(payment.amount)}
-      </span>
-      <select value={payment.status} onChange={e => onStatusChange(payment.id, e.target.value)}
-        onClick={e => e.stopPropagation()}
-        className={`text-[10px] px-2.5 py-1 rounded-full font-bold tracking-wider border-0 cursor-pointer outline-none shrink-0 ${meta.color}`}>
-        {Object.entries(STATUS_META).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-      </select>
-      <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition shrink-0">
-        <button onClick={() => onSendEmail(payment, project)} title="Send email"
-          className="p-1.5 rounded-xl hover:bg-[#F3F3F3] text-[#6B7A90] hover:text-[#091426] transition">
-          <Send size={13} strokeWidth={1.8} />
-        </button>
-        <button onClick={() => onEdit(payment)}
-          className="p-1.5 rounded-xl hover:bg-[#F3F3F3] text-[#6B7A90] hover:text-[#091426] transition text-xs font-medium">
-          Edit
-        </button>
-        <button onClick={() => onDelete(payment.id)}
-          className="p-1.5 rounded-xl hover:bg-red-50 text-[#6B7A90] hover:text-red-500 transition">
-          <X size={13} strokeWidth={1.8} />
-        </button>
-      </div>
+
+      {/* יומן פעילות — מתרחב */}
+      {expandedLog && (
+        <div className="px-4 py-3 bg-[#FAFAFA] border-b border-[#F3F3F3]">
+          <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
+            {(!logs || logs.length === 0) && (
+              <p className="text-xs text-[#6B7A90] italic">No activity yet</p>
+            )}
+            {(logs || []).map(log => (
+              <div key={log.id} className="flex gap-2 text-xs">
+                <span className="text-[#6B7A90] shrink-0">{fmtDate(log.created_at)}</span>
+                <span className="text-[#091426]">{log.note}</span>
+              </div>
+            ))}
+          </div>
+          {/* הוספת הערה ידנית */}
+          <div className="flex gap-2">
+            <input
+              value={logText}
+              onChange={e => setLogText(e.target.value)}
+              placeholder="Add a note..."
+              className="flex-1 bg-white rounded-lg px-3 py-1.5 text-xs border border-[#F3F3F3] focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20"
+              onKeyDown={e => { if (e.key === 'Enter' && logText.trim()) { onAddLog(payment.id, logText.trim()); setLogText('') } }}
+            />
+            <button
+              onClick={() => { if (logText.trim()) { onAddLog(payment.id, logText.trim()); setLogText('') } }}
+              className="bg-[#091426] text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-[#1E293B] transition"
+            >
+              Add
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -247,14 +350,17 @@ function PaymentRow({ payment, project, onEdit, onStatusChange, onDelete, onSend
 export default function Billing() {
   const [payments, setPayments]         = useState([])
   const [projects, setProjects]         = useState([])
-  const [clients, setClients]           = useState([])
+  const [clients, setClients]           = useState({})
+  const [paymentLogs, setPaymentLogs]   = useState([])
   const [loading, setLoading]           = useState(true)
   const [showNew, setShowNew]           = useState(false)
   const [showTemplate, setShowTemplate] = useState(false)
   const [editItem, setEditItem]         = useState(null)
   const [filterProject, setFilterProject] = useState('')
   const [filterStatus, setFilterStatus]   = useState('')
+  const [searchQuery, setSearchQuery]     = useState('')
   const [collapsed, setCollapsed]       = useState({})
+  const [expandedLogs, setExpandedLogs] = useState({})
   // מודאל מייל
   const [emailModal, setEmailModal]     = useState(null)
   const [emailTo, setEmailTo]           = useState('')
@@ -267,12 +373,14 @@ export default function Billing() {
   useEffect(() => { fetchAll() }, [])
 
   async function fetchAll() {
-    const [{ data: pay }, { data: proj }] = await Promise.all([
+    const [{ data: pay }, { data: proj }, { data: logs }] = await Promise.all([
       supabase.from('payments').select('*').order('due_date'),
       supabase.from('projects').select('id, name, client_id, clients(name, email)').order('name'),
+      supabase.from('payment_logs').select('*').order('created_at', { ascending: false }),
     ])
     setPayments(pay || [])
     setProjects(proj || [])
+    setPaymentLogs(logs || [])
     setClients((proj || []).reduce((map, p) => { if (p.clients) map[p.id] = p.clients; return map }, {}))
     setLoading(false)
   }
@@ -292,19 +400,46 @@ export default function Billing() {
     const items = rows.map(r => ({
       project_id: projectId,
       name:       r.name,
+      phase_name: r.name,
       pct:        Number(r.pct),
       amount:     Math.round(Number(contractTotal) * Number(r.pct) / 100),
       status:     'pending',
+      payment_terms_days: 0,
     }))
     await supabase.from('payments').insert(items)
     setShowTemplate(false)
     fetchAll()
   }
 
+  // שינוי סטטוס תשלום + רישום ביומן
   async function updateStatus(id, status) {
-    const paid_at = status === 'paid' ? new Date().toISOString() : null
-    await supabase.from('payments').update({ status, paid_at }).eq('id', id)
-    setPayments(prev => prev.map(p => p.id === id ? { ...p, status, paid_at } : p))
+    const updates = { status }
+    if (status === 'paid') {
+      updates.paid_at = new Date().toISOString()
+    }
+    await supabase.from('payments').update(updates).eq('id', id)
+
+    // רישום ביומן
+    const logNote = status === 'paid'
+      ? 'Marked as paid'
+      : status === 'sent'
+      ? 'Payment request sent'
+      : `Status changed to ${status}`
+    await supabase.from('payment_logs').insert({ payment_id: id, note: logNote })
+
+    fetchAll()
+  }
+
+  // עדכון תנאי תשלום
+  async function updateTerms(id, days) {
+    await supabase.from('payments').update({ payment_terms_days: days }).eq('id', id)
+    setPayments(prev => prev.map(p => p.id === id ? { ...p, payment_terms_days: days } : p))
+  }
+
+  // הוספת הערה ידנית ליומן
+  async function addLogEntry(paymentId, note) {
+    await supabase.from('payment_logs').insert({ payment_id: paymentId, note })
+    fetchAll()
   }
 
   async function deletePayment(id) {
@@ -312,23 +447,26 @@ export default function Billing() {
     setPayments(prev => prev.filter(p => p.id !== id))
   }
 
+  function toggleLog(paymentId) {
+    setExpandedLogs(prev => ({ ...prev, [paymentId]: !prev[paymentId] }))
+  }
+
   function sendEmail(payment, project) {
     const client = clients[project?.id]
+    const due = calcDueDate(payment)
     setEmailTo(client?.email || '')
-    setEmailSubject(`Payment Required: ${payment.name} — ${project?.name || ''}`)
-    setEmailBody(`Dear ${client?.name || 'Client'},
+    setEmailSubject(`Payment Request: ${payment.name} — ${project?.name || ''}`)
+    setEmailBody(`Hi ${client?.name || 'Client'},
 
-As agreed, we would like to arrange the following payment:
+Hope that you are doing well.
 
-Payment: ${payment.name}
-Amount: ${fmt(payment.amount)}
-Due date: ${fmtDate(payment.due_date)}
-${payment.notes ? 'Notes: ' + payment.notes : ''}
+This email concerns the payment for ${payment.name}.
 
-Please let us know once the transfer has been made.
+Details:
+- Amount: ${fmt(payment.amount)}
+- Due date: ${due ? fmtDate(due) : 'Upon receipt'}
 
-Best regards,
-Yael Siso | Interior Design`)
+THANKS!`)
     setEmailModal(payment)
   }
 
@@ -353,8 +491,13 @@ Yael Siso | Interior Design`)
         }),
       })
       if (res.ok) {
-        // עדכון סטטוס ל-Current
+        // עדכון סטטוס ל-sent + רישום ביומן
+        const client = clients[projects.find(p => p.id === emailModal.project_id)?.id]
         await updateStatus(emailModal.id, 'sent')
+        await supabase.from('payment_logs').insert({
+          payment_id: emailModal.id,
+          note: `Payment request sent to ${emailTo}`
+        })
         setToast('Email sent successfully')
         setTimeout(() => setToast(null), 3000)
       } else {
@@ -367,15 +510,23 @@ Yael Siso | Interior Design`)
     }
     setSendingEmail(false)
     setEmailModal(null)
+    fetchAll()
   }
 
   function exportCSV() {
-    const rows = [['Project', 'Payment Name', 'Amount', 'Percentage', 'Due Date', 'Status', 'Notes']]
+    const csvRows = [['Project', 'Payment Name', 'Amount', 'Phase Completed', 'Payment Terms', 'Due Date', 'Status', 'Notes']]
     filtered.forEach(p => {
       const proj = projects.find(pr => pr.id === p.project_id)
-      rows.push([proj?.name || '', p.name, p.amount || '', p.pct || '', p.due_date || '', STATUS_META[p.status]?.label || '', p.notes || ''])
+      const due = calcDueDate(p)
+      const termsLabel = TERMS_OPTIONS.find(t => t.days === (p.payment_terms_days || 0))?.label || 'Immediate'
+      csvRows.push([
+        proj?.name || '', p.name, p.amount || '',
+        p.phase_completed_at || '', termsLabel,
+        due ? due.toISOString().split('T')[0] : '',
+        classifyPayment(p), p.notes || ''
+      ])
     })
-    const csv  = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const csv  = csvRows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
     const url  = URL.createObjectURL(blob)
     const a    = document.createElement('a')
@@ -383,23 +534,54 @@ Yael Siso | Interior Design`)
     URL.revokeObjectURL(url)
   }
 
-  // סינון
-  const filtered = payments.filter(p =>
-    (!filterProject || p.project_id === filterProject) &&
-    (!filterStatus  || p.status === filterStatus)
-  )
+  // סינון לפי סטטוס, פרויקט, וחיפוש
+  const filtered = useMemo(() => {
+    return payments.filter(p => {
+      // סינון פרויקט
+      if (filterProject && p.project_id !== filterProject) return false
+      // סינון סטטוס
+      if (filterStatus) {
+        const cls = classifyPayment(p)
+        if (filterStatus !== cls) return false
+      }
+      // חיפוש לפי שם
+      if (searchQuery && !p.name?.toLowerCase().includes(searchQuery.toLowerCase())) return false
+      return true
+    })
+  }, [payments, filterProject, filterStatus, searchQuery])
 
   // קיבוץ לפי פרויקט
-  const byProject = {}
-  filtered.forEach(p => {
-    if (!byProject[p.project_id]) byProject[p.project_id] = []
-    byProject[p.project_id].push(p)
-  })
+  const byProject = useMemo(() => {
+    const groups = {}
+    filtered.forEach(p => {
+      if (!groups[p.project_id]) groups[p.project_id] = []
+      groups[p.project_id].push(p)
+    })
+    return groups
+  }, [filtered])
 
-  // KPIs
-  const totalExpected = payments.filter(p => p.status !== 'paid').reduce((s, p) => s + Number(p.amount || 0), 0)
-  const totalPaid     = payments.filter(p => p.status === 'paid').reduce((s, p) => s + Number(p.amount || 0), 0)
-  const overdueCount  = payments.filter(p => p.due_date && new Date(p.due_date) < new Date() && p.status !== 'paid').length
+  // KPIs — מחושבים על כל התשלומים (לא רק מסוננים)
+  const toCollectNow = payments
+    .filter(p => classifyPayment(p) === 'current')
+    .reduce((s, p) => s + Number(p.amount || 0), 0)
+
+  const totalPaid = payments
+    .filter(p => p.status === 'paid')
+    .reduce((s, p) => s + Number(p.amount || 0), 0)
+
+  const overdueCount = payments
+    .filter(p => isOverdue(p))
+    .length
+
+  // יומנים לפי payment_id
+  const logsByPayment = useMemo(() => {
+    const map = {}
+    paymentLogs.forEach(l => {
+      if (!map[l.payment_id]) map[l.payment_id] = []
+      map[l.payment_id].push(l)
+    })
+    return map
+  }, [paymentLogs])
 
   if (loading) return <div className="flex items-center justify-center p-8"><div className="w-6 h-6 border-2 border-[#091426] border-t-transparent rounded-full animate-spin" /></div>
 
@@ -429,36 +611,61 @@ Yael Siso | Interior Design`)
 
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-        {[
-          { label: 'Expected Billing',  value: fmt(totalExpected), color: 'text-[#091426]' },
-          { label: 'Paid So Far',       value: fmt(totalPaid),     color: 'text-emerald-600' },
-          { label: 'Overdue Payments',   value: overdueCount,       color: overdueCount > 0 ? 'text-red-500' : 'text-[#6B7A90]' },
-        ].map(k => (
-          <div key={k.label} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4 text-center">
-            <div className={`text-xl font-bold ${k.color}`}>{k.value}</div>
-            <div className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-0.5">{k.label}</div>
-          </div>
-        ))}
+        <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4 text-center">
+          <div className="text-xl font-bold text-[#091426]">{fmt(toCollectNow)}</div>
+          <div className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-0.5">To Collect Now</div>
+        </div>
+        <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4 text-center">
+          <div className="text-xl font-bold text-emerald-600">{fmt(totalPaid)}</div>
+          <div className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-0.5">Paid</div>
+        </div>
+        <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4 text-center">
+          <div className={`text-xl font-bold ${overdueCount > 0 ? 'text-red-500' : 'text-[#6B7A90]'}`}>{overdueCount}</div>
+          <div className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-0.5">Overdue</div>
+        </div>
       </div>
 
-      {/* סינון */}
+      {/* סרגל סינון */}
       <div className="flex gap-3 mb-4 flex-wrap">
+        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
+          className="bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20">
+          <option value="">All</option>
+          <option value="current">Current (Needs Collection)</option>
+          <option value="future">Future</option>
+          <option value="paid">Paid</option>
+        </select>
         <select value={filterProject} onChange={e => setFilterProject(e.target.value)}
           className="bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20">
           <option value="">All Projects</option>
           {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
-        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
-          className="bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20">
-          <option value="">All Statuses</option>
-          {Object.entries(STATUS_META).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-        </select>
+        <input
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          placeholder="Search payment name..."
+          className="bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 min-w-[180px]"
+        />
       </div>
+
+      {/* כותרת טבלה */}
+      {filtered.length > 0 && (
+        <div className="hidden sm:flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">
+          <div className="flex-1">Phase</div>
+          <div className="min-w-[80px] text-right">Amount</div>
+          <div className="min-w-[80px] text-center">Completed</div>
+          <div className="min-w-[90px] text-center">Terms</div>
+          <div className="min-w-[80px] text-center">Due Date</div>
+          <div className="min-w-[70px] text-center">Status</div>
+          <div className="min-w-[100px]"></div>
+        </div>
+      )}
 
       {/* Empty state */}
       {filtered.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-16 h-16 bg-[#F3F3F3] rounded-2xl flex items-center justify-center text-3xl mb-4">💳</div>
+          <div className="w-16 h-16 bg-[#F3F3F3] rounded-2xl flex items-center justify-center text-3xl mb-4">
+            <FileText size={28} className="text-[#6B7A90]" />
+          </div>
           <h3 className="text-base font-semibold text-[#091426] font-[Manrope] tracking-tight mb-1">No payments yet</h3>
           <p className="text-sm text-[#6B7A90] mb-5">Create a billing template for a project or add a single payment</p>
           <button onClick={() => setShowTemplate(true)}
@@ -472,8 +679,10 @@ Yael Siso | Interior Design`)
       <div className="space-y-3">
         {Object.entries(byProject).map(([projectId, pms]) => {
           const project   = projects.find(p => p.id === projectId)
+          const client    = clients[projectId]
           const projPaid  = pms.filter(p => p.status === 'paid').reduce((s, p) => s + Number(p.amount || 0), 0)
           const projTotal = pms.reduce((s, p) => s + Number(p.amount || 0), 0)
+          const projRemaining = projTotal - projPaid
           const isOpen    = collapsed[projectId] !== true
 
           return (
@@ -481,12 +690,18 @@ Yael Siso | Interior Design`)
               <button onClick={() => setCollapsed(prev => ({ ...prev, [projectId]: !prev[projectId] }))}
                 className="w-full flex items-center gap-3 px-4 py-3 bg-[#F9F9F9] hover:bg-[#F3F3F3] transition-colors border-b border-[#F3F3F3]">
                 {isOpen ? <ChevronDown size={14} className="text-[#6B7A90]" strokeWidth={1.8} /> : <ChevronRight size={14} className="text-[#6B7A90]" strokeWidth={1.8} />}
-                <span className="font-semibold text-[#091426] text-sm flex-1 text-left">
-                  {project?.name || 'Unknown Project'}
-                </span>
-                <span className="text-xs text-[#6B7A90] shrink-0">
-                  {fmt(projPaid)} / {fmt(projTotal)}
-                </span>
+                <div className="flex-1 text-left">
+                  <span className="font-semibold text-[#091426] text-sm">
+                    {project?.name || 'Unknown Project'}
+                  </span>
+                  {client?.name && (
+                    <span className="text-xs text-[#6B7A90] ml-2">{client.name}</span>
+                  )}
+                </div>
+                <div className="text-xs text-[#6B7A90] shrink-0 flex items-center gap-2">
+                  <span>{fmt(projPaid)} / {fmt(projTotal)}</span>
+                  <span className="text-[10px]">({fmt(projRemaining)} left)</span>
+                </div>
                 <div className="w-24 bg-[#F3F3F3] rounded-full h-1.5 shrink-0">
                   <div className="h-1.5 rounded-full bg-emerald-400 transition-all"
                     style={{ width: projTotal ? `${Math.round(projPaid / projTotal * 100)}%` : '0%' }} />
@@ -498,10 +713,16 @@ Yael Siso | Interior Design`)
                   key={payment.id}
                   payment={payment}
                   project={project}
+                  clients={clients}
                   onEdit={item => { setEditItem(item); setShowNew(true) }}
                   onStatusChange={updateStatus}
+                  onTermsChange={updateTerms}
                   onDelete={deletePayment}
                   onSendEmail={sendEmail}
+                  logs={logsByPayment[payment.id] || []}
+                  onAddLog={addLogEntry}
+                  expandedLog={expandedLogs[payment.id]}
+                  onToggleLog={toggleLog}
                 />
               ))}
             </div>
@@ -531,7 +752,7 @@ Yael Siso | Interior Design`)
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
             <div className="px-6 py-4 border-b border-[#F3F3F3] flex items-center justify-between">
               <h3 className="text-sm font-bold text-[#091426] font-[Manrope]">Send Payment Request</h3>
-              <button onClick={() => setEmailModal(null)} className="text-[#6B7A90] hover:text-[#091426] transition">✕</button>
+              <button onClick={() => setEmailModal(null)} className="text-[#6B7A90] hover:text-[#091426] transition"><X size={16} strokeWidth={1.8} /></button>
             </div>
             <div className="px-6 py-4 space-y-3">
               <div>
