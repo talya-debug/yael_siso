@@ -1087,6 +1087,8 @@ function BudgetView({ project, client }) {
  const [emailSubject, setEmailSubject] = useState('')
  const [emailBody, setEmailBody] = useState('')
  const [sendingEmail, setSendingEmail] = useState(false)
+ const [budgetAttachedFiles, setBudgetAttachedFiles] = useState([])
+ const [budgetUploadingFile, setBudgetUploadingFile] = useState(false)
  const [expandedRows, setExpandedRows] = useState(new Set())
 
  // מע"מ 18% — ישראל
@@ -1200,6 +1202,21 @@ function BudgetView({ project, client }) {
    }).select().single()
    if (error) { alert('Error: ' + error.message); return }
    setItems(prev => [...prev, data])
+   // יצירת רשומת תשלום ספק אוטומטית אם יש ספק
+   if (addForm.supplier_id) {
+    try {
+     const { data: supData } = await supabase.from('suppliers').select('commission_pct').eq('id', addForm.supplier_id).single()
+     await supabase.from('supplier_payments').insert({
+      supplier_id: addForm.supplier_id,
+      project_id: project.id,
+      description: addForm.category,
+      amount: Number(addForm.planned_amount),
+      commission_pct: supData?.commission_pct || null,
+      status: 'pending',
+      payment_date: null,
+     })
+    } catch (e) { /* שגיאה ביצירת תשלום ספק — לא חוסמת */ }
+   }
   }
   setShowAdd(false)
   setEditItem(null)
@@ -1369,10 +1386,11 @@ function BudgetView({ project, client }) {
    </div>
   `
   try {
+   const apiAttachments = budgetAttachedFiles.map(f => ({ name: f.name, dataUrl: f.dataUrl }))
    const res = await fetch('/api/send-email', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ to: emailTo, subject: emailSubject, body: htmlBody }),
+    body: JSON.stringify({ to: emailTo, subject: emailSubject, body: htmlBody, ...(apiAttachments.length > 0 ? { attachments: apiAttachments } : {}) }),
    })
    if (res.ok) {
     // עדכון סטטוס התשלום ל-sent
@@ -1385,6 +1403,7 @@ function BudgetView({ project, client }) {
   } catch (e) { alert('Error sending email') }
   setSendingEmail(false)
   setShowEmail(null)
+  setBudgetAttachedFiles([])
  }
 
  const statusChip = { pending: 'bg-[#F3F3F3] text-[#6B7A90]', partial: 'bg-amber-50 text-amber-700', paid: 'bg-emerald-50 text-emerald-700' }
@@ -1768,6 +1787,30 @@ function BudgetView({ project, client }) {
         <label className={lbl}>Body</label>
         <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)}
          rows={8} className={`${inp} resize-none`} />
+       </div>
+       {/* קבצים מצורפים */}
+       <div>
+        <label className={lbl}>Attachments</label>
+        {budgetAttachedFiles.map((f, i) => (
+         <div key={i} className="flex items-center gap-2 bg-[#F3F3F3] rounded-lg px-3 py-1.5 mb-1.5 text-xs">
+          <span className="flex-1 truncate">{f.name}</span>
+          <button onClick={() => setBudgetAttachedFiles(prev => prev.filter((_, j) => j !== i))}
+           className="text-red-400 hover:text-red-600 text-xs">✕</button>
+         </div>
+        ))}
+        <label className={`inline-flex items-center gap-1.5 text-xs text-[#7B5800] font-medium cursor-pointer hover:underline ${budgetUploadingFile ? 'opacity-50 pointer-events-none' : ''}`}>
+         {budgetUploadingFile ? 'Uploading...' : '+ Add File'}
+         <input type="file" className="hidden" onChange={e => {
+          const file = e.target.files?.[0]
+          if (!file) return
+          if (file.size > 5 * 1024 * 1024) { alert('File too large (max 5MB)'); return }
+          setBudgetUploadingFile(true)
+          const reader = new FileReader()
+          reader.onload = () => { setBudgetAttachedFiles(prev => [...prev, { name: file.name, dataUrl: reader.result }]); setBudgetUploadingFile(false) }
+          reader.readAsDataURL(file)
+          e.target.value = ''
+         }} />
+        </label>
        </div>
       </div>
       <div className="flex gap-3 p-5 border-t border-[#F3F3F3]">

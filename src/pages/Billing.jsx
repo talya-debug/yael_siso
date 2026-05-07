@@ -367,6 +367,9 @@ export default function Billing() {
   const [emailSubject, setEmailSubject] = useState('')
   const [emailBody, setEmailBody]       = useState('')
   const [sendingEmail, setSendingEmail] = useState(false)
+  // קבצים מצורפים למייל
+  const [attachedFiles, setAttachedFiles] = useState([])
+  const [uploadingFile, setUploadingFile] = useState(false)
   // הודעת הצלחה
   const [toast, setToast] = useState(null)
 
@@ -488,6 +491,7 @@ THANKS!`)
               <p style="color: #B8960B; font-size: 11px; margin-top: 32px; letter-spacing: 2px; text-transform: uppercase;">Yael Siso — Interior Design</p>
             </div>
           `,
+          ...(attachedFiles.length > 0 ? { attachments: attachedFiles.map(f => ({ name: f.name, dataUrl: f.dataUrl })) } : {}),
         }),
       })
       if (res.ok) {
@@ -510,6 +514,7 @@ THANKS!`)
     }
     setSendingEmail(false)
     setEmailModal(null)
+    setAttachedFiles([])
     fetchAll()
   }
 
@@ -769,6 +774,30 @@ THANKS!`)
                 <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1">Message</label>
                 <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} rows={8}
                   className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 resize-none" />
+              </div>
+              {/* קבצים מצורפים */}
+              <div>
+                <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1">Attachments</label>
+                {attachedFiles.map((f, i) => (
+                  <div key={i} className="flex items-center gap-2 bg-[#F3F3F3] rounded-lg px-3 py-1.5 mb-1.5 text-xs">
+                    <span className="flex-1 truncate">{f.name}</span>
+                    <button onClick={() => setAttachedFiles(prev => prev.filter((_, j) => j !== i))}
+                      className="text-red-400 hover:text-red-600 text-xs">✕</button>
+                  </div>
+                ))}
+                <label className={`inline-flex items-center gap-1.5 text-xs text-[#7B5800] font-medium cursor-pointer hover:underline ${uploadingFile ? 'opacity-50 pointer-events-none' : ''}`}>
+                  {uploadingFile ? 'Uploading...' : '+ Add File'}
+                  <input type="file" className="hidden" onChange={e => {
+                    const file = e.target.files?.[0]
+                    if (!file) return
+                    if (file.size > 5 * 1024 * 1024) { alert('File too large (max 5MB)'); return }
+                    setUploadingFile(true)
+                    const reader = new FileReader()
+                    reader.onload = () => { setAttachedFiles(prev => [...prev, { name: file.name, dataUrl: reader.result }]); setUploadingFile(false) }
+                    reader.readAsDataURL(file)
+                    e.target.value = ''
+                  }} />
+                </label>
               </div>
             </div>
             <div className="px-6 py-4 border-t border-[#F3F3F3] flex gap-2">

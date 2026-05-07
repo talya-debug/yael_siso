@@ -2,9 +2,12 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { Plus, X, Trash2, Pencil, Save, TrendingUp, Clock, CheckCircle, DollarSign, Download, Send, UserPlus } from 'lucide-react'
 
+// סטטוסים לתשלומי ספקים
 const STATUS = {
-  pending: { label: 'Pending',  color: 'bg-amber-50 text-amber-700' },
-  paid:    { label: 'Paid',     color: 'bg-emerald-50 text-emerald-700' },
+  pending:   { label: 'Pending',   color: 'bg-gray-100 text-gray-600' },
+  sent:      { label: 'Sent',      color: 'bg-amber-50 text-amber-700' },
+  paid:      { label: 'Paid',      color: 'bg-emerald-50 text-emerald-700' },
+  cancelled: { label: 'Cancelled', color: 'bg-white text-red-400 ring-1 ring-red-300' },
 }
 
 // הכנת מייל דרישת עמלה — פותח מודאל תצוגה מקדימה
@@ -228,7 +231,7 @@ function EntryModal({ entry, suppliers: initialSuppliers, projects, onClose, onS
 }
 
 // ── שורת תשלום ──
-function PaymentRow({ payment, supplierName, projectName, supplier, project, onEdit, onDelete, onToggleStatus, onSendEmail }) {
+function PaymentRow({ payment, supplierName, projectName, supplier, project, onEdit, onDelete, onChangeStatus, onSendEmail }) {
   const st = STATUS[payment.status] || STATUS.pending
   const commission = payment.commission_pct && payment.amount
     ? (payment.amount * payment.commission_pct / 100)
@@ -246,10 +249,10 @@ function PaymentRow({ payment, supplierName, projectName, supplier, project, onE
           : <span className="text-[#6B7A90]">—</span>}
       </td>
       <td className="py-3.5 px-4">
-        <button onClick={() => onToggleStatus(payment)}
-          className={`text-[10px] px-2.5 py-1 rounded-full font-bold tracking-wider transition hover:opacity-80 ${st.color}`}>
-          {st.label}
-        </button>
+        <select value={payment.status} onChange={e => onChangeStatus(payment, e.target.value)}
+          className={`text-[10px] px-2.5 py-1 rounded-full font-bold tracking-wider border-0 cursor-pointer outline-none ${st.color}`}>
+          {Object.entries(STATUS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+        </select>
       </td>
       <td className="py-3.5 px-4 text-sm text-[#6B7A90]">
         {payment.payment_date ? new Date(payment.payment_date).toLocaleDateString('en-US') : '—'}
@@ -289,6 +292,9 @@ export default function SupplierBilling() {
   const [emailSubject, setEmailSubject] = useState('')
   const [emailBody, setEmailBody]       = useState('')
   const [sendingEmail, setSendingEmail] = useState(false)
+  // קבצים מצורפים למייל
+  const [attachedFiles, setAttachedFiles] = useState([])
+  const [uploadingFile, setUploadingFile] = useState(false)
   // הודעת הצלחה
   const [toast, setToast] = useState(null)
 
@@ -317,9 +323,9 @@ export default function SupplierBilling() {
   })
 
   // KPIs — focused on commissions due to Yael
-  const totalCommission     = payments.reduce((s, p) => s + (p.commission_pct ? p.amount * p.commission_pct / 100 : 0), 0)
+  const totalCommission     = payments.filter(p => p.status !== 'cancelled').reduce((s, p) => s + (p.commission_pct ? p.amount * p.commission_pct / 100 : 0), 0)
   const collectedCommission = payments.filter(p => p.status === 'paid').reduce((s, p) => s + (p.commission_pct ? p.amount * p.commission_pct / 100 : 0), 0)
-  const pendingCommission   = payments.filter(p => p.status === 'pending').reduce((s, p) => s + (p.commission_pct ? p.amount * p.commission_pct / 100 : 0), 0)
+  const pendingCommission   = payments.filter(p => p.status === 'pending' || p.status === 'sent').reduce((s, p) => s + (p.commission_pct ? p.amount * p.commission_pct / 100 : 0), 0)
 
   function handleSaved(saved, isEdit) {
     if (isEdit) setPayments(prev => prev.map(p => p.id === saved.id ? saved : p))
@@ -334,9 +340,9 @@ export default function SupplierBilling() {
     setPayments(prev => prev.filter(p => p.id !== payment.id))
   }
 
-  async function handleToggleStatus(payment) {
-    const next = payment.status === 'pending' ? 'paid' : 'pending'
-    const { data } = await supabase.from('supplier_payments').update({ status: next }).eq('id', payment.id).select().single()
+  // שינוי סטטוס תשלום ספק
+  async function handleChangeStatus(payment, newStatus) {
+    const { data } = await supabase.from('supplier_payments').update({ status: newStatus }).eq('id', payment.id).select().single()
     if (data) setPayments(prev => prev.map(p => p.id === data.id ? data : p))
   }
 
@@ -422,7 +428,7 @@ export default function SupplierBilling() {
           {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select>
 
-        {['all', 'pending', 'paid'].map(s => (
+        {['all', 'pending', 'sent', 'paid', 'cancelled'].map(s => (
           <button key={s} onClick={() => setFilterSt(s)}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
               filterSt === s
@@ -469,7 +475,7 @@ export default function SupplierBilling() {
                   project={projMap[p.project_id]}
                   onEdit={pay => setModal(pay)}
                   onDelete={handleDelete}
-                  onToggleStatus={handleToggleStatus}
+                  onChangeStatus={handleChangeStatus}
                   onSendEmail={pay => prepareCommissionEmail(pay, supMap[pay.supplier_id], projMap[pay.project_id], { setEmailTo, setEmailSubject, setEmailBody, setEmailModal })}
                 />
               ))}
@@ -512,6 +518,30 @@ export default function SupplierBilling() {
                 <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} rows={10}
                   className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 resize-none" />
               </div>
+              {/* קבצים מצורפים */}
+              <div>
+                <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1">קבצים מצורפים</label>
+                {attachedFiles.map((f, i) => (
+                  <div key={i} className="flex items-center gap-2 bg-[#F3F3F3] rounded-lg px-3 py-1.5 mb-1.5 text-xs">
+                    <span className="flex-1 truncate">{f.name}</span>
+                    <button onClick={() => setAttachedFiles(prev => prev.filter((_, j) => j !== i))}
+                      className="text-red-400 hover:text-red-600 text-xs">✕</button>
+                  </div>
+                ))}
+                <label className={`inline-flex items-center gap-1.5 text-xs text-[#7B5800] font-medium cursor-pointer hover:underline ${uploadingFile ? 'opacity-50 pointer-events-none' : ''}`}>
+                  {uploadingFile ? 'מעלה...' : '+ הוסף קובץ'}
+                  <input type="file" className="hidden" onChange={e => {
+                    const file = e.target.files?.[0]
+                    if (!file) return
+                    if (file.size > 5 * 1024 * 1024) { alert('קובץ גדול מדי (מקסימום 5MB)'); return }
+                    setUploadingFile(true)
+                    const reader = new FileReader()
+                    reader.onload = () => { setAttachedFiles(prev => [...prev, { name: file.name, dataUrl: reader.result }]); setUploadingFile(false) }
+                    reader.readAsDataURL(file)
+                    e.target.value = ''
+                  }} />
+                </label>
+              </div>
             </div>
             <div className="px-6 py-4 border-t border-[#F3F3F3] flex gap-2">
               <button onClick={() => setEmailModal(null)}
@@ -522,7 +552,9 @@ export default function SupplierBilling() {
                 if (!emailTo) return
                 setSendingEmail(true)
                 try {
-                  await fetch('/api/send-email', {
+                  // הכנת קבצים מצורפים
+                  const apiAttachments = attachedFiles.map(f => ({ name: f.name, dataUrl: f.dataUrl }))
+                  const res = await fetch('/api/send-email', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -533,15 +565,16 @@ export default function SupplierBilling() {
                         <div style="color: #333; font-size: 14px; white-space: pre-line;">${emailBody}</div>
                         <p style="color: #B8960B; font-size: 11px; margin-top: 32px; letter-spacing: 2px;">YAEL SISO — Interior Design</p>
                       </div>`,
+                      ...(apiAttachments.length > 0 ? { attachments: apiAttachments } : {}),
                     }),
                   })
                   if (res.ok) {
-                    // עדכון הערות התשלום עם תיעוד השליחה
+                    // עדכון סטטוס ל-sent + תיעוד השליחה בהערות
                     const now = new Date().toLocaleDateString('he-IL')
-                    const noteAppend = `\u{1F4E7} דרישת עמלה נשלחה ${now}`
+                    const noteAppend = `דרישת עמלה נשלחה ${now}`
                     const currentNotes = emailModal.notes || ''
                     const updatedNotes = currentNotes ? `${currentNotes}\n${noteAppend}` : noteAppend
-                    const { data: updated } = await supabase.from('supplier_payments').update({ notes: updatedNotes }).eq('id', emailModal.id).select().single()
+                    const { data: updated } = await supabase.from('supplier_payments').update({ notes: updatedNotes, status: 'sent' }).eq('id', emailModal.id).select().single()
                     if (updated) setPayments(prev => prev.map(p => p.id === updated.id ? updated : p))
                     setToast('המייל נשלח בהצלחה')
                     setTimeout(() => setToast(null), 3000)
@@ -555,6 +588,7 @@ export default function SupplierBilling() {
                 }
                 setSendingEmail(false)
                 setEmailModal(null)
+                setAttachedFiles([])
               }} disabled={sendingEmail || !emailTo}
                 className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition disabled:opacity-50">
                 {sendingEmail ? 'שולח...' : 'שלח מייל'}
