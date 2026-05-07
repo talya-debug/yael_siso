@@ -640,93 +640,140 @@ function TaskCard({ task, subtasks, hasResource, onSelect, onStatusChange, onDel
 // ── גאנט ──
 function GanttView({ tasks, project, onSelectTask }) {
  const { rows, totalDays, todayDay } = buildGantt(tasks, project?.start_date)
- const weekCount = Math.ceil(totalDays / 7) + 1
- const pStart  = project?.start_date ? new Date(project.start_date) : new Date()
- const grouped  = groupByPhase(tasks)
+ const pStart = project?.start_date ? new Date(project.start_date) : new Date()
+ const grouped = groupByPhase(tasks)
  const todayPct = Math.max(0, Math.min(100, (todayDay / totalDays) * 100))
 
- function weekLabel(i) {
-  const d = new Date(pStart)
-  d.setDate(d.getDate() + i * 7)
-  return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })
+ // חישוב חודשים לציר זמן — קריא יותר משבועות
+ const months = []
+ const mStart = new Date(pStart)
+ mStart.setDate(1)
+ while (true) {
+  const dayOffset = Math.round((mStart - pStart) / 86400000)
+  if (dayOffset > totalDays + 30) break
+  months.push({ label: mStart.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }), offset: dayOffset })
+  mStart.setMonth(mStart.getMonth() + 1)
  }
 
  const rowMap = {}
  rows.forEach(r => { rowMap[r.id] = r })
 
+ // רוחב מינימלי לפי מספר ימים — כל יום לפחות 4px
+ const chartMinWidth = Math.max(800, totalDays * 4)
+
  return (
-  <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] overflow-x-auto">
-   <div style={{ minWidth: 640 }}>
-    {/* כותרת ציר זמן */}
+  <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] overflow-x-auto -mx-4 md:-mx-8">
+   <div style={{ minWidth: chartMinWidth }}>
+    {/* כותרת ציר זמן — חודשים */}
     <div className="flex border-b border-[#F3F3F3] sticky top-0 bg-white z-10">
-     <div className="w-48 shrink-0 px-4 py-2 text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] bg-[#F9F9F9] border-r border-[#F3F3F3]">
+     <div className="w-56 shrink-0 px-4 py-2.5 text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] bg-[#F9F9F9] border-r border-[#F3F3F3]">
       Task
      </div>
-     <div className="flex-1 relative h-8 bg-[#F9F9F9] overflow-hidden">
-      {Array.from({ length: weekCount }).map((_, i) => (
-       <div key={i} className="absolute top-0 bottom-0 flex items-end pb-1 border-l border-[#F3F3F3]"
-        style={{ left: `${(i * 7 / totalDays) * 100}%` }}>
-        <span className="text-[9px] text-[#6B7A90] whitespace-nowrap ml-1">{weekLabel(i)}</span>
-       </div>
-      ))}
+     <div className="flex-1 relative h-9 bg-[#F9F9F9]">
+      {months.map((m, i) => {
+       const leftPct = Math.max(0, (m.offset / totalDays) * 100)
+       if (leftPct > 100) return null
+       return (
+        <div key={i} className="absolute top-0 bottom-0 flex items-center border-l border-[#6B7A90]/20"
+         style={{ left: `${leftPct}%` }}>
+         <span className="text-[11px] font-semibold text-[#091426] whitespace-nowrap ml-2">{m.label}</span>
+        </div>
+       )
+      })}
       {todayDay >= 0 && todayDay <= totalDays && (
        <div className="absolute top-0 bottom-0 flex flex-col items-center z-10" style={{ left: `${todayPct}%` }}>
-        <span className="text-[9px] text-red-500 font-bold whitespace-nowrap mt-0.5">Today</span>
-        <div className="flex-1 w-0.5 bg-red-400" />
+        <span className="text-[10px] text-red-500 font-bold whitespace-nowrap bg-red-50 px-1.5 py-0.5 rounded-b-md">Today</span>
        </div>
       )}
      </div>
     </div>
 
     {/* שורות לפי שלב */}
-    {Array.from(grouped.entries()).map(([phase, phaseTasks]) => (
-     <div key={phase}>
-      <div className="flex border-b border-[#F3F3F3] bg-[#F9F9F9]">
-       <div className="w-48 shrink-0 px-4 py-1.5 text-xs font-semibold text-[#091426] border-r border-[#F3F3F3]">{phase}</div>
-       <div className="flex-1" />
-      </div>
-      {phaseTasks.map((task, idx) => {
-       const row = rowMap[task.id]
-       if (!row) return null
-       const barLeft = (row.startDay / totalDays) * 100
-       const barWidth = Math.max(1, ((row.endDay - row.startDay) / totalDays) * 100)
-       return (
-        <div key={task.id} className={`flex border-b border-[#F3F3F3] hover:bg-[#F9F9F9] transition ${idx % 2 === 1 ? 'bg-[#F9F9F9]/30' : ''}`}>
-         <div className="w-48 shrink-0 px-3 py-2.5 border-r border-[#F3F3F3] cursor-pointer" onClick={() => onSelectTask(task)}>
-          <p className="text-xs text-[#091426] truncate">{task.name}</p>
-          {task.due_date && <p className="text-[10px] text-[#6B7A90] mt-0.5">{fmtDate(task.start_date)} – {fmtDate(task.due_date)}</p>}
-         </div>
-         <div className="flex-1 relative" style={{ height: 40 }}>
-          {Array.from({ length: weekCount }).map((_, i) => (
-           <div key={i} className="absolute top-0 bottom-0 border-l border-[#F3F3F3]"
-            style={{ left: `${(i * 7 / totalDays) * 100}%` }} />
-          ))}
-          {todayDay >= 0 && todayDay <= totalDays && (
-           <div className="absolute top-0 bottom-0 w-0.5 bg-red-400 opacity-30 z-10" style={{ left: `${todayPct}%` }} />
-          )}
-          <div className="absolute top-2.5 bottom-2.5 rounded-md"
-           style={{
-            left: `${barLeft}%`,
-            width: `${barWidth}%`,
-            backgroundColor: STATUS[task.status]?.bar || '#94a3b8',
-            opacity: task.status === 'done' ? 0.45 : 0.82,
-           }} />
-         </div>
+    {Array.from(grouped.entries()).map(([phase, phaseTasks]) => {
+     // חישוב התקדמות שלב
+     const phaseDone = phaseTasks.filter(t => t.status === 'done').length
+     const phaseProgress = phaseTasks.length ? Math.round(phaseDone / phaseTasks.length * 100) : 0
+     return (
+      <div key={phase}>
+       <div className="flex border-b border-[#F3F3F3] bg-[#091426]/[0.03]">
+        <div className="w-56 shrink-0 px-4 py-2 border-r border-[#F3F3F3] flex items-center gap-2">
+         <span className="text-xs font-bold text-[#091426]">{phase}</span>
+         <span className="text-[10px] text-[#6B7A90]">{phaseProgress}%</span>
         </div>
-       )
-      })}
-     </div>
-    ))}
+        <div className="flex-1 relative" style={{ height: 28 }}>
+         {/* בלוק שלב — מתחילת המשימה הראשונה עד סוף האחרונה */}
+         {(() => {
+          const phaseRows = phaseTasks.map(t => rowMap[t.id]).filter(Boolean)
+          if (!phaseRows.length) return null
+          const phaseStart = Math.min(...phaseRows.map(r => r.startDay))
+          const phaseEnd = Math.max(...phaseRows.map(r => r.endDay))
+          return (
+           <div className="absolute top-1.5 bottom-1.5 rounded-md bg-[#091426]/10"
+            style={{ left: `${(phaseStart / totalDays) * 100}%`, width: `${((phaseEnd - phaseStart) / totalDays) * 100}%` }} />
+          )
+         })()}
+        </div>
+       </div>
+       {phaseTasks.map((task, idx) => {
+        const row = rowMap[task.id]
+        if (!row) return null
+        const barLeft = (row.startDay / totalDays) * 100
+        const barWidth = Math.max(0.5, ((row.endDay - row.startDay) / totalDays) * 100)
+        const statusColor = STATUS[task.status]?.bar || '#94a3b8'
+        return (
+         <div key={task.id} className={`flex border-b border-[#F3F3F3] hover:bg-[#F9F9F9]/80 transition cursor-pointer ${idx % 2 === 1 ? 'bg-[#F9F9F9]/30' : ''}`}
+          onClick={() => onSelectTask(task)}>
+          <div className="w-56 shrink-0 px-3 py-2 border-r border-[#F3F3F3]">
+           <p className="text-xs text-[#091426] truncate">{task.name}</p>
+           <p className="text-[10px] text-[#6B7A90] mt-0.5">
+            {task.start_date ? fmtDate(task.start_date) : ''}
+            {task.start_date && task.due_date ? ' – ' : ''}
+            {task.due_date ? fmtDate(task.due_date) : ''}
+           </p>
+          </div>
+          <div className="flex-1 relative" style={{ height: 38 }}>
+           {/* קווי חודשים */}
+           {months.map((m, i) => {
+            const leftPct = Math.max(0, (m.offset / totalDays) * 100)
+            if (leftPct > 100) return null
+            return <div key={i} className="absolute top-0 bottom-0 border-l border-[#F3F3F3]" style={{ left: `${leftPct}%` }} />
+           })}
+           {/* קו היום */}
+           {todayDay >= 0 && todayDay <= totalDays && (
+            <div className="absolute top-0 bottom-0 w-0.5 bg-red-400/40 z-10" style={{ left: `${todayPct}%` }} />
+           )}
+           {/* בלוק המשימה */}
+           <div className="absolute top-2 bottom-2 rounded-md flex items-center justify-end pr-1 overflow-hidden"
+            style={{
+             left: `${barLeft}%`,
+             width: `${barWidth}%`,
+             backgroundColor: statusColor,
+             opacity: task.status === 'done' ? 0.5 : 0.85,
+             minWidth: 4,
+            }}>
+            {barWidth > 3 && (
+             <span className="text-[9px] text-white font-medium truncate px-1">
+              {task.status === 'done' ? '✓' : ''}
+             </span>
+            )}
+           </div>
+          </div>
+         </div>
+        )
+       })}
+      </div>
+     )
+    })}
 
     {/* מקרא */}
-    <div className="flex items-center gap-4 px-4 py-2 border-t border-[#F3F3F3] bg-[#F9F9F9] flex-wrap">
+    <div className="flex items-center gap-5 px-4 py-2.5 border-t border-[#F3F3F3] bg-[#F9F9F9] flex-wrap">
      {Object.entries(STATUS).map(([k, v]) => (
       <div key={k} className="flex items-center gap-1.5">
-       <div className="w-3 h-2.5 rounded-sm" style={{ backgroundColor: v.bar }} />
+       <div className="w-4 h-2.5 rounded-sm" style={{ backgroundColor: v.bar }} />
        <span className="text-[11px] text-[#6B7A90]">{v.label}</span>
       </div>
      ))}
-     <div className="flex items-center gap-1.5 ml-2">
+     <div className="flex items-center gap-1.5">
       <div className="w-0.5 h-3.5 bg-red-400" />
       <span className="text-[11px] text-[#6B7A90]">Today</span>
      </div>
@@ -2243,7 +2290,7 @@ function ProjectDetail({ project, clients, onBack }) {
    </div>
 
    {/* KPI strip — רק בטאב Tasks */}
-   {(view === 'tasks' || view === 'gantt') && (
+   {view === 'tasks' && (
    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
     {[
      { label: 'Tasks', value: mainTasks.length,                     color: 'text-[#091426]' },
@@ -2260,7 +2307,7 @@ function ProjectDetail({ project, clients, onBack }) {
    )}
 
    {/* Progress bar — רק בטאב Tasks */}
-   {(view === 'tasks' || view === 'gantt') && mainTasks.length > 0 && (
+   {view === 'tasks' && mainTasks.length > 0 && (
     <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] px-5 py-3 mb-4 flex items-center gap-4">
      <span className="text-sm font-medium text-[#091426] shrink-0">Progress</span>
      <div className="flex-1 bg-[#F3F3F3] rounded-full h-2">
