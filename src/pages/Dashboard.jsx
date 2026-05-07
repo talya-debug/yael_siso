@@ -135,7 +135,7 @@ export default function Dashboard({ userRole, onLogout }) {
             </button>
           </div>
         </div>
-        <div className="px-4 md:px-8 pb-8 max-w-6xl">
+        <div className="px-4 md:px-8 pb-8">
           {renderPage()}
         </div>
       </main>
