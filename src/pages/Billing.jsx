@@ -276,26 +276,17 @@ function PaymentRow({ payment, project, clients, onEdit, onStatusChange, onTerms
           {due ? fmtDate(due) : '—'}
         </span>
 
-        {/* סטטוס */}
-        {cls === 'future' ? (
-          <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold tracking-wider shrink-0 ${chipStyle}`}>
-            Future
-          </span>
-        ) : cls === 'pending_approval' ? (
-          <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold tracking-wider shrink-0 ${chipStyle}`}>
-            Pending Approval
-          </span>
-        ) : (
-          <select
-            value={payment.status}
-            onChange={e => onStatusChange(payment.id, e.target.value)}
-            className={`text-[10px] px-2.5 py-1 rounded-full font-bold tracking-wider border-0 cursor-pointer outline-none shrink-0 ${chipStyle}`}
-          >
-            <option value="pending">Current</option>
-            <option value="sent">Sent</option>
-            <option value="paid">Paid</option>
-          </select>
-        )}
+        {/* סטטוס — תמיד ניתן לשינוי */}
+        <select
+          value={payment.status || 'pending'}
+          onChange={e => onStatusChange(payment.id, e.target.value)}
+          className={`text-[10px] px-2.5 py-1 rounded-full font-bold tracking-wider border-0 cursor-pointer outline-none shrink-0 ${chipStyle}`}
+        >
+          <option value="pending_approval">Pending Approval</option>
+          <option value="pending">Current</option>
+          <option value="sent">Sent</option>
+          <option value="paid">Paid</option>
+        </select>
 
         {/* פעולות */}
         <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition shrink-0">
