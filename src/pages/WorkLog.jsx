@@ -9,7 +9,7 @@ function getPublicUrl() {
   return `${window.location.origin}/worklog-public`
 }
 
-export default function WorkLog({ isAdmin = true }) {
+export default function WorkLog({ isAdmin = true, userRole }) {
   const [logs,       setLogs]       = useState([])
   const [projects,   setProjects]   = useState([])
   const [loading,    setLoading]    = useState(true)
@@ -18,13 +18,16 @@ export default function WorkLog({ isAdmin = true }) {
   const [filterProj, setFilterProj] = useState('')
   const [filterRole, setFilterRole] = useState('')
 
+  // שם העובד — לצוות מוגדר אוטומטית מהמשתמש המחובר
+  const teamWorkerName = !isAdmin && userRole?.name ? userRole.name : ''
+
   const [form, setForm] = useState({
     project_id: '',
     work_date:  new Date().toISOString().split('T')[0],
     hours:      '',
     role:       ROLES[0],
     description:'',
-    worker_name:'',
+    worker_name: teamWorkerName,
   })
 
   useEffect(() => { fetchAll() }, [])
@@ -50,7 +53,7 @@ export default function WorkLog({ isAdmin = true }) {
       worker_name: form.worker_name,
     })
     setShowForm(false)
-    setForm({ project_id: '', work_date: new Date().toISOString().split('T')[0], hours: '', role: ROLES[0], description: '', worker_name: '' })
+    setForm({ project_id: '', work_date: new Date().toISOString().split('T')[0], hours: '', role: ROLES[0], description: '', worker_name: teamWorkerName })
     fetchAll()
   }
 
@@ -66,7 +69,12 @@ export default function WorkLog({ isAdmin = true }) {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const filtered = logs.filter(l => {
+  // סינון — צוות רואה רק את הרשומות שלו
+  const baseLogs = !isAdmin && teamWorkerName
+    ? logs.filter(l => l.worker_name === teamWorkerName)
+    : logs
+
+  const filtered = baseLogs.filter(l => {
     const matchProj = !filterProj || l.project_id === filterProj
     const matchRole = !filterRole || l.role === filterRole
     return matchProj && matchRole
@@ -75,9 +83,28 @@ export default function WorkLog({ isAdmin = true }) {
   const totalHours = filtered.reduce((s, l) => s + Number(l.hours || 0), 0)
 
   const hoursByRole = ROLES.reduce((acc, r) => {
-    acc[r] = logs.filter(l => l.role === r).reduce((s, l) => s + Number(l.hours || 0), 0)
+    acc[r] = baseLogs.filter(l => l.role === r).reduce((s, l) => s + Number(l.hours || 0), 0)
     return acc
   }, {})
+
+  // סיכום אישי לצוות — שעות החודש הנוכחי לפי פרויקט
+  const now = new Date()
+  const currentMonth = now.getMonth()
+  const currentYear = now.getFullYear()
+  const thisMonthLogs = baseLogs.filter(l => {
+    const d = new Date(l.work_date)
+    return d.getMonth() === currentMonth && d.getFullYear() === currentYear
+  })
+  const thisMonthTotal = thisMonthLogs.reduce((s, l) => s + Number(l.hours || 0), 0)
+  const thisMonthByProject = {}
+  thisMonthLogs.forEach(l => {
+    const pName = l.projects?.name || 'Other'
+    thisMonthByProject[pName] = (thisMonthByProject[pName] || 0) + Number(l.hours || 0)
+  })
+
+  // האם דווח היום
+  const todayStr = now.toISOString().split('T')[0]
+  const loggedToday = baseLogs.some(l => l.work_date === todayStr)
 
   const inp = "w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 transition"
   const lbl = "text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5"
@@ -88,7 +115,12 @@ export default function WorkLog({ isAdmin = true }) {
     <div className="space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[#091426] font-[Manrope] tracking-tight">Work Log</h1>
+          <h1 className="text-2xl font-bold text-[#091426] font-[Manrope] tracking-tight inline-flex items-center gap-2">
+            Work Log
+            {loggedToday && (
+              <span className="text-[9px] font-bold tracking-wider bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full">Today</span>
+            )}
+          </h1>
           {isAdmin && (
             <p className="text-sm text-[#6B7A90] mt-0.5">
               {logs.length} entries · Total {logs.reduce((s,l) => s + Number(l.hours||0),0)} hours
@@ -164,15 +196,44 @@ export default function WorkLog({ isAdmin = true }) {
         </div>
       )}
 
+      {/* סיכום אישי לצוות */}
       {!isAdmin && (
-        <div className="text-center py-16">
-          <div className="text-5xl mb-3">📝</div>
-          <p className="text-[#091426] text-sm font-medium">Log your work hours</p>
-          <p className="text-[#6B7A90] text-xs mt-1">Click "+ New Entry" to add your hours, or use the public link</p>
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4">
+              <p className="text-2xl font-bold text-[#091426]">{thisMonthTotal}<span className="text-sm font-normal text-[#6B7A90]">h</span></p>
+              <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-0.5">My Hours This Month</p>
+            </div>
+            <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4">
+              <div className="flex items-center gap-2 mb-1">
+                <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">By Project</p>
+                {loggedToday && (
+                  <span className="text-[9px] font-bold tracking-wider bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full">Logged Today</span>
+                )}
+              </div>
+              {Object.entries(thisMonthByProject).length === 0 && (
+                <p className="text-xs text-[#6B7A90] italic">No hours this month</p>
+              )}
+              {Object.entries(thisMonthByProject).map(([pName, hrs]) => (
+                <div key={pName} className="flex justify-between text-sm">
+                  <span className="text-[#091426]">{pName}</span>
+                  <span className="text-[#6B7A90] font-medium">{hrs}h</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* סינון פרויקטים לצוות */}
+          <div className="flex gap-3 flex-wrap">
+            <select value={filterProj} onChange={e => setFilterProj(e.target.value)}
+              className="bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 min-w-40">
+              <option value="">All Projects</option>
+              {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+          </div>
         </div>
       )}
 
-      {isAdmin && (
+      {filtered.length > 0 && (
         <div className="space-y-2">
           {filtered.map(l => (
             <div key={l.id} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4 flex items-start justify-between group">
@@ -262,7 +323,8 @@ export default function WorkLog({ isAdmin = true }) {
                 <label className={lbl}>Worker Name</label>
                 <input value={form.worker_name}
                   onChange={e => setForm({...form, worker_name: e.target.value})}
-                  className={inp} placeholder="Name..." />
+                  readOnly={!isAdmin && !!teamWorkerName}
+                  className={inp + (!isAdmin && teamWorkerName ? ' opacity-60 cursor-not-allowed' : '')} placeholder="Name..." />
               </div>
             </div>
             <div className="flex gap-2 px-6 py-4 border-t border-[#F3F3F3]">

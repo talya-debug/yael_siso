@@ -2039,7 +2039,7 @@ function ProjectDetail({ project, clients, onBack }) {
       if (match) {
        // סימון תאריך השלמת שלב — Billing.jsx יחשב due_date לפי payment_terms_days
        const today = new Date().toISOString().split('T')[0]
-       await supabase.from('payments').update({ phase_completed_at: today }).eq('id', match.id)
+       await supabase.from('payments').update({ phase_completed_at: today, status: 'pending_approval' }).eq('id', match.id)
        // רישום ביומן תשלומים
        await supabase.from('payment_logs').insert({ payment_id: match.id, note: `Phase completed: "${task.phase_name}"` })
        console.log(`[Billing] Milestone "${match.name}" — phase_completed_at set`)

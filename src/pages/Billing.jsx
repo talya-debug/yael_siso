@@ -45,11 +45,13 @@ function isOverdue(payment) {
   return due < new Date()
 }
 
-// סיווג תשלום: future / current / paid
+// סיווג תשלום: future / pending_approval / current / sent / paid
 function classifyPayment(p) {
   if (p.status === 'paid') return 'paid'
+  if (p.status === 'sent') return 'sent'
   if (!p.phase_completed_at) return 'future'
-  return 'current'
+  if (p.status === 'pending_approval') return 'pending_approval'
+  return 'current' // status === 'pending' — מאושר, מוכן לגבייה
 }
 
 // ── מודאל תשלום בודד ──
@@ -229,9 +231,13 @@ function PaymentRow({ payment, project, clients, onEdit, onStatusChange, onTerms
     ? 'bg-emerald-50 text-emerald-700'
     : cls === 'future'
     ? 'bg-[#F3F3F3] text-[#6B7A90]'
+    : cls === 'pending_approval'
+    ? 'bg-violet-50 text-violet-700'
+    : cls === 'sent'
+    ? 'bg-blue-50 text-blue-600'
     : overdue
     ? 'bg-red-50 text-red-600'
-    : 'bg-blue-50 text-[#091426]'
+    : 'bg-amber-50 text-amber-700'
 
   // שקיפות לשורות עתידיות
   const rowOpacity = cls === 'future' ? 'opacity-60' : ''
@@ -275,13 +281,17 @@ function PaymentRow({ payment, project, clients, onEdit, onStatusChange, onTerms
           <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold tracking-wider shrink-0 ${chipStyle}`}>
             Future
           </span>
+        ) : cls === 'pending_approval' ? (
+          <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold tracking-wider shrink-0 ${chipStyle}`}>
+            Pending Approval
+          </span>
         ) : (
           <select
-            value={payment.status === 'pending' ? 'pending' : payment.status}
+            value={payment.status}
             onChange={e => onStatusChange(payment.id, e.target.value)}
             className={`text-[10px] px-2.5 py-1 rounded-full font-bold tracking-wider border-0 cursor-pointer outline-none shrink-0 ${chipStyle}`}
           >
-            <option value="pending">Pending</option>
+            <option value="pending">Current</option>
             <option value="sent">Sent</option>
             <option value="paid">Paid</option>
           </select>
@@ -289,7 +299,13 @@ function PaymentRow({ payment, project, clients, onEdit, onStatusChange, onTerms
 
         {/* פעולות */}
         <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition shrink-0">
-          {cls === 'current' && (
+          {cls === 'pending_approval' && (
+            <button onClick={() => onStatusChange(payment.id, 'pending')} title="Approve"
+              className="px-2 py-1 rounded-xl bg-violet-50 hover:bg-violet-100 text-violet-700 text-[10px] font-bold tracking-wider transition">
+              Approve
+            </button>
+          )}
+          {cls !== 'future' && cls !== 'paid' && cls !== 'pending_approval' && (
             <button onClick={() => onSendEmail(payment, project)} title="Send email"
               className="p-1.5 rounded-xl hover:bg-[#F3F3F3] text-[#6B7A90] hover:text-[#091426] transition">
               <Send size={13} strokeWidth={1.8} />
@@ -427,6 +443,10 @@ export default function Billing() {
       ? 'Marked as paid'
       : status === 'sent'
       ? 'Payment request sent'
+      : status === 'pending'
+      ? 'Approved — ready to bill'
+      : status === 'pending_approval'
+      ? 'Phase completed — pending approval'
       : `Status changed to ${status}`
     await supabase.from('payment_logs').insert({ payment_id: id, note: logNote })
 
@@ -457,6 +477,9 @@ export default function Billing() {
   function sendEmail(payment, project) {
     const client = clients[project?.id]
     const due = calcDueDate(payment)
+    const amountBeforeVat = Number(payment.amount || 0)
+    const vat = Math.round(amountBeforeVat * 0.18)
+    const totalWithVat = amountBeforeVat + vat
     setEmailTo(client?.email || '')
     setEmailSubject(`Payment Request: ${payment.name} — ${project?.name || ''}`)
     setEmailBody(`Hi ${client?.name || 'Client'},
@@ -466,7 +489,9 @@ Hope that you are doing well.
 This email concerns the payment for ${payment.name}.
 
 Details:
-- Amount: ${fmt(payment.amount)}
+- Amount before VAT: ${fmt(amountBeforeVat)}
+- VAT (18%): ${fmt(vat)}
+- Total including VAT: ${fmt(totalWithVat)}
 - Due date: ${due ? fmtDate(due) : 'Upon receipt'}
 
 THANKS!`)
@@ -578,6 +603,11 @@ THANKS!`)
     .filter(p => isOverdue(p))
     .length
 
+  // כמה תשלומים ממתינים לאישור
+  const pendingApprovalCount = payments
+    .filter(p => p.status === 'pending_approval')
+    .length
+
   // יומנים לפי payment_id
   const logsByPayment = useMemo(() => {
     const map = {}
@@ -615,7 +645,11 @@ THANKS!`)
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+        <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4 text-center">
+          <div className="text-xl font-bold text-violet-600">{pendingApprovalCount}</div>
+          <div className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-0.5">Pending Approval</div>
+        </div>
         <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4 text-center">
           <div className="text-xl font-bold text-[#091426]">{fmt(toCollectNow)}</div>
           <div className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-0.5">To Collect Now</div>
@@ -635,9 +669,11 @@ THANKS!`)
         <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}
           className="bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20">
           <option value="">All</option>
-          <option value="current">Current (Needs Collection)</option>
-          <option value="future">Future</option>
+          <option value="pending_approval">Pending Approval</option>
+          <option value="current">Current</option>
+          <option value="sent">Sent</option>
           <option value="paid">Paid</option>
+          <option value="future">Future</option>
         </select>
         <select value={filterProject} onChange={e => setFilterProject(e.target.value)}
           className="bg-[#F3F3F3] rounded-xl px-3 py-2 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20">

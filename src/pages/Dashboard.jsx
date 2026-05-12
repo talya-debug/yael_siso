@@ -52,7 +52,7 @@ export default function Dashboard({ userRole, onLogout }) {
       case 'supplierbilling': return <SupplierBilling />
       case 'monthlyreport':   return <MonthlyReport />
       case 'financedashboard': return <FinanceDashboard />
-      case 'worklog':         return <WorkLog isAdmin={isAdmin} />
+      case 'worklog':         return <WorkLog isAdmin={isAdmin} userRole={userRole} />
       case 'knowledge': return <Knowledge />
       default:          return <Home onNavigate={setActive} isAdmin={isAdmin} />
     }
