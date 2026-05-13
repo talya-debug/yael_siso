@@ -114,6 +114,13 @@ function PaymentModal({ onClose, onSave, projects, editItem }) {
             </select>
           </div>
           <div>
+            <label className={lbl}>Billing Trigger</label>
+            <select value={form.phase_trigger || 'end'} onChange={e => setForm(p => ({ ...p, phase_trigger: e.target.value }))} className={inp}>
+              <option value="end">Phase End (all tasks completed)</option>
+              <option value="start">Phase Start (first task begins)</option>
+            </select>
+          </div>
+          <div>
             <label className={lbl}>Notes</label>
             <textarea value={form.notes || ''} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
               rows={2} placeholder="Additional details..." className={inp + ' resize-none'} />
@@ -286,6 +293,7 @@ function PaymentRow({ payment, project, clients, onEdit, onStatusChange, onTerms
           <option value="pending">Current</option>
           <option value="sent">Sent</option>
           <option value="paid">Paid</option>
+          <option value="future">Future</option>
         </select>
 
         {/* פעולות */}

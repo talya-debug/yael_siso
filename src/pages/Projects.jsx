@@ -2039,10 +2039,34 @@ function ProjectDetail({ project, clients, onBack }) {
   setTasks(updatedTasks)
   if (selectedTask?.id === taskId) setSelectedTask(p => ({ ...p, status: newStatus }))
 
-  // בדיקה אם כל המשימות בשלב הושלמו
-  if (newStatus === 'done') {
-   const task = updatedTasks.find(t => t.id === taskId)
-   if (task?.phase_name) {
+  const task = updatedTasks.find(t => t.id === taskId)
+
+  // טריגר גבייה — התחלת שלב (משימה ראשונה עוברת ל-in_progress)
+  if (newStatus === 'in_progress' && task?.phase_name) {
+   const phaseTasks = updatedTasks.filter(t => t.phase_name === task.phase_name && t.level !== 'subtask')
+   const othersStarted = phaseTasks.some(t => t.id !== taskId && (t.status === 'in_progress' || t.status === 'done'))
+   if (!othersStarted) {
+    // זו המשימה הראשונה שמתחילה בשלב — בדיקת אבני דרך עם phase_trigger='start'
+    const { data: startPayments } = await supabase
+     .from('payments')
+     .select('id, name, status, phase_name, phase_trigger')
+     .eq('project_id', project.id)
+     .eq('status', 'pending')
+     .eq('phase_trigger', 'start')
+    if (startPayments) {
+     const match = startPayments.find(p => p.phase_name === task.phase_name)
+     if (match) {
+      const today = new Date().toISOString().split('T')[0]
+      await supabase.from('payments').update({ phase_completed_at: today, status: 'pending_approval' }).eq('id', match.id)
+      await supabase.from('payment_logs').insert({ payment_id: match.id, note: `Phase started: "${task.phase_name}"` })
+      console.log(`[Billing] Milestone "${match.name}" — triggered on phase start`)
+     }
+    }
+   }
+  }
+
+  // טריגר גבייה — סיום שלב (כל המשימות done)
+  if (newStatus === 'done' && task?.phase_name) {
     const phaseTasks = updatedTasks.filter(t => t.phase_name === task.phase_name && t.level !== 'subtask')
     const allDone = phaseTasks.every(t => t.status === 'done')
     if (allDone && phaseTasks.length > 0) {
@@ -2051,26 +2075,22 @@ function ProjectDetail({ project, clients, onBack }) {
       task_id: taskId,
       note: `Phase "${task.phase_name}" completed — all ${phaseTasks.length} tasks done`,
      })
-     // העברת אבן דרך גבייה מ-future ל-current
+     // העברת אבן דרך גבייה — סיום שלב (phase_trigger != 'start' או ללא trigger)
      const { data: matchingPayments } = await supabase
       .from('payments')
-      .select('id, name, status, phase_name')
+      .select('id, name, status, phase_name, phase_trigger')
       .eq('project_id', project.id)
       .eq('status', 'pending')
      if (matchingPayments) {
-      // התאמה מדויקת לפי phase_name במקום השוואת מחרוזות
-      const match = matchingPayments.find(p => p.phase_name === task.phase_name)
+      const match = matchingPayments.find(p => p.phase_name === task.phase_name && p.phase_trigger !== 'start')
       if (match) {
-       // סימון תאריך השלמת שלב — Billing.jsx יחשב due_date לפי payment_terms_days
        const today = new Date().toISOString().split('T')[0]
        await supabase.from('payments').update({ phase_completed_at: today, status: 'pending_approval' }).eq('id', match.id)
-       // רישום ביומן תשלומים
        await supabase.from('payment_logs').insert({ payment_id: match.id, note: `Phase completed: "${task.phase_name}"` })
        console.log(`[Billing] Milestone "${match.name}" — phase_completed_at set`)
       }
      }
     }
-   }
   }
  }
 
