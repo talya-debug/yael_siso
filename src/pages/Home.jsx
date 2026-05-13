@@ -3,7 +3,8 @@ import { supabase } from '../lib/supabase'
 import { Users, FolderKanban, Wallet, CheckCircle2, Clock, AlertCircle, ArrowUpRight, TrendingUp } from 'lucide-react'
 
 export default function Home({ onNavigate, isAdmin = true }) {
-  const [stats, setStats] = useState({ clients: 0, projects: 0, tasks: 0, doneTasks: 0, pendingBilling: 0, paidBilling: 0 })
+  const [stats, setStats] = useState({ clients: 0, projects: 0, tasks: 0, doneTasks: 0, pendingBilling: 0, paidBilling: 0, pendingApproval: 0 })
+  const [pendingApprovalItems, setPendingApprovalItems] = useState([])
   const [recentProjects, setRecentProjects] = useState([])
   const [upcomingTasks, setUpcomingTasks] = useState([])
   const [projectProgress, setProjectProgress] = useState({})
@@ -19,6 +20,7 @@ export default function Home({ onNavigate, isAdmin = true }) {
       { data: billing },
       { data: recent },
       { data: upcoming },
+      { data: pendingApproval },
     ] = await Promise.all([
       supabase.from('clients').select('*', { count: 'exact', head: true }),
       supabase.from('projects').select('*', { count: 'exact', head: true }).eq('status', 'active'),
@@ -26,14 +28,17 @@ export default function Home({ onNavigate, isAdmin = true }) {
       supabase.from('payments').select('amount, status'),
       supabase.from('projects').select('*, clients(name)').eq('status', 'active').order('created_at', { ascending: false }).limit(5),
       supabase.from('tasks').select('*, projects(name)').neq('status', 'done').order('due_date').limit(5),
+      supabase.from('payments').select('id, name, amount, project_id, projects(name)').eq('status', 'pending_approval'),
     ])
 
     const doneTasks = (tasks || []).filter(t => t.status === 'done').length
     const totalTasks = (tasks || []).length
     const paidBilling = (billing || []).filter(b => b.status === 'paid').reduce((s, b) => s + Number(b.amount || 0), 0)
     const pendingBilling = (billing || []).filter(b => b.status !== 'paid').reduce((s, b) => s + Number(b.amount || 0), 0)
+    const pendingApprovalCount = (pendingApproval || []).length
 
-    setStats({ clients: clients || 0, projects: projects || 0, tasks: totalTasks, doneTasks, pendingBilling, paidBilling })
+    setStats({ clients: clients || 0, projects: projects || 0, tasks: totalTasks, doneTasks, pendingBilling, paidBilling, pendingApproval: pendingApprovalCount })
+    setPendingApprovalItems(pendingApproval || [])
     setRecentProjects(recent || [])
     setUpcomingTasks(upcoming || [])
 
@@ -82,6 +87,25 @@ export default function Home({ onNavigate, isAdmin = true }) {
           {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
         </p>
       </div>
+
+      {/* התראת אישור גבייה */}
+      {isAdmin && pendingApprovalItems.length > 0 && (
+        <button onClick={() => onNavigate('billing')}
+          className="w-full mb-6 bg-violet-50 border border-violet-200 rounded-2xl p-4 flex items-center gap-4 hover:bg-violet-100 transition-all group text-left">
+          <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center shrink-0">
+            <AlertCircle size={20} className="text-violet-600" strokeWidth={1.8} />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-violet-800">
+              {pendingApprovalItems.length} payment{pendingApprovalItems.length > 1 ? 's' : ''} waiting for your approval
+            </p>
+            <p className="text-xs text-violet-600 mt-0.5">
+              {pendingApprovalItems.map(p => `${p.name} — ${p.projects?.name || ''}`).join(' · ')}
+            </p>
+          </div>
+          <ArrowUpRight size={16} className="text-violet-400 group-hover:text-violet-600 transition shrink-0" />
+        </button>
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">

@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { LayoutDashboard, Users, FolderKanban, Boxes, Wallet, CalendarDays, BookOpen, BookUser, Receipt, FileBarChart, BarChart3, Bell, LogOut, Menu, X, HelpCircle } from 'lucide-react'
+import { supabase } from '../lib/supabase'
 import Home from './Home'
 import Clients from './Clients'
 import Projects from './Projects'
@@ -35,6 +36,19 @@ export default function Dashboard({ userRole, onLogout }) {
 
   const [active, setActive] = useState(isAdmin ? 'home' : 'projects')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [pendingApprovalCount, setPendingApprovalCount] = useState(0)
+
+  // ספירת תשלומים ממתינים לאישור
+  useEffect(() => {
+    if (!isAdmin) return
+    async function checkPending() {
+      const { count } = await supabase.from('payments').select('*', { count: 'exact', head: true }).eq('status', 'pending_approval')
+      setPendingApprovalCount(count || 0)
+    }
+    checkPending()
+    const interval = setInterval(checkPending, 60000)
+    return () => clearInterval(interval)
+  }, [isAdmin])
 
   const renderPage = () => {
     // Block non-admin from admin pages
@@ -90,8 +104,13 @@ export default function Dashboard({ userRole, onLogout }) {
                   : 'text-[#6B7A90] hover:bg-[#0F1D32] hover:text-[#A0B0C4]'
               }`}>
               <Icon size={17} strokeWidth={1.8} className="shrink-0" />
-              <span>{label}</span>
-              {active === id && (
+              <span className="flex-1 text-left">{label}</span>
+              {id === 'billing' && pendingApprovalCount > 0 && (
+                <span className="ml-auto bg-violet-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1">
+                  {pendingApprovalCount}
+                </span>
+              )}
+              {active === id && id !== 'billing' && (
                 <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#B8960B]" />
               )}
             </button>
@@ -130,8 +149,14 @@ export default function Dashboard({ userRole, onLogout }) {
               className="w-9 h-9 rounded-xl bg-white hover:bg-[#F3F3F3] flex items-center justify-center transition-colors" aria-label="Help Guide">
               <HelpCircle size={16} className="text-[#6B7A90]" />
             </button>
-            <button className="w-9 h-9 rounded-xl bg-white hover:bg-[#F3F3F3] flex items-center justify-center transition-colors" aria-label="Notifications">
+            <button onClick={() => { if (pendingApprovalCount > 0) setActive('billing') }}
+              className="w-9 h-9 rounded-xl bg-white hover:bg-[#F3F3F3] flex items-center justify-center transition-colors relative" aria-label="Notifications">
               <Bell size={16} className="text-[#6B7A90]" />
+              {pendingApprovalCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-violet-500 text-white text-[9px] font-bold min-w-[16px] h-[16px] rounded-full flex items-center justify-center px-0.5">
+                  {pendingApprovalCount}
+                </span>
+              )}
             </button>
           </div>
         </div>
