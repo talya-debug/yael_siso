@@ -166,7 +166,7 @@ export default function Clients() {
   const [showForm, setShowForm] = useState(false)
   const [editClient, setEditClient] = useState(null)
   const [step, setStep] = useState(1)
-  const [form, setForm] = useState({ name: '', phone: '', email: '', address: '', notes: '', budget: '' })
+  const [form, setForm] = useState({ name: '', phone: '', email: '', address: '', notes: '', budget: '', drive_link: '' })
 
   // תכולות לבחירה
   const [contentsTree, setContentsTree] = useState([])
@@ -203,7 +203,7 @@ export default function Clients() {
   }
 
   function openNew() {
-    setForm({ name: '', phone: '', email: '', address: '', notes: '', budget: '' })
+    setForm({ name: '', phone: '', email: '', address: '', notes: '', budget: '', drive_link: '' })
     setSelectedScope(new Set())
     setEditClient(null)
     setStep(1)
@@ -211,7 +211,7 @@ export default function Clients() {
   }
 
   function openEdit(c) {
-    setForm({ name: c.name, phone: c.phone || '', email: c.email || '', address: c.address || '', notes: c.notes || '', budget: c.budget || '' })
+    setForm({ name: c.name, phone: c.phone || '', email: c.email || '', address: c.address || '', notes: c.notes || '', budget: c.budget || '', drive_link: c.drive_link || '' })
     setEditClient(c)
     setStep(1)
     setShowForm(true)
@@ -594,8 +594,8 @@ export default function Clients() {
                       {c.address && <span className="text-xs text-[#6B7A90]">📍 {c.address}</span>}
                     </div>
                     {c.notes && <p className="text-xs text-[#6B7A90] mt-0.5 italic">{c.notes}</p>}
-                    {/* Budget — inline editable */}
-                    <div className="flex items-center gap-2 mt-1.5">
+                    {/* Budget — inline editable + VAT */}
+                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                       <span className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Budget:</span>
                       <div className="flex items-center gap-1">
                         <span className="text-xs text-[#6B7A90]">₪</span>
@@ -613,7 +613,19 @@ export default function Clients() {
                           className="w-24 bg-[#F3F3F3] rounded-lg px-2 py-1 text-sm font-semibold text-[#091426] border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20"
                         />
                       </div>
+                      {c.budget > 0 && (
+                        <span className="text-xs text-[#6B7A90]">
+                          (incl. VAT: ₪{Math.round(c.budget * 1.18).toLocaleString()})
+                        </span>
+                      )}
                     </div>
+                    {/* Drive link */}
+                    {c.drive_link && (
+                      <a href={c.drive_link} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-[#7B5800] hover:text-[#B8960B] mt-1 font-medium">
+                        📁 Google Drive Folder
+                      </a>
+                    )}
                   </div>
                 </div>
 
@@ -670,6 +682,7 @@ export default function Clients() {
                   { key: 'email', label: 'Email', placeholder: 'email@example.com' },
                   { key: 'address', label: 'Address', placeholder: 'Street, City' },
                   { key: 'budget', label: 'Project Budget (₪)', placeholder: '80000', type: 'number' },
+                  { key: 'drive_link', label: 'Google Drive Folder Link', placeholder: 'https://drive.google.com/...' },
                 ].map(f => (
                   <div key={f.key}>
                     <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">{f.label}{f.required && ' *'}</label>

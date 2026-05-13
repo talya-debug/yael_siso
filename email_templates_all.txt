@@ -1,0 +1,81 @@
+כל נוסחי המיילים שנשלחים מהמערכת
+=====================================
+כולם יוצאים מ: hello@yaelsiso.com
+כולם כוללים: לוגו + אפשרות לצרף קבצים
+
+
+=== 1. חתימה דיגיטלית (Projects → Task → Send for Signature) ===
+
+Dear [שם לקוח],
+
+Please review and sign the following document:
+
+Task: [שם משימה]
+Phase: [שם שלב]
+
+Click the link below to sign:
+[לינק חתימה]
+
+If you have any questions, please don't hesitate to reach out.
+
+Best regards,
+Yael Siso | Interior Design
+
++ כפתור "Review & Sign"
+
+
+=== 2. גבייה מלקוחות — אבני דרך (Client Billing → Send) ===
+
+Hi [שם לקוח],
+
+Hope that you are doing well.
+
+This email concerns the payment for [שם אבן דרך].
+
+Details:
+• Amount: ₪[סכום]
+• Due date: [תאריך גבייה]
+
+THANKS!
+
+
+=== 3. דרישת עמלה מספקים (Supplier Billing → Send) ===
+
+שלום [שם ספק],
+
+בהמשך להזמנה שבוצעה עבור פרויקט "[שם פרויקט]" ([תיאור]),
+בסך ₪[סכום הזמנה],
+
+נבקש להעביר את תשלום העמלה בגובה [אחוז]% — סה"כ ₪[סכום עמלה].
+
+פרטים:
+• סכום ההזמנה: ₪[סכום]
+• אחוז עמלה: [אחוז]%
+• סכום העמלה: ₪[סכום עמלה]
+
+נודה להעברה בהקדם.
+
+בברכה,
+יעל סיסו — עיצוב פנים
+
+
+=== 4. בקשת תשלום מתקציב (Projects → Budget → Payment → Send) ===
+
+Hi [שם לקוח],
+
+Hope that you are doing well.
+
+This email concerns the payment for the [קטגוריה].
+
+Details of [קטגוריה] payment:
+• Total amount (including tax): ₪[סכום כולל מע"מ]
+• Deposit already paid: ₪[שולם]
+• Remaining balance: ₪[סכום תשלום נוכחי]
+
+Bank details:
+Name: [שם בעל חשבון]
+Bank: [שם בנק]
+Account No.: [מספר חשבון]
+Branch No.: [סניף]
+
+THANKS!

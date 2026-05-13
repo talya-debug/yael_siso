@@ -22,7 +22,7 @@ const CATEGORIES = [
 ]
 
 // מודאל הוספה / עריכת ספק
-function SupplierModal({ supplier, onClose, onSaved }) {
+function SupplierModal({ supplier, onClose, onSaved, isAdmin = true }) {
   const isEdit = !!supplier?.id
   const [form, setForm] = useState({
     name: '',
@@ -128,15 +128,17 @@ function SupplierModal({ supplier, onClose, onSaved }) {
               <input value={form.website} onChange={e => set('website', e.target.value)}
                 placeholder="https://..." className={inp} />
             </div>
-            <div>
-              <label className={lbl}>Commission (%)</label>
-              <input type="number" value={form.commission_pct} onChange={e => set('commission_pct', e.target.value)}
-                placeholder="10" min="0" max="100" className={inp} />
-            </div>
+            {isAdmin && (
+              <div>
+                <label className={lbl}>Commission (%)</label>
+                <input type="number" value={form.commission_pct} onChange={e => set('commission_pct', e.target.value)}
+                  placeholder="10" min="0" max="100" className={inp} />
+              </div>
+            )}
           </div>
 
           {/* פרטי בנק — Admin בלבד */}
-          <div className="border-t border-[#F3F3F3] pt-4 mt-4">
+          {isAdmin && <div className="border-t border-[#F3F3F3] pt-4 mt-4">
             <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mb-3">Bank Details (Admin Only)</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
@@ -160,7 +162,7 @@ function SupplierModal({ supplier, onClose, onSaved }) {
                   placeholder="שם בעל החשבון" className={inp} />
               </div>
             </div>
-          </div>
+          </div>}
 
           <div>
             <label className={lbl}>Notes</label>
@@ -340,12 +342,10 @@ export default function Suppliers({ isAdmin = true }) {
           <h1 className="text-2xl font-bold text-[#091426] font-[Manrope] tracking-tight">Supplier Directory</h1>
           <p className="text-sm text-[#6B7A90] mt-0.5">{suppliers.length} suppliers in directory</p>
         </div>
-        {isAdmin && (
-          <button onClick={() => setModal('add')}
-            className="flex items-center gap-2 bg-[#091426] text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all">
-            <Plus size={16} strokeWidth={1.8} /> New Supplier
-          </button>
-        )}
+        <button onClick={() => setModal('add')}
+          className="flex items-center gap-2 bg-[#091426] text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all">
+          <Plus size={16} strokeWidth={1.8} /> New Supplier
+        </button>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
@@ -395,6 +395,7 @@ export default function Suppliers({ isAdmin = true }) {
           supplier={modal === 'add' ? null : modal}
           onClose={() => setModal(null)}
           onSaved={handleSaved}
+          isAdmin={isAdmin}
         />
       )}
 
