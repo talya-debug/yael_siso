@@ -644,6 +644,14 @@ function GanttView({ tasks, project, onSelectTask }) {
  const grouped = groupByPhase(tasks)
  const todayPct = Math.max(0, Math.min(100, (todayDay / totalDays) * 100))
 
+ // דדליין — קו אדום בגאנט
+ let deadlineDay = null, deadlinePct = null
+ if (project?.end_date) {
+  const dEnd = new Date(project.end_date); dEnd.setHours(0, 0, 0, 0)
+  deadlineDay = Math.round((dEnd - pStart) / 86400000)
+  deadlinePct = Math.max(0, Math.min(100, (deadlineDay / totalDays) * 100))
+ }
+
  // חישוב חודשים לציר זמן — קריא יותר משבועות
  const months = []
  const mStart = new Date(pStart)
@@ -683,6 +691,11 @@ function GanttView({ tasks, project, onSelectTask }) {
       {todayDay >= 0 && todayDay <= totalDays && (
        <div className="absolute top-0 bottom-0 flex flex-col items-center z-10" style={{ left: `${todayPct}%` }}>
         <span className="text-[10px] text-red-500 font-bold whitespace-nowrap bg-red-50 px-1.5 py-0.5 rounded-b-md">Today</span>
+       </div>
+      )}
+      {deadlinePct != null && deadlineDay <= totalDays + 10 && (
+       <div className="absolute top-0 bottom-0 flex flex-col items-center z-10" style={{ left: `${deadlinePct}%` }}>
+        <span className="text-[10px] text-orange-600 font-bold whitespace-nowrap bg-orange-50 px-1.5 py-0.5 rounded-b-md">Deadline</span>
        </div>
       )}
      </div>
@@ -742,6 +755,10 @@ function GanttView({ tasks, project, onSelectTask }) {
            {todayDay >= 0 && todayDay <= totalDays && (
             <div className="absolute top-0 bottom-0 w-0.5 bg-red-400/40 z-10" style={{ left: `${todayPct}%` }} />
            )}
+           {/* קו דדליין */}
+           {deadlinePct != null && (
+            <div className="absolute top-0 bottom-0 w-0.5 bg-orange-400/60 z-10" style={{ left: `${deadlinePct}%` }} />
+           )}
            {/* בלוק המשימה */}
            <div className="absolute top-2 bottom-2 rounded-md flex items-center justify-end pr-1 overflow-hidden"
             style={{
@@ -776,6 +793,10 @@ function GanttView({ tasks, project, onSelectTask }) {
      <div className="flex items-center gap-1.5">
       <div className="w-0.5 h-3.5 bg-red-400" />
       <span className="text-[11px] text-[#6B7A90]">Today</span>
+     </div>
+     <div className="flex items-center gap-1.5">
+      <div className="w-0.5 h-3.5 bg-orange-400" />
+      <span className="text-[11px] text-[#6B7A90]">Deadline</span>
      </div>
     </div>
    </div>

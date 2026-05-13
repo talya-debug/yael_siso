@@ -115,9 +115,17 @@ function SupplierModal({ supplier, onClose, onSaved, isAdmin = true }) {
 
           <div>
             <label className={lbl}>Category</label>
-            <select value={form.category} onChange={e => set('category', e.target.value)} className={inp}>
+            <select value={CATEGORIES.includes(form.category) ? form.category : '__custom__'} onChange={e => {
+              if (e.target.value === '__custom__') set('category', '')
+              else set('category', e.target.value)
+            }} className={inp}>
               {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              <option value="__custom__">+ Custom Category...</option>
             </select>
+            {!CATEGORIES.includes(form.category) && (
+              <input value={form.category} onChange={e => set('category', e.target.value)}
+                placeholder="Type custom category..." className={inp + ' mt-2'} autoFocus />
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
