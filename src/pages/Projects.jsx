@@ -1959,6 +1959,9 @@ function ProjectDetail({ project, clients, onBack }) {
  const [showNewTask, setShowNewTask]   = useState(false)
  const [taskForm, setTaskForm]      = useState({ name: '', due_date: '', assigned_to: '', priority: 'normal', phase_name: '' })
  const [projectStatus, setProjectStatus] = useState(project.status)
+ const [projectName, setProjectName] = useState(project.name)
+ const [editingName, setEditingName] = useState(false)
+ const [projectEndDate, setProjectEndDate] = useState(project.end_date || '')
  const [knowledgeItems, setKnowledgeItems] = useState([])
 
  // ── Import Scope ──
@@ -2071,6 +2074,18 @@ function ProjectDetail({ project, clients, onBack }) {
  async function updateProjectStatus(status) {
   await supabase.from('projects').update({ status }).eq('id', project.id)
   setProjectStatus(status)
+ }
+
+ async function saveProjectName() {
+  if (!projectName.trim()) return
+  await supabase.from('projects').update({ name: projectName.trim() }).eq('id', project.id)
+  project.name = projectName.trim()
+  setEditingName(false)
+ }
+
+ async function saveProjectEndDate(val) {
+  setProjectEndDate(val)
+  await supabase.from('projects').update({ end_date: val || null }).eq('id', project.id)
  }
 
  // ── בדיקה אם יש תשלומים לפרויקט ──
@@ -2280,7 +2295,15 @@ function ProjectDetail({ project, clients, onBack }) {
    <div className="flex items-center gap-2 mb-5 flex-wrap gap-y-2">
     <button onClick={onBack} className="text-[#6B7A90] hover:text-[#091426] transition text-sm">Projects</button>
     <ChevronRight size={14} className="text-[#6B7A90]" />
-    <span className="text-[#091426] font-semibold text-sm">{project.name}</span>
+    {editingName ? (
+     <input value={projectName} onChange={e => setProjectName(e.target.value)}
+      onBlur={saveProjectName} onKeyDown={e => e.key === 'Enter' && saveProjectName()}
+      autoFocus className="text-[#091426] font-semibold text-sm bg-[#F3F3F3] rounded-lg px-2 py-1 border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 w-48" />
+    ) : (
+     <button onClick={() => setEditingName(true)} className="text-[#091426] font-semibold text-sm hover:bg-[#F3F3F3] px-2 py-1 rounded-lg transition flex items-center gap-1" title="Click to rename">
+      {projectName} <Pencil size={10} className="text-[#6B7A90]" />
+     </button>
+    )}
 
     <select value={projectStatus} onChange={e => updateProjectStatus(e.target.value)}
      className={`text-xs px-2.5 py-1 rounded-full font-medium cursor-pointer focus:outline-none ml-1 ${PROJECT_STATUS[projectStatus]?.chip}`}>
@@ -2294,6 +2317,11 @@ function ProjectDetail({ project, clients, onBack }) {
        <Calendar size={11} strokeWidth={1.8} /> {fmtDate(project.start_date)}
       </span>
      )}
+     <div className="flex items-center gap-1">
+      <span className="text-[10px] text-[#6B7A90] font-medium">Deadline:</span>
+      <input type="date" value={projectEndDate} onChange={e => saveProjectEndDate(e.target.value)}
+       className="text-xs text-[#6B7A90] bg-[#F3F3F3] rounded-lg px-2 py-1 border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 cursor-pointer" />
+     </div>
 
      {/* toggle תצוגה */}
      <div className="flex bg-[#F3F3F3] rounded-xl p-0.5 flex-wrap">
@@ -2695,38 +2723,69 @@ export default function Projects() {
     </div>
    )}
 
-   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-    {projects.filter(p => {
+   {(() => {
+    const filtered = projects.filter(p => {
      if (!search.trim()) return true
      const q = search.toLowerCase()
      return p.name.toLowerCase().includes(q) || (p.clients?.name || '').toLowerCase().includes(q)
-    }).map(p => {
-     const meta = PROJECT_STATUS[p.status] || PROJECT_STATUS.active
-     return (
-      <div key={p.id} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-5 cursor-pointer hover:shadow-[0_4px_30px_rgba(9,20,38,0.08)] transition-all group relative"
-       onClick={() => setSelected(p)}>
-       <button onClick={e => { e.stopPropagation(); deleteProject(p.id) }}
-        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition text-[#6B7A90] hover:text-red-500 p-1 rounded-lg hover:bg-red-50">
-        <Trash2 size={13} strokeWidth={1.8} />
-       </button>
-       <div className="flex items-start justify-between mb-3">
-        <div className="w-10 h-10 rounded-xl bg-[#F3F3F3] flex items-center justify-center text-lg shrink-0">📐</div>
-        <span className={`inline-flex items-center text-[10px] font-bold tracking-wider px-2.5 py-0.5 rounded-full ${meta.chip}`}>
-         {meta.label}
-        </span>
+    })
+    // קיבוץ לפי לקוח
+    const byClient = {}
+    filtered.forEach(p => {
+     const clientName = p.clients?.name || 'No Client'
+     const clientId = p.client_id || 'none'
+     if (!byClient[clientId]) byClient[clientId] = { name: clientName, projects: [] }
+     byClient[clientId].projects.push(p)
+    })
+
+    return (
+     <div className="space-y-4">
+      {Object.entries(byClient).map(([clientId, group]) => (
+       <div key={clientId} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] overflow-hidden">
+        {/* כותרת לקוח */}
+        <div className="flex items-center gap-3 px-5 py-3 bg-[#F9F9F9] border-b border-[#F3F3F3]">
+         <div className="w-8 h-8 rounded-full bg-[#091426] flex items-center justify-center text-white text-xs font-bold shrink-0">
+          {group.name.charAt(0)}
+         </div>
+         <div className="flex-1">
+          <span className="font-semibold text-[#091426] text-sm">{group.name}</span>
+          <span className="text-xs text-[#6B7A90] ml-2">{group.projects.length} {group.projects.length === 1 ? 'project' : 'projects'}</span>
+         </div>
+        </div>
+        {/* פרויקטים */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4">
+         {group.projects.map(p => {
+          const meta = PROJECT_STATUS[p.status] || PROJECT_STATUS.active
+          return (
+           <div key={p.id} className="bg-[#F9F9F9] rounded-xl p-4 cursor-pointer hover:bg-[#F3F3F3] transition-all group relative"
+            onClick={() => setSelected(p)}>
+            <button onClick={e => { e.stopPropagation(); deleteProject(p.id) }}
+             className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition text-[#6B7A90] hover:text-red-500 p-1 rounded-lg hover:bg-red-50">
+             <Trash2 size={13} strokeWidth={1.8} />
+            </button>
+            <div className="flex items-center justify-between mb-2">
+             <span className="text-lg">📐</span>
+             <span className={`inline-flex items-center text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full ${meta.chip}`}>
+              {meta.label}
+             </span>
+            </div>
+            <h3 className="font-semibold text-[#091426] font-[Manrope] tracking-tight text-sm mb-1">{p.name}</h3>
+            {(p.start_date || p.end_date) && (
+             <p className="text-xs text-[#6B7A90] flex items-center gap-1">
+              <Calendar size={10} strokeWidth={1.8} />
+              {p.start_date && fmtDate(p.start_date)}
+              {p.end_date && <> – {fmtDate(p.end_date)}</>}
+             </p>
+            )}
+           </div>
+          )
+         })}
+        </div>
        </div>
-       <h3 className="font-semibold text-[#091426] font-[Manrope] tracking-tight mb-0.5">{p.name}</h3>
-       <p className="text-sm text-[#6B7A90]">{p.clients?.name}</p>
-       {p.start_date && (
-        <p className="text-xs text-[#6B7A90] mt-2 flex items-center gap-1">
-         <Calendar size={10} strokeWidth={1.8} /> {fmtDate(p.start_date)}
-         {p.end_date && <> – {fmtDate(p.end_date)}</>}
-        </p>
-       )}
-      </div>
-     )
-    })}
-   </div>
+      ))}
+     </div>
+    )
+   })()}
 
    {/* Modal פרויקט חדש */}
    {showNew && (
