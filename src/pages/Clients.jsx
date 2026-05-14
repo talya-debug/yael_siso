@@ -407,6 +407,7 @@ export default function Clients() {
           status: r.milestone === '__advance__' ? 'sent' : 'pending',
           due_date: null,
           phase_name: r.milestone === '__advance__' ? null : (r.milestone || null),
+          phase_trigger: r.milestone === '__advance__' ? null : (r.phase_trigger || 'end'),
         }))
 
       if (paymentRows.length > 0) {
@@ -857,6 +858,15 @@ export default function Clients() {
                               <option key={phase} value={phase}>{phase}</option>
                             ))}
                           </select>
+                          {/* טריגר — התחלה/סיום שלב */}
+                          {row.milestone !== '__advance__' && (
+                            <select value={row.phase_trigger || 'end'}
+                              onChange={e => updateBillingRow(i, 'phase_trigger', e.target.value)}
+                              className="bg-[#F3F3F3] rounded-xl px-2 py-2 text-[11px] text-[#6B7A90] border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 transition shrink-0">
+                              <option value="end">Phase End</option>
+                              <option value="start">Phase Start</option>
+                            </select>
+                          )}
                           {/* מחיקה */}
                           {billingRows.length > 1 && (
                             <button onClick={() => removeBillingRow(i)}

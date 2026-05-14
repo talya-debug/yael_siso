@@ -2289,6 +2289,7 @@ function ProjectDetail({ project, clients, onBack }) {
      amount: Math.round(price * Number(r.pct) / 100),
      status: 'pending',
      phase_name: r.phase_name || null,
+     phase_trigger: r.phase_trigger || 'end',
     }))
    if (items.length > 0) {
     await supabase.from('payments').insert(items)
@@ -2646,21 +2647,28 @@ function ProjectDetail({ project, clients, onBack }) {
        </div>
        <div className="space-y-2">
         <div className="grid grid-cols-12 gap-2 text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] px-1">
-         <span className="col-span-6">Milestone</span>
+         <span className="col-span-5">Milestone</span>
          <span className="col-span-2 text-center">%</span>
-         <span className="col-span-3 text-right">Amount</span>
+         <span className="col-span-2 text-right">Amount</span>
+         <span className="col-span-2 text-center">Trigger</span>
         </div>
         {billingRows.map((r, i) => (
          <div key={i} className="grid grid-cols-12 gap-2 items-center">
           <input value={r.name} onChange={e => setBillingRows(prev => prev.map((row, idx) => idx === i ? { ...row, name: e.target.value } : row))}
-           className="col-span-6 bg-[#F3F3F3] rounded-xl px-2.5 py-2 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
+           className="col-span-5 bg-[#F3F3F3] rounded-xl px-2.5 py-2 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20" />
           <div className="col-span-2 flex items-center gap-1">
            <input type="number" value={r.pct} onChange={e => setBillingRows(prev => prev.map((row, idx) => idx === i ? { ...row, pct: e.target.value } : row))}
             className="w-full bg-[#F3F3F3] rounded-xl px-2 py-2 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 text-center" />
           </div>
-          <div className="col-span-3 text-sm text-[#6B7A90] font-medium text-right">
+          <div className="col-span-2 text-sm text-[#6B7A90] font-medium text-right">
            {billingPrice ? fmtCurrency(Math.round(Number(billingPrice) * Number(r.pct || 0) / 100)) : '—'}
           </div>
+          <select value={r.phase_trigger || 'end'}
+           onChange={e => setBillingRows(prev => prev.map((row, idx) => idx === i ? { ...row, phase_trigger: e.target.value } : row))}
+           className="col-span-2 bg-[#F3F3F3] rounded-xl px-1 py-2 text-[11px] text-[#6B7A90] border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20">
+           <option value="end">End</option>
+           <option value="start">Start</option>
+          </select>
           <button onClick={() => setBillingRows(prev => prev.filter((_, idx) => idx !== i))}
            className="col-span-1 text-[#6B7A90] hover:text-red-500 transition flex justify-center">
            <X size={14} strokeWidth={1.8} />
