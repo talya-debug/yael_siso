@@ -164,9 +164,9 @@ function SupplierModal({ supplier, onClose, onSaved, isAdmin = true }) {
             )}
           </div>
 
-          {/* פרטי בנק — Admin בלבד */}
-          {isAdmin && <div className="border-t border-[#F3F3F3] pt-4 mt-4">
-            <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mb-3">Bank Details (Admin Only)</p>
+          {/* פרטי בנק — גלוי לכולם */}
+          <div className="border-t border-[#F3F3F3] pt-4 mt-4">
+            <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mb-3">Bank Details</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className={lbl}>Bank Name</label>
@@ -189,7 +189,7 @@ function SupplierModal({ supplier, onClose, onSaved, isAdmin = true }) {
                   placeholder="שם בעל החשבון" className={inp} />
               </div>
             </div>
-          </div>}
+          </div>
 
           <div>
             <label className={lbl}>Notes</label>
