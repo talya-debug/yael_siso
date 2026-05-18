@@ -59,7 +59,7 @@ export default function FinanceDashboard() {
     // Check for project-specific rate override first
     if (projectId) {
       const override = rateOverrides.find(o => o.project_id === projectId && o.name === `RATE:${role}`)
-      if (override) return Number(override.amount)
+      if (override && Number(override.amount)) return Number(override.amount)
     }
     const r = rates.find(r => r.role === role)
     return r ? Number(r.rate) : 0

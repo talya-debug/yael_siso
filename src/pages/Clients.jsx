@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { VAT_RATE } from '../lib/config'
 import { ChevronRight, ChevronDown, Check, Building2 } from 'lucide-react'
 
 const PROPOSAL_STATUS = {
@@ -197,6 +198,7 @@ export default function Clients() {
   const [creatingProject, setCreatingProject] = useState(false)
 
   // עריכת תכולות ללקוח קיים
+  const [formErrors, setFormErrors] = useState({})
   const [showScopeEdit, setShowScopeEdit] = useState(false)
   const [scopeEditClient, setScopeEditClient] = useState(null)
   const [scopeEditProposal, setScopeEditProposal] = useState(null)
@@ -244,6 +246,13 @@ export default function Clients() {
 
   async function save() {
     if (!form.name.trim()) return
+
+    // ולידציה
+    const errors = {}
+    if (form.email && !form.email.includes('@')) errors.email = 'Email must contain @'
+    if (form.phone && !/^[\d\s\-+()]*$/.test(form.phone)) errors.phone = 'Phone must contain only digits, dashes, + and spaces'
+    if (Object.keys(errors).length > 0) { setFormErrors(errors); return }
+    setFormErrors({})
 
     let clientId = editClient?.id
     const payload = { ...form, budget: form.budget ? Number(form.budget) : null }
@@ -646,7 +655,7 @@ export default function Clients() {
                       </div>
                       {c.budget > 0 && (
                         <span className="text-xs text-[#6B7A90]">
-                          (incl. VAT: ₪{Math.round(c.budget * 1.18).toLocaleString()})
+                          (incl. VAT: ₪{Math.round(c.budget * (1 + VAT_RATE)).toLocaleString()})
                         </span>
                       )}
                     </div>
@@ -717,9 +726,10 @@ export default function Clients() {
                 ].map(f => (
                   <div key={f.key}>
                     <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">{f.label}{f.required && ' *'}</label>
-                    <input type={f.type || 'text'} value={form[f.key]} onChange={e => setForm({ ...form, [f.key]: e.target.value })}
-                      className="w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 transition"
+                    <input type={f.type || 'text'} value={form[f.key]} onChange={e => { setForm({ ...form, [f.key]: e.target.value }); setFormErrors(prev => ({ ...prev, [f.key]: undefined })) }}
+                      className={`w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 transition ${formErrors[f.key] ? 'ring-2 ring-red-300' : ''}`}
                       placeholder={f.placeholder} />
+                    {formErrors[f.key] && <p className="text-xs text-red-500 mt-1">{formErrors[f.key]}</p>}
                   </div>
                 ))}
                 <div>

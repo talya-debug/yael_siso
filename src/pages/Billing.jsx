@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../lib/supabase'
+import { VAT_RATE } from '../lib/config'
 import { Plus, X, Send, CheckCircle2, Clock, AlertCircle, Circle, Download, ChevronDown, ChevronRight, FileText, MessageSquare } from 'lucide-react'
 
 // תבנית ברירת מחדל — 4 תשלומים לפי אבני דרך
@@ -273,6 +274,9 @@ function PaymentRow({ payment, project, clients, onEdit, onStatusChange, onTerms
         {/* תאריך השלמת שלב */}
         <span className="text-xs text-[#6B7A90] shrink-0 min-w-[80px] text-center">
           {payment.phase_completed_at ? fmtDate(payment.phase_completed_at) : '—'}
+          {payment.phase_completed_at && new Date(payment.phase_completed_at) > new Date() && (
+            <span className="ml-1 text-[9px] bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded-full font-bold">Future date</span>
+          )}
         </span>
 
         {/* תנאי תשלום — דרופדאון */}
@@ -472,6 +476,7 @@ export default function Billing() {
   }
 
   async function deletePayment(id) {
+    if (!window.confirm('Are you sure? This cannot be undone.')) return
     await supabase.from('payments').delete().eq('id', id)
     setPayments(prev => prev.filter(p => p.id !== id))
   }
@@ -484,7 +489,7 @@ export default function Billing() {
     const client = clients[project?.id]
     const due = calcDueDate(payment)
     const amountBeforeVat = Number(payment.amount || 0)
-    const vat = Math.round(amountBeforeVat * 0.18)
+    const vat = Math.round(amountBeforeVat * VAT_RATE)
     const totalWithVat = amountBeforeVat + vat
     setEmailTo(client?.email || '')
     setEmailSubject(`Payment Request: ${payment.name} — ${project?.name || ''}`)
@@ -496,7 +501,7 @@ This email concerns the payment for ${payment.name}.
 
 Details:
 - Amount before VAT: ${fmt(amountBeforeVat)}
-- VAT (18%): ${fmt(vat)}
+- VAT (${Math.round(VAT_RATE * 100)}%): ${fmt(vat)}
 - Total including VAT: ${fmt(totalWithVat)}
 - Due date: ${due ? fmtDate(due) : 'Upon receipt'}
 

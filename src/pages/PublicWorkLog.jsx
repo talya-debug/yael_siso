@@ -9,6 +9,7 @@ export default function PublicWorkLog() {
   const [workers, setWorkers]   = useState([])
   const [loading, setLoading]   = useState(true)
   const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState('')
   const [honeypot, setHoneypot] = useState('')
   const [form, setForm] = useState({
     project_id: '',
@@ -35,14 +36,21 @@ export default function PublicWorkLog() {
     if (honeypot) return
     if (!form.project_id || !form.worker_name || !form.hours || !form.description.trim()) return
 
-    await supabase.from('work_log').insert({
-      project_id: form.project_id,
-      work_date: form.work_date,
-      role: form.role,
-      worker_name: form.worker_name,
-      hours: Number(form.hours),
-      description: form.description,
-    })
+    try {
+      setError('')
+      const { error: dbError } = await supabase.from('work_log').insert({
+        project_id: form.project_id,
+        work_date: form.work_date,
+        role: form.role,
+        worker_name: form.worker_name,
+        hours: Number(form.hours),
+        description: form.description,
+      })
+      if (dbError) throw dbError
+    } catch (err) {
+      setError('Failed to save. Please try again.')
+      return
+    }
 
     setSubmitted(true)
     setTimeout(() => {
@@ -81,6 +89,7 @@ export default function PublicWorkLog() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-6 space-y-4">
+            {error && <div className="bg-red-50 text-red-600 text-sm rounded-xl px-4 py-3">{error}</div>}
             <div>
               <label className={lbl}>Your Name *</label>
               <select value={form.worker_name} onChange={e => setForm({...form, worker_name: e.target.value})} className={inp} required>

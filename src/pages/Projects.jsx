@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
+import { VAT_RATE } from '../lib/config'
 import {
  ChevronRight, ChevronDown, CheckCircle2, Circle, Clock, AlertCircle,
  Calendar, User, MessageSquare, Plus, X, Trash2, Send,
@@ -76,7 +77,7 @@ function buildGantt(tasks, projectStartDate) {
 }
 
 // ── פאנל פרטי משימה ──
-function TaskPanel({ task, onClose, onUpdate, client }) {
+function TaskPanel({ task, onClose, onUpdate, client, teamMembers = [] }) {
  const [name, setName]    = useState(task.name)
  const [editing, setEditing] = useState(false)
  const [logs, setLogs]    = useState([])
@@ -301,7 +302,17 @@ Yael Siso | Interior Design`)
       {/* סטטוס */}
       <div className="flex items-center gap-3">
        <span className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] w-20 shrink-0">Status</span>
-       <select value={task.status} onChange={e => updateField('status', e.target.value)}
+       <select value={task.status} onChange={async e => {
+        const newStatus = e.target.value
+        if (newStatus === 'blocked') {
+         const reason = window.prompt('Please enter the reason for blocking this task:')
+         if (!reason || !reason.trim()) { e.target.value = task.status; return }
+         await supabase.from('task_logs').insert({ task_id: task.id, note: `Blocked: ${reason.trim()}` })
+         await updateField('status', newStatus)
+        } else {
+         await updateField('status', newStatus)
+        }
+       }}
         className={`text-xs px-3 py-1.5 rounded-full font-medium border-0 cursor-pointer outline-none ${statMeta.color}`}>
         {Object.entries(STATUS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
        </select>
@@ -331,10 +342,11 @@ Yael Siso | Interior Design`)
       {/* אחראי */}
       <div className="flex items-center gap-3">
        <span className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] w-20 shrink-0">Assignee</span>
-       <input defaultValue={task.assigned_to || ''}
-        onBlur={e => updateField('assigned_to', e.target.value || null)}
-        placeholder="Name..."
-        className="text-xs bg-[#F3F3F3] rounded-xl px-3 py-1.5 border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 text-[#091426] flex-1" />
+       <select value={task.assigned_to || ''} onChange={e => updateField('assigned_to', e.target.value || null)}
+        className="text-xs bg-[#F3F3F3] rounded-xl px-3 py-1.5 border-0 cursor-pointer outline-none focus:ring-2 focus:ring-[#7B5800]/20 text-[#091426] flex-1">
+        <option value="">Unassigned</option>
+        {teamMembers.map(name => <option key={name} value={name}>{name}</option>)}
+       </select>
       </div>
       {/* תיאור */}
       <div>
@@ -592,7 +604,17 @@ function TaskCard({ task, subtasks, hasResource, onSelect, onStatusChange, onDel
     )}
 
     {/* סטטוס badge */}
-    <select value={task.status} onChange={e => { e.stopPropagation(); onStatusChange(task.id, e.target.value) }}
+    <select value={task.status} onChange={e => {
+     e.stopPropagation()
+     const newStatus = e.target.value
+     if (newStatus === 'blocked') {
+      const reason = window.prompt('Please enter the reason for blocking this task:')
+      if (!reason || !reason.trim()) { e.target.value = task.status; return }
+      onStatusChange(task.id, newStatus, reason.trim())
+     } else {
+      onStatusChange(task.id, newStatus)
+     }
+    }}
      onClick={e => e.stopPropagation()}
      className={`text-[10px] px-2 py-1 rounded-full font-bold tracking-wider border-0 cursor-pointer outline-none shrink-0 ${statMeta.color}`}>
      {Object.entries(STATUS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
@@ -1118,8 +1140,7 @@ function BudgetView({ project, client }) {
  const [budgetUploadingFile, setBudgetUploadingFile] = useState(false)
  const [expandedRows, setExpandedRows] = useState(new Set())
 
- // מע"מ 18% — ישראל
- const VAT_RATE = 18
+ // מע"מ — מיובא מ-config.js
 
  useEffect(() => { fetchBudget() }, [project.id])
 
@@ -1138,7 +1159,7 @@ function BudgetView({ project, client }) {
  // חישוב סטטוס אוטומטי — רק תשלומים עם status=paid נספרים
  function calcStatus(item) {
   const paid = payments.filter(p => p.budget_item_id === item.id && (p.status || 'draft') === 'paid').reduce((s, p) => s + Number(p.amount), 0)
-  const totalInclVat = Number(item.planned_amount) * (1 + VAT_RATE / 100)
+  const totalInclVat = Number(item.planned_amount) * (1 + VAT_RATE)
   if (paid >= totalInclVat) return 'paid'
   if (paid > 0) return 'partial'
   return 'pending'
@@ -1155,7 +1176,7 @@ function BudgetView({ project, client }) {
 
  // סיכומים — לפני מע"מ, כולל מע"מ, שולם, יתרה
  const totalBeforeVat = items.reduce((s, i) => s + Number(i.planned_amount), 0)
- const totalInclVat = totalBeforeVat * (1 + VAT_RATE / 100)
+ const totalInclVat = totalBeforeVat * (1 + VAT_RATE)
  const totalPaid = items.reduce((s, i) => s + getItemPaid(i), 0)
  const remaining = totalInclVat - totalPaid
  const progressPct = totalInclVat > 0 ? Math.min(100, Math.round(totalPaid / totalInclVat * 100)) : 0
@@ -1206,7 +1227,7 @@ function BudgetView({ project, client }) {
     category: addForm.category,
     supplier_id: addForm.supplier_id || null,
     planned_amount: Number(addForm.planned_amount),
-    vat_rate: VAT_RATE,
+    vat_rate: Math.round(VAT_RATE * 100),
     payment_terms: addForm.payment_terms,
     notes: addForm.notes,
     drive_link: addForm.drive_link,
@@ -1221,7 +1242,7 @@ function BudgetView({ project, client }) {
     category: addForm.category,
     supplier_id: addForm.supplier_id || null,
     planned_amount: Number(addForm.planned_amount),
-    vat_rate: VAT_RATE,
+    vat_rate: Math.round(VAT_RATE * 100),
     payment_terms: addForm.payment_terms,
     notes: addForm.notes,
     drive_link: addForm.drive_link,
@@ -1289,7 +1310,7 @@ function BudgetView({ project, client }) {
   if (item) {
    const updatedPayments = payments.map(p => p.id === paymentId ? { ...p, status: newStatus } : p)
    const paidSum = updatedPayments.filter(p => p.budget_item_id === itemId && (p.status || 'draft') === 'paid').reduce((s, p) => s + Number(p.amount), 0)
-   const totalWithVat = Number(item.planned_amount) * (1 + VAT_RATE / 100)
+   const totalWithVat = Number(item.planned_amount) * (1 + VAT_RATE)
    const itemStatus = paidSum >= totalWithVat ? 'paid' : paidSum > 0 ? 'partial' : 'pending'
    await supabase.from('budget_items').update({ status: itemStatus }).eq('id', itemId)
    setItems(prev => prev.map(i => i.id === itemId ? { ...i, status: itemStatus } : i))
@@ -1299,7 +1320,7 @@ function BudgetView({ project, client }) {
  // שליחת בקשת תשלום לתשלום בודד
  function openPaymentEmailModal(payment, item) {
   const supplier = suppliers.find(s => s.id === item.supplier_id)
-  const totalWithVat = Number(item.planned_amount) * (1 + VAT_RATE / 100)
+  const totalWithVat = Number(item.planned_amount) * (1 + VAT_RATE)
   const paidSoFar = getItemPaid(item)
   const bankInfo = supplier?.bank_name ? `\n\nBank details:\nName: ${supplier.account_holder || supplier.name || '—'}\nBank: ${supplier.bank_name || '—'}\nAccount No.: ${supplier.bank_account || '—'}\nBranch No.: ${supplier.bank_branch || '—'}` : ''
   setEmailTo(client?.email || '')
@@ -1318,7 +1339,7 @@ function BudgetView({ project, client }) {
   if (item) {
    const remainingPayments = payments.filter(p => p.budget_item_id === itemId && p.id !== paymentId && (p.status || 'draft') === 'paid')
    const newPaid = remainingPayments.reduce((s, p) => s + Number(p.amount), 0)
-   const totalWithVat = Number(item.planned_amount) * (1 + VAT_RATE / 100)
+   const totalWithVat = Number(item.planned_amount) * (1 + VAT_RATE)
    const newStatus = newPaid >= totalWithVat ? 'paid' : newPaid > 0 ? 'partial' : 'pending'
    await supabase.from('budget_items').update({ status: newStatus }).eq('id', itemId)
    setItems(prev => prev.map(i => i.id === itemId ? { ...i, status: newStatus } : i))
@@ -1376,7 +1397,7 @@ function BudgetView({ project, client }) {
      category,
      supplier_id: matchedSupplier?.id || null,
      planned_amount,
-     vat_rate: VAT_RATE,
+     vat_rate: Math.round(VAT_RATE * 100),
      payment_terms: notes,
      notes,
      drive_link: '',
@@ -1400,7 +1421,7 @@ function BudgetView({ project, client }) {
  // שליחת בקשת תשלום — הסכום הנשלח הוא היתרה לתשלום (שליחה ברמת פריט)
  function openEmailModal(item) {
   const supplier = suppliers.find(s => s.id === item.supplier_id)
-  const totalWithVat = Number(item.planned_amount) * (1 + VAT_RATE / 100)
+  const totalWithVat = Number(item.planned_amount) * (1 + VAT_RATE)
   const paid = getItemPaid(item)
   const itemRemaining = totalWithVat - paid
   const bankInfo = supplier?.bank_name ? `\n\nBank details:\nName: ${supplier.account_holder || supplier.name || '—'}\nBank: ${supplier.bank_name || '—'}\nAccount No.: ${supplier.bank_account || '—'}\nBranch No.: ${supplier.bank_branch || '—'}` : ''
@@ -1464,7 +1485,7 @@ function BudgetView({ project, client }) {
       <p className="text-lg font-bold text-[#091426] font-[Manrope]">{fmtCurrency(Math.round(totalBeforeVat))}</p>
      </div>
      <div>
-      <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Total (incl. VAT 18%)</p>
+      <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Total (incl. VAT {Math.round(VAT_RATE * 100)}%)</p>
       <p className="text-lg font-bold text-[#091426] font-[Manrope]">{fmtCurrency(Math.round(totalInclVat))}</p>
      </div>
      <div>
@@ -1506,7 +1527,7 @@ function BudgetView({ project, client }) {
        {items.map(item => {
         const supplier = suppliers.find(s => s.id === item.supplier_id)
         const status = calcStatus(item)
-        const itemTotalVat = Number(item.planned_amount) * (1 + VAT_RATE / 100)
+        const itemTotalVat = Number(item.planned_amount) * (1 + VAT_RATE)
         const itemPaid = getItemPaid(item)
         const itemRemaining = itemTotalVat - itemPaid
         const isExpanded = expandedRows.has(item.id)
@@ -1681,7 +1702,7 @@ function BudgetView({ project, client }) {
         <input type="number" value={addForm.planned_amount} onChange={e => setAddForm(f => ({ ...f, planned_amount: e.target.value }))}
          placeholder="0" className={inp} />
         {addForm.planned_amount && (
-         <p className="text-[10px] text-[#6B7A90] mt-1">Incl. VAT (18%): {fmtCurrency(Math.round(Number(addForm.planned_amount) * 1.18))}</p>
+         <p className="text-[10px] text-[#6B7A90] mt-1">Incl. VAT ({Math.round(VAT_RATE * 100)}%): {fmtCurrency(Math.round(Number(addForm.planned_amount) * (1 + VAT_RATE)))}</p>
         )}
        </div>
        <div>
@@ -1715,7 +1736,7 @@ function BudgetView({ project, client }) {
    {/* מודאל רישום תשלום */}
    {showPayment && (() => {
     const paySupplier = suppliers.find(s => s.id === showPayment.supplier_id)
-    const payTotalVat = Number(showPayment.planned_amount) * (1 + VAT_RATE / 100)
+    const payTotalVat = Number(showPayment.planned_amount) * (1 + VAT_RATE)
     const payAlreadyPaid = getItemPaid(showPayment)
     const payRemaining = payTotalVat - payAlreadyPaid
     return (
@@ -2003,6 +2024,9 @@ function ProjectDetail({ project, clients, onBack }) {
  const [selectedScope, setSelectedScope] = useState(new Set())
  const [importingScope, setImportingScope] = useState(false)
 
+ // ── Team Members (for assignee dropdown) ──
+ const [teamMembers, setTeamMembers] = useState([])
+
  // ── Setup Billing ──
  const [showBilling, setShowBilling] = useState(false)
  const [billingPrice, setBillingPrice] = useState('')
@@ -2010,7 +2034,7 @@ function ProjectDetail({ project, clients, onBack }) {
  const [hasPayments, setHasPayments] = useState(null)
  const [creatingBilling, setCreatingBilling] = useState(false)
 
- useEffect(() => { fetchTasks(); fetchKnowledge(); checkPayments() }, [project.id])
+ useEffect(() => { fetchTasks(); fetchKnowledge(); checkPayments(); fetchTeamMembers() }, [project.id])
 
  async function fetchKnowledge() {
   const { data } = await supabase.from('knowledge').select('related_task').not('related_task', 'is', null)
@@ -2045,8 +2069,16 @@ function ProjectDetail({ project, clients, onBack }) {
   setPhaseExpanded(phases)
  }
 
- async function updateTaskStatus(taskId, newStatus) {
+ async function fetchTeamMembers() {
+  const { data } = await supabase.from('user_roles').select('name').order('name')
+  setTeamMembers((data || []).map(d => d.name).filter(Boolean))
+ }
+
+ async function updateTaskStatus(taskId, newStatus, blockReason) {
   await supabase.from('tasks').update({ status: newStatus }).eq('id', taskId)
+  if (newStatus === 'blocked' && blockReason) {
+   await supabase.from('task_logs').insert({ task_id: taskId, note: `Blocked: ${blockReason}` })
+  }
   let updatedTasks = tasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t)
   if (selectedTask?.id === taskId) setSelectedTask(p => ({ ...p, status: newStatus }))
 
@@ -2620,6 +2652,7 @@ function ProjectDetail({ project, clients, onBack }) {
     <TaskPanel
      task={selectedTask}
      client={client}
+     teamMembers={teamMembers}
      onClose={() => setSelectedTask(null)}
      onUpdate={() => {
       fetchTasks()
