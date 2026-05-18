@@ -223,7 +223,8 @@ function SupplierModal({ supplier, onClose, onSaved, isAdmin = true }) {
 // כרטיס ספק
 function SupplierCard({ supplier, isAdmin, onEdit, onDelete, onAddPurchase }) {
   return (
-    <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-5 hover:shadow-[0_4px_30px_rgba(9,20,38,0.08)] transition-all group">
+    <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-5 hover:shadow-[0_4px_30px_rgba(9,20,38,0.08)] transition-all group cursor-pointer"
+      onClick={() => onEdit(supplier)}>
       <div className="flex items-start justify-between mb-3">
         <div>
           <h3 className="font-semibold text-[#091426] text-base leading-tight font-[Manrope] tracking-tight">{supplier.name}</h3>
@@ -238,7 +239,7 @@ function SupplierCard({ supplier, isAdmin, onEdit, onDelete, onAddPurchase }) {
             )}
           </div>
         </div>
-        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
+        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition" onClick={e => e.stopPropagation()}>
           <button onClick={() => onAddPurchase(supplier)}
             className="px-2.5 py-1 rounded-xl text-[10px] font-bold tracking-wider text-[#7B5800] bg-amber-50 hover:bg-amber-100 transition">
             + Purchase
