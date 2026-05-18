@@ -193,7 +193,14 @@ export default function Clients() {
       supabase.from('contents').select('*').order('sort_order'),
     ])
     setClients(c || [])
-    setProposals(p || [])
+    // העברת הצעות נדחתות לארכיון אחרי חודש
+    const oneMonthAgo = new Date()
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1)
+    const activeProposals = (p || []).filter(prop => {
+      if (prop.status === 'rejected' && new Date(prop.created_at) < oneMonthAgo) return false
+      return true
+    })
+    setProposals(activeProposals)
     setContentsTree(buildTree(ct || []))
     setLoading(false)
   }
@@ -324,7 +331,9 @@ export default function Clients() {
         .filter(Boolean)
     )]
 
-    const price = client.budget || 0
+    // חישוב תקציב: אם יש מחירים בתכולות — סיכום אוטומטי, אחרת תקציב הלקוחה
+    const scopeTotal = (propItems || []).reduce((sum, pi) => sum + (parseFloat(pi.contents?.price) || 0), 0)
+    const price = scopeTotal > 0 ? scopeTotal : (client.budget || 0)
     const advanceAmount = Math.round(price * 0.3)
 
     const rows = [

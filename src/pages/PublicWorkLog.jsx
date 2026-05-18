@@ -6,6 +6,7 @@ const ROLES = ['Project Manager', 'Drafter', 'Designer', 'Other']
 
 export default function PublicWorkLog() {
   const [projects, setProjects] = useState([])
+  const [workers, setWorkers]   = useState([])
   const [loading, setLoading]   = useState(true)
   const [submitted, setSubmitted] = useState(false)
   const [honeypot, setHoneypot] = useState('')
@@ -19,8 +20,14 @@ export default function PublicWorkLog() {
   })
 
   useEffect(() => {
-    supabase.from('projects').select('id, name').eq('status', 'active').order('name')
-      .then(({ data }) => { setProjects(data || []); setLoading(false) })
+    Promise.all([
+      supabase.from('projects').select('id, name').eq('status', 'active').order('name'),
+      supabase.from('user_roles').select('name').order('name'),
+    ]).then(([projRes, userRes]) => {
+      setProjects(projRes.data || [])
+      setWorkers((userRes.data || []).filter(u => u.name))
+      setLoading(false)
+    })
   }, [])
 
   async function handleSubmit(e) {
@@ -76,8 +83,10 @@ export default function PublicWorkLog() {
           <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-6 space-y-4">
             <div>
               <label className={lbl}>Your Name *</label>
-              <input value={form.worker_name} onChange={e => setForm({...form, worker_name: e.target.value})}
-                placeholder="Full name" className={inp} required />
+              <select value={form.worker_name} onChange={e => setForm({...form, worker_name: e.target.value})} className={inp} required>
+                <option value="">— Select Name —</option>
+                {workers.map(w => <option key={w.name} value={w.name}>{w.name}</option>)}
+              </select>
             </div>
 
             <div>

@@ -21,7 +21,7 @@ const allModules = [
   { id: 'billing',          label: 'Client Billing',      Icon: Wallet,          access: 'admin' },
   { id: 'supplierbilling',  label: 'Supplier Billing',    Icon: Receipt,         access: 'admin' },
   { id: 'suppliers',        label: 'Supplier Directory',  Icon: BookUser,        access: 'all' },
-  { id: 'monthlyreport',    label: 'Monthly Report',      Icon: FileBarChart,    access: 'admin' },
+  // { id: 'monthlyreport',    label: 'Monthly Report',      Icon: FileBarChart,    access: 'admin' }, // מוסתר זמנית
   { id: 'financedashboard', label: 'Finance Dashboard',   Icon: BarChart3,       access: 'admin' },
   { id: 'worklog',          label: 'Work Log',            Icon: CalendarDays,    access: 'all' },
   { id: 'knowledge',        label: 'Knowledge Base',      Icon: BookOpen,        access: 'all' },
