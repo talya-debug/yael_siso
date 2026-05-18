@@ -239,23 +239,19 @@ function SupplierCard({ supplier, isAdmin, onEdit, onDelete, onAddPurchase }) {
           </div>
         </div>
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
-          {!isAdmin && (
-            <button onClick={() => onAddPurchase(supplier)}
-              className="px-2.5 py-1 rounded-xl text-[10px] font-bold tracking-wider text-[#7B5800] bg-amber-50 hover:bg-amber-100 transition">
-              + Purchase
-            </button>
-          )}
+          <button onClick={() => onAddPurchase(supplier)}
+            className="px-2.5 py-1 rounded-xl text-[10px] font-bold tracking-wider text-[#7B5800] bg-amber-50 hover:bg-amber-100 transition">
+            + Purchase
+          </button>
+          <button onClick={() => onEdit(supplier)}
+            className="p-1.5 rounded-xl text-[#6B7A90] hover:text-[#091426] hover:bg-[#F3F3F3] transition">
+            <Pencil size={14} strokeWidth={1.8} />
+          </button>
           {isAdmin && (
-            <>
-              <button onClick={() => onEdit(supplier)}
-                className="p-1.5 rounded-xl text-[#6B7A90] hover:text-[#091426] hover:bg-[#F3F3F3] transition">
-                <Pencil size={14} strokeWidth={1.8} />
-              </button>
-              <button onClick={() => onDelete(supplier)}
-                className="p-1.5 rounded-xl text-[#6B7A90] hover:text-red-500 hover:bg-red-50 transition">
-                <Trash2 size={14} strokeWidth={1.8} />
-              </button>
-            </>
+            <button onClick={() => onDelete(supplier)}
+              className="p-1.5 rounded-xl text-[#6B7A90] hover:text-red-500 hover:bg-red-50 transition">
+              <Trash2 size={14} strokeWidth={1.8} />
+            </button>
           )}
         </div>
       </div>
