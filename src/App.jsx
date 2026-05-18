@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard'
 import PublicWorkLog from './pages/PublicWorkLog'
 import SignaturePage from './pages/SignaturePage'
 import Login from './pages/Login'
+import ResetPassword from './pages/ResetPassword'
 
 function App() {
   const [user, setUser] = useState(null)
@@ -68,6 +69,7 @@ function App() {
         {/* Public pages — no auth */}
         <Route path="/worklog-public" element={<PublicWorkLog />} />
         <Route path="/sign/:token" element={<SignaturePage />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Protected pages */}
         <Route path="/*" element={
