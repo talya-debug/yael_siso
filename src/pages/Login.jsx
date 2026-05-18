@@ -6,8 +6,6 @@ export default function Login({ onLogin }) {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [resetSent, setResetSent] = useState(false)
-  const [resetLoading, setResetLoading] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -53,24 +51,10 @@ export default function Login({ onLogin }) {
           </div>
 
           {error && <p className="text-red-400 text-xs text-center">{error}</p>}
-          {resetSent && <p className="text-emerald-400 text-xs text-center">Password reset email sent! Check your inbox.</p>}
 
           <button type="submit" disabled={loading || !email || !password}
             className="w-full bg-gradient-to-r from-[#7B5800] to-[#B8960B] text-white py-3 rounded-xl text-sm font-semibold hover:opacity-90 transition-all disabled:opacity-40">
             {loading ? 'Signing in...' : 'Sign In'}
-          </button>
-
-          <button type="button" onClick={async () => {
-            if (!email) { setError('Enter your email first'); return }
-            setResetLoading(true); setError(''); setResetSent(false)
-            const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-              redirectTo: window.location.origin + '/reset-password'
-            })
-            setResetLoading(false)
-            if (resetError) { setError(resetError.message) } else { setResetSent(true) }
-          }} disabled={resetLoading}
-            className="w-full text-[#6B7A90] text-xs hover:text-white transition text-center py-1">
-            {resetLoading ? 'Sending...' : 'Forgot password?'}
           </button>
         </form>
       </div>
