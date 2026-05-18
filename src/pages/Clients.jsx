@@ -70,6 +70,7 @@ function ScopeSelector({ tree, selected, onChange }) {
   )
 
   return (
+    <>
     <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
       {tree.map(phase => {
         const phaseTaskIds = phase.tasks.map(t => t.id)
@@ -89,7 +90,13 @@ function ScopeSelector({ tree, selected, onChange }) {
                 {phaseAll && <Check size={10} className="text-[#091426]" />}
                 {phaseSome && <div className="w-2 h-0.5 bg-[#6B7A90] rounded" />}
               </div>
-              <span className={`font-semibold text-sm flex-1 ${phaseAll ? 'text-white' : 'text-[#091426]'}`}>{phase.name}</span>
+              <span className={`font-semibold text-sm flex-1 ${phaseAll ? 'text-white' : 'text-[#091426]'}`}>
+                {phase.name}
+                {(() => {
+                  const phaseTotal = phase.tasks.reduce((sum, t) => sum + (t.price || 0) + t.subtasks.reduce((s2, sub) => s2 + (sub.price || 0), 0), 0)
+                  return phaseTotal > 0 ? <span className={`text-xs ml-2 font-medium ${phaseAll ? 'text-gray-300' : 'text-[#7B5800]'}`}>₪{phaseTotal.toLocaleString()}</span> : null
+                })()}
+              </span>
               <button onClick={e => { e.stopPropagation(); toggle(phase.id) }}
                 className={`${phaseAll ? 'text-gray-300' : 'text-[#6B7A90]'}`}>
                 {expanded[phase.id] ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
@@ -153,6 +160,17 @@ function ScopeSelector({ tree, selected, onChange }) {
         )
       })}
     </div>
+    {(() => {
+      const totalSelected = tree.flatMap(phase => phase.tasks.flatMap(t => [t, ...t.subtasks]))
+        .filter(item => selected.has(item.id))
+        .reduce((sum, item) => sum + (item.price || 0), 0)
+      return totalSelected > 0 ? (
+        <div className="mt-3 text-right font-bold text-sm text-[#091426] bg-[#F3F3F3] rounded-xl px-4 py-2.5">
+          Total: ₪{totalSelected.toLocaleString()}
+        </div>
+      ) : null
+    })()}
+  </>
   )
 }
 
@@ -611,10 +629,13 @@ export default function Clients() {
                         <span className="text-xs text-[#6B7A90]">₪</span>
                         <input
                           type="number"
+                          min="0"
                           defaultValue={c.budget || ''}
                           placeholder="Set budget"
                           onBlur={async e => {
-                            const val = e.target.value ? Number(e.target.value) : null
+                            const raw = e.target.value ? Number(e.target.value) : null
+                            const val = (raw !== null && raw < 0) ? 0 : raw
+                            if (raw !== null && raw < 0) e.target.value = '0'
                             if (val !== (c.budget || null)) {
                               await supabase.from('clients').update({ budget: val }).eq('id', c.id)
                               fetchAll()

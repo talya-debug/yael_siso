@@ -130,7 +130,7 @@ export default function FinanceDashboard() {
     const adiPayment = price === 0 ? 0 : adiFromRevenue - adiExpenseShare
 
     // רווח גולמי: הכנסות - הוצאות - חלק עדי
-    const grossProfit = price === 0 ? -totalExpenses : price - totalExpenses - adiPayment
+    const grossProfit = price === 0 ? -totalExpenses : price + supplierCommissions - totalExpenses - adiPayment
 
     // יעד רווחיות
     const profitTarget = price * targetPct

@@ -544,9 +544,9 @@ THANKS!`)
       setTimeout(() => setToast(null), 3000)
     }
     setSendingEmail(false)
+    await fetchAll()
     setEmailModal(null)
     setAttachedFiles([])
-    fetchAll()
   }
 
   function exportCSV() {

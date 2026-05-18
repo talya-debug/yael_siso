@@ -62,6 +62,7 @@ function buildGantt(tasks, projectStartDate) {
    const ed = new Date(task.due_date);  ed.setHours(0, 0, 0, 0)
    startDay = Math.round((sd - pStart) / 86400000)
    endDay  = Math.round((ed - pStart) / 86400000)
+   if (isNaN(endDay) || endDay <= startDay) endDay = startDay + (task.estimated_days || 7)
   } else {
    startDay = Math.max(0, cursor)
    endDay  = startDay + (task.estimated_days || 7)
@@ -148,8 +149,13 @@ function TaskPanel({ task, onClose, onUpdate, client }) {
  const [uploadingFile, setUploadingFile] = useState(false)
 
  // שלב 1 — הכנת תצוגה מקדימה
- function prepareSignature() {
-  const token = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substr(2, 16)
+ async function prepareSignature() {
+  let token, exists = true
+  while (exists) {
+   token = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substr(2, 16)
+   const { data } = await supabase.from('signatures').select('id').eq('token', token).maybeSingle()
+   exists = !!data
+  }
   const url = window.location.origin + '/sign/' + token
   setPendingSigUrl(url)
   setEmailTo(client?.email || '')
@@ -245,7 +251,7 @@ Yael Siso | Interior Design`)
  }
 
  async function saveName() {
-  if (!name.trim()) return
+  if (!name.trim()) { setName(task.name); setEditing(false); return }
   await updateField('name', name.trim())
   setEditing(false)
  }
@@ -1295,7 +1301,7 @@ function BudgetView({ project, client }) {
   const supplier = suppliers.find(s => s.id === item.supplier_id)
   const totalWithVat = Number(item.planned_amount) * (1 + VAT_RATE / 100)
   const paidSoFar = getItemPaid(item)
-  const bankInfo = supplier?.bank_name ? `\n\nBank details:\nName: ${supplier.account_holder || supplier.name}\nBank: ${supplier.bank_name}\nAccount No.: ${supplier.bank_account || ''}\nBranch No.: ${supplier.bank_branch || ''}` : ''
+  const bankInfo = supplier?.bank_name ? `\n\nBank details:\nName: ${supplier.account_holder || supplier.name || '—'}\nBank: ${supplier.bank_name || '—'}\nAccount No.: ${supplier.bank_account || '—'}\nBranch No.: ${supplier.bank_branch || '—'}` : ''
   setEmailTo(client?.email || '')
   setEmailSubject(`Payment Request: ${item.category} — ${project.name}`)
   setEmailBody(`Hi ${client?.name || ''},\n\nHope that you are doing well.\n\nThis email concerns the payment for the ${item.category.toLowerCase()}.\n\nDetails of ${item.category.toLowerCase()} payment:\n• Total amount (including tax): ${fmtCurrency(Math.round(totalWithVat))}\n• Deposit already paid: ${fmtCurrency(Math.round(paidSoFar))}\n• Remaining balance: ${fmtCurrency(Number(payment.amount))}${bankInfo}\n\nTHANKS!`)
@@ -1348,12 +1354,20 @@ function BudgetView({ project, client }) {
     return typeof amount === 'number' || (amount && !isNaN(Number(amount)))
    })
    let count = 0
+   let skippedNeg = 0
+   let skippedDup = 0
+   const seenCategories = new Set(items.map(i => i.category?.toLowerCase()))
    const maxSort = items.length > 0 ? Math.max(...items.map(i => i.sort_order || 0)) : 0
    for (let idx = 0; idx < dataRows.length; idx++) {
     const row = dataRows[idx]
     const category = String(row[0]).trim()
     const supplierName = row[1] ? String(row[1]).trim() : ''
     const planned_amount = Number(row[8])
+    // דילוג על סכומים שליליים
+    if (planned_amount < 0) { skippedNeg++; continue }
+    // אזהרה על קטגוריות כפולות
+    if (seenCategories.has(category.toLowerCase())) { skippedDup++; continue }
+    seenCategories.add(category.toLowerCase())
     const notes = row[10] ? String(row[10]).trim() : ''
     // התאמת ספק קיים
     const matchedSupplier = supplierName ? suppliers.find(s => s.name.toLowerCase() === supplierName.toLowerCase()) : null
@@ -1373,7 +1387,8 @@ function BudgetView({ project, client }) {
      count++
     }
    }
-   alert(`Imported ${count} budget items successfully`)
+   const warnings = [skippedNeg > 0 && `${skippedNeg} negative`, skippedDup > 0 && `${skippedDup} duplicate`].filter(Boolean).join(', ')
+   alert(`Imported ${count} budget items successfully${warnings ? ` (skipped: ${warnings})` : ''}`)
   } catch (err) {
    alert('Error importing Excel: ' + err.message)
   } finally {
@@ -1388,7 +1403,7 @@ function BudgetView({ project, client }) {
   const totalWithVat = Number(item.planned_amount) * (1 + VAT_RATE / 100)
   const paid = getItemPaid(item)
   const itemRemaining = totalWithVat - paid
-  const bankInfo = supplier?.bank_name ? `\n\nBank details:\nName: ${supplier.account_holder || supplier.name}\nBank: ${supplier.bank_name}\nAccount No.: ${supplier.bank_account || ''}\nBranch No.: ${supplier.bank_branch || ''}` : ''
+  const bankInfo = supplier?.bank_name ? `\n\nBank details:\nName: ${supplier.account_holder || supplier.name || '—'}\nBank: ${supplier.bank_name || '—'}\nAccount No.: ${supplier.bank_account || '—'}\nBranch No.: ${supplier.bank_branch || '—'}` : ''
   setEmailTo(client?.email || '')
   setEmailSubject(`Payment Request: ${item.category} — ${project.name}`)
   setEmailBody(`Hi ${client?.name || ''},\n\nHope that you are doing well.\n\nThis email concerns the payment for the ${item.category.toLowerCase()}.\n\nDetails of ${item.category.toLowerCase()} payment:\n• Total amount (including tax): ${fmtCurrency(Math.round(totalWithVat))}\n• Deposit already paid: ${fmtCurrency(Math.round(paid))}\n• Remaining balance: ${fmtCurrency(Math.round(itemRemaining))}${bankInfo}\n\nTHANKS!`)
@@ -1490,7 +1505,7 @@ function BudgetView({ project, client }) {
       <tbody>
        {items.map(item => {
         const supplier = suppliers.find(s => s.id === item.supplier_id)
-        const status = item.status || calcStatus(item)
+        const status = calcStatus(item)
         const itemTotalVat = Number(item.planned_amount) * (1 + VAT_RATE / 100)
         const itemPaid = getItemPaid(item)
         const itemRemaining = itemTotalVat - itemPaid
@@ -1512,12 +1527,9 @@ function BudgetView({ project, client }) {
            <td className="px-4 py-3 text-right text-emerald-600">{fmtCurrency(Math.round(itemPaid))}</td>
            <td className="px-4 py-3 text-right text-[#091426]">{fmtCurrency(Math.round(itemRemaining))}</td>
            <td className="px-4 py-3 text-center">
-            <select value={status} onChange={e => changeStatus(item, e.target.value)}
-             className={`text-[10px] font-bold tracking-wider px-2.5 py-0.5 rounded-full border-0 cursor-pointer ${statusChip[status]}`}>
-             <option value="pending">Pending</option>
-             <option value="partial">Partial</option>
-             <option value="paid">Paid</option>
-            </select>
+            <span className={`text-[10px] font-bold tracking-wider px-2.5 py-0.5 rounded-full ${statusChip[status]}`}>
+             {status === 'paid' ? 'Paid' : status === 'partial' ? 'Partial' : 'Pending'}
+            </span>
            </td>
            <td className="px-4 py-3 text-center">
             {item.drive_link ? (
@@ -2035,11 +2047,22 @@ function ProjectDetail({ project, clients, onBack }) {
 
  async function updateTaskStatus(taskId, newStatus) {
   await supabase.from('tasks').update({ status: newStatus }).eq('id', taskId)
-  const updatedTasks = tasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t)
-  setTasks(updatedTasks)
+  let updatedTasks = tasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t)
   if (selectedTask?.id === taskId) setSelectedTask(p => ({ ...p, status: newStatus }))
 
   const task = updatedTasks.find(t => t.id === taskId)
+
+  // אם תת-משימה הושלמה — בדיקה אם כל תת-המשימות של ההורה הושלמו
+  if (newStatus === 'done' && task?.level === 'subtask' && task?.parent_task_id) {
+   const siblings = updatedTasks.filter(t => t.parent_task_id === task.parent_task_id && t.level === 'subtask')
+   if (siblings.length > 0 && siblings.every(t => t.status === 'done')) {
+    await supabase.from('tasks').update({ status: 'done' }).eq('id', task.parent_task_id)
+    updatedTasks = updatedTasks.map(t => t.id === task.parent_task_id ? { ...t, status: 'done' } : t)
+    if (selectedTask?.id === task.parent_task_id) setSelectedTask(p => ({ ...p, status: 'done' }))
+   }
+  }
+
+  setTasks(updatedTasks)
 
   // טריגר גבייה — התחלת שלב (משימה ראשונה עוברת ל-in_progress)
   if (newStatus === 'in_progress' && task?.phase_name) {

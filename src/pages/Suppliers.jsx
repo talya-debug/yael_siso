@@ -57,13 +57,15 @@ function SupplierModal({ supplier, onClose, onSaved, isAdmin = true }) {
     ...supplier,
   })
   const [saving, setSaving] = useState(false)
+  const [formToast, setFormToast] = useState(null)
+  function showFormToast(msg) { setFormToast(msg); setTimeout(() => setFormToast(null), 3000) }
 
   function set(field, val) {
     setForm(prev => ({ ...prev, [field]: val }))
   }
 
   async function handleSave() {
-    if (!form.name.trim()) { alert('Supplier name is required'); return }
+    if (!form.name.trim()) { showFormToast('Supplier name is required'); return }
     setSaving(true)
     const payload = {
       name: form.name.trim(),
@@ -89,7 +91,7 @@ function SupplierModal({ supplier, onClose, onSaved, isAdmin = true }) {
     }
 
     setSaving(false)
-    if (error) { alert('Error saving: ' + error.message); return }
+    if (error) { showFormToast('Error saving: ' + error.message); return }
     onSaved(data, isEdit)
   }
 
@@ -208,6 +210,11 @@ function SupplierModal({ supplier, onClose, onSaved, isAdmin = true }) {
             Cancel
           </button>
         </div>
+        {formToast && (
+          <div className="mx-5 mb-4 bg-red-50 text-red-700 px-4 py-2.5 rounded-xl text-sm text-center">
+            {formToast}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -303,12 +310,14 @@ export default function Suppliers({ isAdmin = true }) {
   const [purchaseModal, setPurchaseModal] = useState(null)
   const [purchaseForm, setPurchaseForm]   = useState({ project_id: '', description: '', amount: '', quote_link: '' })
   const [savingPurchase, setSavingPurchase] = useState(false)
+  const [toast, setToast] = useState(null)
+  function showToast(msg) { setToast(msg); setTimeout(() => setToast(null), 3000) }
 
   useEffect(() => {
     async function load() {
       const [{ data: s }, { data: p }] = await Promise.all([
         supabase.from('suppliers').select('*').order('name'),
-        supabase.from('projects').select('id, name').eq('status', 'active').order('name'),
+        supabase.from('projects').select('id, name').order('name'),
       ])
       setSuppliers(s || [])
       setProjects(p || [])
@@ -331,7 +340,7 @@ export default function Suppliers({ isAdmin = true }) {
     setPurchaseModal(null)
     setPurchaseForm({ project_id: '', description: '', amount: '', quote_link: '' })
     setSavingPurchase(false)
-    alert('Purchase added! Chloe will review it.')
+    showToast('Purchase added! Chloe will review it.')
   }
 
   const existingCats = ['All', ...Array.from(new Set(suppliers.map(s => s.category))).sort()]
@@ -477,6 +486,11 @@ export default function Suppliers({ isAdmin = true }) {
               </button>
             </div>
           </div>
+        </div>
+      )}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#091426] text-white px-5 py-3 rounded-xl text-sm shadow-lg z-50 animate-fade-in">
+          {toast}
         </div>
       )}
     </div>

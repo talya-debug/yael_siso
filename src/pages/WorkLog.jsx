@@ -43,7 +43,7 @@ export default function WorkLog({ isAdmin = true, userRole }) {
   }
 
   async function save() {
-    if (!form.project_id || !form.hours || !form.worker_name.trim()) return
+    if (!form.project_id || !form.hours || !form.worker_name.trim() || !form.description.trim()) return
     await supabase.from('work_log').insert({
       project_id:  form.project_id  || null,
       work_date:   form.work_date,
