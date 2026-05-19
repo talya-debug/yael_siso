@@ -1139,6 +1139,7 @@ function BudgetView({ project, client }) {
  const [budgetAttachedFiles, setBudgetAttachedFiles] = useState([])
  const [budgetUploadingFile, setBudgetUploadingFile] = useState(false)
  const [expandedRows, setExpandedRows] = useState(new Set())
+ const [budgetDriveLink, setBudgetDriveLink] = useState(project.budget_drive_link || '')
 
  // מע"מ — מיובא מ-config.js
 
@@ -1502,6 +1503,25 @@ function BudgetView({ project, client }) {
       <div className="h-full bg-[#B8960B] rounded-full transition-all" style={{ width: `${progressPct}%` }} />
      </div>
      <span className="text-xs font-bold text-[#091426] font-[Manrope]">{progressPct}%</span>
+    </div>
+    {/* לינק כללי לתיקיית תקציב */}
+    <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#F3F3F3]">
+     <span className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] shrink-0">Budget Folder</span>
+     <input
+      value={budgetDriveLink}
+      onChange={e => setBudgetDriveLink(e.target.value)}
+      onBlur={async () => {
+       await supabase.from('projects').update({ budget_drive_link: budgetDriveLink || null }).eq('id', project.id)
+      }}
+      placeholder="https://drive.google.com/..."
+      className="flex-1 bg-[#F3F3F3] rounded-lg px-3 py-1.5 text-xs border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 text-[#091426]"
+     />
+     {budgetDriveLink && (
+      <a href={budgetDriveLink} target="_blank" rel="noopener noreferrer"
+       className="text-xs text-[#7B5800] hover:text-[#B8960B] font-medium shrink-0">
+       Open ↗
+      </a>
+     )}
     </div>
    </div>
 
