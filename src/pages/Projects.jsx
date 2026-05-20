@@ -2209,6 +2209,11 @@ function ProjectDetail({ project, clients, onBack }) {
  async function saveDefaultAssignee(val) {
   setDefaultAssignee(val)
   await supabase.from('projects').update({ default_assignee: val || null }).eq('id', project.id)
+  // שיוך כל המשימות בפרויקט למנהלת החדשה
+  if (val) {
+   await supabase.from('tasks').update({ assigned_to: val }).eq('project_id', project.id)
+   setTasks(prev => prev.map(t => ({ ...t, assigned_to: val })))
+  }
  }
 
  // ── בדיקה אם יש תשלומים לפרויקט ──
