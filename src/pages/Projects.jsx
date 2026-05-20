@@ -2036,6 +2036,7 @@ function ProjectDetail({ project, clients, onBack }) {
  const [projectName, setProjectName] = useState(project.name)
  const [editingName, setEditingName] = useState(false)
  const [projectEndDate, setProjectEndDate] = useState(project.end_date || '')
+ const [defaultAssignee, setDefaultAssignee] = useState(project.default_assignee || '')
  const [knowledgeItems, setKnowledgeItems] = useState([])
 
  // ── Import Scope ──
@@ -2178,8 +2179,9 @@ function ProjectDetail({ project, clients, onBack }) {
 
  async function addTask() {
   if (!taskForm.name.trim()) return
+  const assignee = taskForm.assigned_to || defaultAssignee || null
   await supabase.from('tasks').insert({
-   ...taskForm, project_id: project.id, status: 'pending', level: 'task',
+   ...taskForm, assigned_to: assignee, project_id: project.id, status: 'pending', level: 'task',
    sort_order: 9999,
   })
   setShowNewTask(false)
@@ -2202,6 +2204,11 @@ function ProjectDetail({ project, clients, onBack }) {
  async function saveProjectEndDate(val) {
   setProjectEndDate(val)
   await supabase.from('projects').update({ end_date: val || null }).eq('id', project.id)
+ }
+
+ async function saveDefaultAssignee(val) {
+  setDefaultAssignee(val)
+  await supabase.from('projects').update({ default_assignee: val || null }).eq('id', project.id)
  }
 
  // ── בדיקה אם יש תשלומים לפרויקט ──
@@ -2438,6 +2445,14 @@ function ProjectDetail({ project, clients, onBack }) {
       <span className="text-[10px] text-[#6B7A90] font-medium">Deadline:</span>
       <input type="date" value={projectEndDate} onChange={e => saveProjectEndDate(e.target.value)}
        className="text-xs text-[#6B7A90] bg-[#F3F3F3] rounded-lg px-2 py-1 border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 cursor-pointer" />
+     </div>
+     <div className="flex items-center gap-1">
+      <span className="text-[10px] text-[#6B7A90] font-medium">Manager:</span>
+      <select value={defaultAssignee} onChange={e => saveDefaultAssignee(e.target.value)}
+       className="text-xs text-[#6B7A90] bg-[#F3F3F3] rounded-lg px-2 py-1 border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 cursor-pointer">
+       <option value="">Unassigned</option>
+       {teamMembers.map(name => <option key={name} value={name}>{name}</option>)}
+      </select>
      </div>
 
      {/* toggle תצוגה */}

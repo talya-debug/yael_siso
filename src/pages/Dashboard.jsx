@@ -12,10 +12,12 @@ import Suppliers from './Suppliers'
 import SupplierBilling from './SupplierBilling'
 import MonthlyReport from './MonthlyReport'
 import FinanceDashboard from './FinanceDashboard'
+import MyDay from './MyDay'
 
 // admin = sees everything, team = limited
 const allModules = [
   { id: 'home',             label: 'Dashboard',          Icon: LayoutDashboard, access: 'admin' },
+  { id: 'myday',            label: 'My Day',             Icon: CalendarDays,    access: 'team' },
   { id: 'clients',          label: 'Clients',             Icon: Users,           access: 'admin' },
   { id: 'projects',         label: 'Projects',            Icon: FolderKanban,    access: 'all' },
   { id: 'billing',          label: 'Client Billing',      Icon: Wallet,          access: 'admin' },
@@ -30,11 +32,11 @@ const allModules = [
 
 export default function Dashboard({ userRole, onLogout }) {
   const isAdmin = userRole?.role === 'admin'
-  const modules = allModules.filter(m => m.access === 'all' || isAdmin)
+  const modules = allModules.filter(m => m.access === 'all' || (m.access === 'team' && !isAdmin) || (m.access === 'admin' && isAdmin))
   const userName = userRole?.name || 'User'
   const initials = userName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase()
 
-  const [active, setActive] = useState(isAdmin ? 'home' : 'projects')
+  const [active, setActive] = useState(isAdmin ? 'home' : 'myday')
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [pendingApprovalCount, setPendingApprovalCount] = useState(0)
 
@@ -53,11 +55,12 @@ export default function Dashboard({ userRole, onLogout }) {
   const renderPage = () => {
     // Block non-admin from admin pages
     if (!isAdmin && allModules.find(m => m.id === active)?.access === 'admin') {
-      setActive('home')
-      return <Home onNavigate={setActive} isAdmin={isAdmin} />
+      setActive('myday')
+      return <MyDay userRole={userRole} />
     }
     switch (active) {
       case 'home':      return <Home onNavigate={setActive} isAdmin={isAdmin} />
+      case 'myday':     return <MyDay userRole={userRole} />
       case 'clients':   return <Clients />
       case 'projects':  return <Projects />
       case 'contents':  return <Contents />
