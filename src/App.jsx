@@ -37,9 +37,9 @@ function App() {
   }, [])
 
   async function loadRole(email) {
-    const { data, error } = await supabase.from('user_roles').select('role, name').eq('email', email).maybeSingle()
+    const { data, error } = await supabase.from('user_roles').select('role, name, email').eq('email', email).maybeSingle()
     // If table doesn't exist or no row found, default to admin
-    setUserRole(data || { role: 'admin', name: email.split('@')[0] })
+    setUserRole(data || { role: 'admin', name: email.split('@')[0], email })
     setLoading(false)
   }
 
