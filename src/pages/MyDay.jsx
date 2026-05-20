@@ -31,7 +31,7 @@ function getProjectColor(projectId) {
   return PROJECT_COLORS[Math.abs(hash) % PROJECT_COLORS.length]
 }
 
-export default function MyDay({ userRole }) {
+export default function MyDay({ userRole, onOpenProject }) {
   const [projectTasks, setProjectTasks] = useState([])
   const [dailyTasks, setDailyTasks] = useState([])
   const [projects, setProjects] = useState([])
@@ -153,6 +153,13 @@ export default function MyDay({ userRole }) {
             {fmtDay(task.due_date)}
           </span>
         )}
+        {isProject && task.project_id && onOpenProject && (
+          <button onClick={() => onOpenProject(task.project_id)}
+            className="opacity-0 group-hover:opacity-100 transition text-[#6B7A90] hover:text-[#091426] p-1 rounded-lg hover:bg-[#F3F3F3] shrink-0"
+            title="Open project">
+            <ChevronRight size={14} strokeWidth={1.8} />
+          </button>
+        )}
         {!isProject && onDelete && (
           <button onClick={() => onDelete(task.id)}
             className="opacity-0 group-hover:opacity-100 transition text-[#6B7A90] hover:text-red-500 p-1 rounded-lg hover:bg-red-50 shrink-0">
@@ -163,7 +170,7 @@ export default function MyDay({ userRole }) {
     )
   }
 
-  function Section({ title, icon: Icon, iconColor, tasks, isProject = true, onToggle, onDelete, emptyText, accent }) {
+  function Section({ title, icon: Icon, iconColor, tasks, isProject = true, onToggle, onDelete, emptyText, accent, onOpenProject }) {
     if (tasks.length === 0 && !emptyText) return null
     return (
       <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] overflow-hidden">
@@ -176,7 +183,7 @@ export default function MyDay({ userRole }) {
           <p className="px-4 py-6 text-sm text-[#6B7A90] text-center italic">{emptyText}</p>
         ) : (
           tasks.map(t => (
-            <TaskRow key={t.id} task={t} isProject={isProject} onToggle={onToggle} onDelete={onDelete} />
+            <TaskRow key={t.id} task={t} isProject={isProject} onToggle={onToggle} onDelete={onDelete} onOpenProject={onOpenProject} />
           ))
         )}
       </div>
@@ -209,6 +216,7 @@ export default function MyDay({ userRole }) {
           iconColor="text-red-500"
           tasks={overdue}
           onToggle={toggleProjectTask}
+          onOpenProject={onOpenProject}
           accent="bg-red-50/50"
         />
       )}
@@ -220,6 +228,7 @@ export default function MyDay({ userRole }) {
         iconColor="text-[#7B5800]"
         tasks={activeNow}
         onToggle={toggleProjectTask}
+        onOpenProject={onOpenProject}
         emptyText="No active tasks right now"
       />
 
@@ -230,6 +239,7 @@ export default function MyDay({ userRole }) {
         iconColor="text-[#6B7A90]"
         tasks={thisWeek}
         onToggle={toggleProjectTask}
+        onOpenProject={onOpenProject}
       />
 
       {/* משימות יומיומיות */}

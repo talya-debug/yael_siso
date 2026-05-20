@@ -2798,7 +2798,7 @@ function ProjectDetail({ project, clients, onBack }) {
 }
 
 // ── עמוד ראשי ──
-export default function Projects() {
+export default function Projects({ openProjectId, onProjectOpened }) {
  const [projects, setProjects] = useState([])
  const [clients, setClients]  = useState([])
  const [loading, setLoading]  = useState(true)
@@ -2808,6 +2808,14 @@ export default function Projects() {
  const [form, setForm]     = useState({ name: '', client_id: '', start_date: '', end_date: '' })
 
  useEffect(() => { fetchAll() }, [])
+
+ // פתיחת פרויקט ספציפי מ-MyDay
+ useEffect(() => {
+  if (openProjectId && projects.length > 0) {
+   const proj = projects.find(p => p.id === openProjectId)
+   if (proj) { setSelected(proj); onProjectOpened?.() }
+  }
+ }, [openProjectId, projects])
 
  async function fetchAll() {
   const [{ data: p }, { data: c }] = await Promise.all([

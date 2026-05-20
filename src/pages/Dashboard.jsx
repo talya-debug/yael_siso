@@ -38,6 +38,7 @@ export default function Dashboard({ userRole, onLogout }) {
 
   const [active, setActive] = useState(isAdmin ? 'home' : 'myday')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [openProjectId, setOpenProjectId] = useState(null)
   const [pendingApprovalCount, setPendingApprovalCount] = useState(0)
 
   // ספירת תשלומים ממתינים לאישור
@@ -60,9 +61,9 @@ export default function Dashboard({ userRole, onLogout }) {
     }
     switch (active) {
       case 'home':      return <Home onNavigate={setActive} isAdmin={isAdmin} />
-      case 'myday':     return <MyDay userRole={userRole} />
+      case 'myday':     return <MyDay userRole={userRole} onOpenProject={(pid) => { setOpenProjectId(pid); setActive('projects') }} />
       case 'clients':   return <Clients />
-      case 'projects':  return <Projects />
+      case 'projects':  return <Projects openProjectId={openProjectId} onProjectOpened={() => setOpenProjectId(null)} />
       case 'contents':  return <Contents />
       case 'billing':    return <Billing />
       case 'suppliers':       return <Suppliers isAdmin={isAdmin} />
