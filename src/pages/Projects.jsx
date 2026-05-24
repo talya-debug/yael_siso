@@ -954,7 +954,12 @@ function ClientCard({ project }) {
       <div key={ct.id} className="bg-[#F3F3F3] rounded-2xl p-4 relative group">
        <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition">
         <button onClick={() => {
-         const parts = [ct.name, ct.phone, card?.address, ct.id_number ? `ID: ${ct.id_number}` : null].filter(Boolean)
+         const parts = [
+          ct.name ? `Name: ${ct.name}` : null,
+          card?.address ? `Address: ${card.address}` : null,
+          ct.id_number ? `ID: ${ct.id_number}` : null,
+          ct.phone ? `Phone: ${ct.phone}` : null,
+         ].filter(Boolean)
          navigator.clipboard.writeText(parts.join('\n'))
          const btn = document.activeElement
          btn.textContent = '✓'
