@@ -952,10 +952,23 @@ function ClientCard({ project }) {
     <div className="space-y-3">
      {contacts.map(ct => (
       <div key={ct.id} className="bg-[#F3F3F3] rounded-2xl p-4 relative group">
-       <button onClick={() => deleteContact(ct.id)}
-        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition text-[#6B7A90] hover:text-red-500 p-1 rounded">
-        <Trash2 size={12} strokeWidth={1.8} />
-       </button>
+       <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition">
+        <button onClick={() => {
+         const parts = [ct.name, ct.phone, card?.address, ct.id_number ? `ID: ${ct.id_number}` : null].filter(Boolean)
+         navigator.clipboard.writeText(parts.join('\n'))
+         const btn = document.activeElement
+         btn.textContent = '✓'
+         setTimeout(() => { btn.textContent = '📋' }, 1500)
+        }}
+         title="Copy for WhatsApp"
+         className="text-[#6B7A90] hover:text-[#091426] p-1 rounded hover:bg-white transition text-sm">
+         📋
+        </button>
+        <button onClick={() => deleteContact(ct.id)}
+         className="text-[#6B7A90] hover:text-red-500 p-1 rounded hover:bg-white transition">
+         <Trash2 size={12} strokeWidth={1.8} />
+        </button>
+       </div>
        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* שם */}
         <div>

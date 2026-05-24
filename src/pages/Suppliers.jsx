@@ -221,7 +221,7 @@ function SupplierModal({ supplier, onClose, onSaved, isAdmin = true }) {
 }
 
 // כרטיס ספק
-function SupplierCard({ supplier, isAdmin, onEdit, onDelete, onAddPurchase }) {
+function SupplierCard({ supplier, isAdmin, onEdit, onDelete, onAddPurchase, onToggleFavorite, supplierProjects }) {
   return (
     <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-5 hover:shadow-[0_4px_30px_rgba(9,20,38,0.08)] transition-all group cursor-pointer"
       onClick={() => onEdit(supplier)}>
@@ -239,6 +239,10 @@ function SupplierCard({ supplier, isAdmin, onEdit, onDelete, onAddPurchase }) {
             )}
           </div>
         </div>
+        <button onClick={e => { e.stopPropagation(); onToggleFavorite(supplier) }}
+          className="text-lg shrink-0 transition hover:scale-110" title={supplier.is_favorite ? 'Remove favorite' : 'Add favorite'}>
+          {supplier.is_favorite ? '⭐' : '☆'}
+        </button>
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition" onClick={e => e.stopPropagation()}>
           <button onClick={() => onAddPurchase(supplier)}
             className="px-2.5 py-1 rounded-xl text-[10px] font-bold tracking-wider text-[#7B5800] bg-amber-50 hover:bg-amber-100 transition">
@@ -287,6 +291,17 @@ function SupplierCard({ supplier, isAdmin, onEdit, onDelete, onAddPurchase }) {
         )}
       </div>
 
+      {supplierProjects && supplierProjects.length > 0 && (
+        <div className="mt-3 border-t border-[#F3F3F3] pt-3 flex items-center gap-1.5 flex-wrap">
+          <span className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Projects:</span>
+          {supplierProjects.map(p => (
+            <span key={p.id} className="text-[10px] bg-[#F3F3F3] text-[#091426] px-2 py-0.5 rounded-full font-medium">
+              {p.name}
+            </span>
+          ))}
+        </div>
+      )}
+
       {supplier.notes && (
         <p className="mt-3 text-xs text-[#6B7A90] border-t border-[#F3F3F3] pt-3 leading-relaxed">
           {supplier.notes}
@@ -300,10 +315,12 @@ function SupplierCard({ supplier, isAdmin, onEdit, onDelete, onAddPurchase }) {
 export default function Suppliers({ isAdmin = true }) {
   const [suppliers, setSuppliers] = useState([])
   const [projects, setProjects]   = useState([])
+  const [budgetItems, setBudgetItems] = useState([])
   const [loading, setLoading]     = useState(true)
   const [modal, setModal]         = useState(null)
   const [search, setSearch]       = useState('')
   const [filterCat, setFilterCat] = useState('All')
+  const [filterFav, setFilterFav] = useState(false)
   const [purchaseModal, setPurchaseModal] = useState(null)
   const [purchaseForm, setPurchaseForm]   = useState({ project_id: '', description: '', amount: '', quote_link: '' })
   const [savingPurchase, setSavingPurchase] = useState(false)
@@ -312,12 +329,14 @@ export default function Suppliers({ isAdmin = true }) {
 
   useEffect(() => {
     async function load() {
-      const [{ data: s }, { data: p }] = await Promise.all([
+      const [{ data: s }, { data: p }, { data: bi }] = await Promise.all([
         supabase.from('suppliers').select('*').order('name'),
         supabase.from('projects').select('id, name').order('name'),
+        supabase.from('budget_items').select('supplier_id, project_id, projects(name)'),
       ])
       setSuppliers(s || [])
       setProjects(p || [])
+      setBudgetItems(bi || [])
       setLoading(false)
     }
     load()
@@ -340,13 +359,28 @@ export default function Suppliers({ isAdmin = true }) {
     showToast('Purchase added! Chloe will review it.')
   }
 
+  async function toggleFavorite(supplier) {
+    const newVal = !supplier.is_favorite
+    await supabase.from('suppliers').update({ is_favorite: newVal }).eq('id', supplier.id)
+    setSuppliers(prev => prev.map(s => s.id === supplier.id ? { ...s, is_favorite: newVal } : s))
+  }
+
+  function getSupplierProjects(supplierId) {
+    const projectIds = [...new Set(budgetItems.filter(bi => bi.supplier_id === supplierId).map(bi => bi.project_id))]
+    return projectIds.map(pid => {
+      const proj = projects.find(p => p.id === pid)
+      return proj ? { id: proj.id, name: proj.name } : null
+    }).filter(Boolean)
+  }
+
   const existingCats = ['All', ...Array.from(new Set(suppliers.map(s => s.category))).sort()]
 
   const filtered = suppliers.filter(s => {
     const matchSearch = !search || [s.name, s.phone, s.email, s.category, s.notes]
       .some(v => v?.toLowerCase().includes(search.toLowerCase()))
     const matchCat = filterCat === 'All' || s.category === filterCat
-    return matchSearch && matchCat
+    const matchFav = !filterFav || s.is_favorite
+    return matchSearch && matchCat && matchFav
   })
 
   function handleSaved(saved, isEdit) {
@@ -391,6 +425,14 @@ export default function Suppliers({ isAdmin = true }) {
         </div>
 
         <div className="flex gap-1.5 flex-wrap">
+          <button onClick={() => setFilterFav(!filterFav)}
+            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
+              filterFav
+                ? 'bg-amber-100 text-amber-700'
+                : 'bg-white text-[#6B7A90] hover:bg-[#F3F3F3]'
+            }`}>
+            ⭐ Favorites
+          </button>
           {existingCats.map(cat => (
             <button key={cat} onClick={() => setFilterCat(cat)}
               className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
@@ -416,7 +458,9 @@ export default function Suppliers({ isAdmin = true }) {
             <SupplierCard key={s.id} supplier={s} isAdmin={isAdmin}
               onEdit={sup => setModal(sup)}
               onDelete={handleDelete}
-              onAddPurchase={sup => { setPurchaseModal(sup); setPurchaseForm({ project_id: '', description: '', amount: '', quote_link: '' }) }} />
+              onAddPurchase={sup => { setPurchaseModal(sup); setPurchaseForm({ project_id: '', description: '', amount: '', quote_link: '' }) }}
+              onToggleFavorite={toggleFavorite}
+              supplierProjects={getSupplierProjects(s.id)} />
           ))}
         </div>
       )}
