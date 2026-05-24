@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' })
 
-  const { to, subject, body, attachments } = req.body
+  const { to, subject, body, attachments, cc, replyTo } = req.body
   if (!to || !subject || !body) return res.status(400).json({ error: 'Missing to, subject, or body' })
 
   const sb = createClient(process.env.VITE_SUPABASE_URL, process.env.VITE_SUPABASE_ANON_KEY)
@@ -57,10 +57,12 @@ export default async function handler(req, res) {
       ].join('\r\n'))
     }
 
+    const replyToHeader = replyTo ? `hello@yaelsiso.com, ${replyTo}` : 'hello@yaelsiso.com'
     const email = [
       `From: Yael Siso Studio <hello@yaelsiso.com>`,
-      `Reply-To: hello@yaelsiso.com`,
+      `Reply-To: ${replyToHeader}`,
       `To: ${to}`,
+      ...(cc ? [`Cc: ${cc}`] : []),
       `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
       `MIME-Version: 1.0`,
       `Content-Type: multipart/mixed; boundary="${boundary}"`,
@@ -78,10 +80,12 @@ export default async function handler(req, res) {
 
     const htmlDoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>${body}</body></html>`
 
+    const replyToHeader = replyTo ? `hello@yaelsiso.com, ${replyTo}` : 'hello@yaelsiso.com'
     const email = [
       `From: Yael Siso Studio <hello@yaelsiso.com>`,
-      `Reply-To: hello@yaelsiso.com`,
+      `Reply-To: ${replyToHeader}`,
       `To: ${to}`,
+      ...(cc ? [`Cc: ${cc}`] : []),
       `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
       `MIME-Version: 1.0`,
       `Content-Type: multipart/alternative; boundary="${boundary}"`,

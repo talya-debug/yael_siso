@@ -77,7 +77,7 @@ function buildGantt(tasks, projectStartDate) {
 }
 
 // ── פאנל פרטי משימה ──
-function TaskPanel({ task, onClose, onUpdate, client, teamMembers = [] }) {
+function TaskPanel({ task, onClose, onUpdate, client, teamMembers = [], managerEmail }) {
  const [name, setName]    = useState(task.name)
  const [editing, setEditing] = useState(false)
  const [logs, setLogs]    = useState([])
@@ -233,7 +233,7 @@ Yael Siso | Interior Design`)
    const res = await fetch('/api/send-email', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ to: emailTo, subject: emailSubject, body: htmlBody, attachments: apiAttachments }),
+    body: JSON.stringify({ to: emailTo, subject: emailSubject, body: htmlBody, attachments: apiAttachments, ...(managerEmail ? { cc: managerEmail, replyTo: managerEmail } : {}) }),
    })
    if (res.ok) {
     setEmailSent(true)
@@ -1448,7 +1448,13 @@ function BudgetView({ project, client }) {
    const res = await fetch('/api/send-email', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ to: emailTo, subject: emailSubject, body: htmlBody, ...(apiAttachments.length > 0 ? { attachments: apiAttachments } : {}) }),
+    body: JSON.stringify({
+     to: emailTo,
+     subject: emailSubject,
+     body: htmlBody,
+     ...(apiAttachments.length > 0 ? { attachments: apiAttachments } : {}),
+     ...(defaultAssignee && teamMemberEmails[defaultAssignee] ? { cc: teamMemberEmails[defaultAssignee], replyTo: teamMemberEmails[defaultAssignee] } : {}),
+    }),
    })
    if (res.ok) {
     // עדכון סטטוס התשלום ל-sent
@@ -2090,9 +2096,14 @@ function ProjectDetail({ project, clients, onBack }) {
   setPhaseExpanded(phases)
  }
 
+ const [teamMemberEmails, setTeamMemberEmails] = useState({})
+
  async function fetchTeamMembers() {
-  const { data } = await supabase.from('user_roles').select('name').order('name')
+  const { data } = await supabase.from('user_roles').select('name, email').order('name')
   setTeamMembers((data || []).map(d => d.name).filter(Boolean))
+  const emailMap = {}
+  ;(data || []).forEach(d => { if (d.name && d.email) emailMap[d.name] = d.email })
+  setTeamMemberEmails(emailMap)
  }
 
  async function updateTaskStatus(taskId, newStatus, blockReason) {
@@ -2693,6 +2704,7 @@ function ProjectDetail({ project, clients, onBack }) {
      task={selectedTask}
      client={client}
      teamMembers={teamMembers}
+     managerEmail={defaultAssignee && teamMemberEmails[defaultAssignee] ? teamMemberEmails[defaultAssignee] : null}
      onClose={() => setSelectedTask(null)}
      onUpdate={() => {
       fetchTasks()
