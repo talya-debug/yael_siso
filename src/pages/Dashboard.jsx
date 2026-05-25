@@ -14,6 +14,28 @@ import MonthlyReport from './MonthlyReport'
 import FinanceDashboard from './FinanceDashboard'
 import MyDay from './MyDay'
 
+// צבעי אייקונים לסיידבר
+const ICON_COLORS = {
+  home:             { text: 'text-blue-400',   bg: 'bg-blue-500/12',   active: 'bg-blue-600',   border: 'border-blue-400' },
+  myday:            { text: 'text-blue-400',   bg: 'bg-blue-500/12',   active: 'bg-blue-600',   border: 'border-blue-400' },
+  clients:          { text: 'text-amber-400',  bg: 'bg-amber-500/12',  active: 'bg-amber-600',  border: 'border-amber-400' },
+  projects:         { text: 'text-purple-400', bg: 'bg-purple-500/12', active: 'bg-purple-600', border: 'border-purple-400' },
+  billing:          { text: 'text-green-400',  bg: 'bg-green-500/12',  active: 'bg-green-600',  border: 'border-green-400' },
+  supplierbilling:  { text: 'text-green-400',  bg: 'bg-green-500/12',  active: 'bg-green-600',  border: 'border-green-400' },
+  suppliers:        { text: 'text-pink-400',   bg: 'bg-pink-500/12',   active: 'bg-pink-600',   border: 'border-pink-400' },
+  financedashboard: { text: 'text-cyan-400',   bg: 'bg-cyan-500/12',   active: 'bg-cyan-600',   border: 'border-cyan-400' },
+  worklog:          { text: 'text-teal-400',   bg: 'bg-teal-500/12',   active: 'bg-teal-600',   border: 'border-teal-400' },
+  knowledge:        { text: 'text-indigo-400', bg: 'bg-indigo-500/12', active: 'bg-indigo-600', border: 'border-indigo-400' },
+  contents:         { text: 'text-violet-400', bg: 'bg-violet-500/12', active: 'bg-violet-600', border: 'border-violet-400' },
+}
+
+// סקשנים בסיידבר
+const SECTIONS = [
+  { label: 'WORK', items: ['home', 'myday', 'projects'] },
+  { label: 'MANAGE', items: ['clients', 'billing', 'supplierbilling', 'suppliers'] },
+  { label: 'TOOLS', items: ['financedashboard', 'worklog', 'knowledge', 'contents'] },
+]
+
 // admin = sees everything, team = limited
 const allModules = [
   { id: 'home',             label: 'Dashboard',          Icon: LayoutDashboard, access: 'admin' },
@@ -23,7 +45,6 @@ const allModules = [
   { id: 'billing',          label: 'Client Billing',      Icon: Wallet,          access: 'admin' },
   { id: 'supplierbilling',  label: 'Supplier Billing',    Icon: Receipt,         access: 'admin' },
   { id: 'suppliers',        label: 'Supplier Directory',  Icon: BookUser,        access: 'all' },
-  // { id: 'monthlyreport',    label: 'Monthly Report',      Icon: FileBarChart,    access: 'admin' }, // מוסתר זמנית
   { id: 'financedashboard', label: 'Finance Dashboard',   Icon: BarChart3,       access: 'admin' },
   { id: 'worklog',          label: 'Work Log',            Icon: CalendarDays,    access: 'all' },
   { id: 'knowledge',        label: 'Knowledge Base',      Icon: BookOpen,        access: 'all' },
@@ -77,7 +98,7 @@ export default function Dashboard({ userRole, onLogout }) {
   }
 
   return (
-    <div className="flex h-screen bg-[#F9F9F9] overflow-hidden" dir="ltr">
+    <div className="flex h-screen bg-[#F8F9FC] overflow-hidden" dir="ltr">
 
       {/* Mobile overlay */}
       {sidebarOpen && (
@@ -85,40 +106,58 @@ export default function Dashboard({ userRole, onLogout }) {
       )}
 
       {/* Sidebar */}
-      <aside className={`w-60 bg-[#091426] flex flex-col shrink-0 fixed inset-y-0 left-0 z-50 transform transition-transform duration-200 md:relative md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="px-6 py-6">
+      <aside className={`w-[280px] bg-[#091426] flex flex-col shrink-0 fixed inset-y-0 left-0 z-50 transform transition-transform duration-200 md:relative md:translate-x-0 shadow-2xl shadow-black/20 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="px-6 py-6 mb-2">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#7B5800] to-[#B8960B] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#7B5800] to-[#B8960B] flex items-center justify-center">
               <span className="text-white font-bold text-sm font-[Manrope]">YS</span>
             </div>
             <div>
-              <h1 className="text-white font-bold text-sm font-[Manrope] tracking-tight">Yael Siso</h1>
-              <p className="text-[#6B7A90] text-[10px] font-medium tracking-widest uppercase">Interior Design</p>
+              <h1 className="text-white font-bold text-sm font-[Manrope] tracking-tight">Yael Siso Studio</h1>
+              <p className="text-[#6B7A90] text-[9px] font-medium tracking-widest uppercase">Interior Design</p>
             </div>
           </div>
         </div>
 
-        <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-auto" role="navigation" aria-label="Main navigation">
-          {modules.map(({ id, label, Icon }) => (
-            <button key={id} onClick={() => { setActive(id); setSidebarOpen(false) }}
-              aria-current={active === id ? 'page' : undefined}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] font-medium transition-all duration-200 ${
-                active === id
-                  ? 'bg-[#1E293B] text-white shadow-lg shadow-black/20'
-                  : 'text-[#6B7A90] hover:bg-[#0F1D32] hover:text-[#A0B0C4]'
-              }`}>
-              <Icon size={17} strokeWidth={1.8} className="shrink-0" />
-              <span className="flex-1 text-left">{label}</span>
-              {id === 'billing' && pendingApprovalCount > 0 && (
-                <span className="ml-auto bg-violet-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1">
-                  {pendingApprovalCount}
-                </span>
-              )}
-              {active === id && id !== 'billing' && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#B8960B]" />
-              )}
-            </button>
-          ))}
+        <nav className="flex-1 overflow-auto" role="navigation" aria-label="Main navigation">
+          {SECTIONS.map(section => {
+            const sectionModules = section.items
+              .map(id => modules.find(m => m.id === id))
+              .filter(Boolean)
+            if (sectionModules.length === 0) return null
+            return (
+              <div key={section.label} className="mb-4">
+                <div className="px-6 mb-2">
+                  <span className="text-[9px] font-bold text-[#6B7A90]/50 uppercase tracking-[0.1em]">{section.label}</span>
+                </div>
+                <div className="space-y-1">
+                  {sectionModules.map(({ id, label, Icon }) => {
+                    const colors = ICON_COLORS[id] || ICON_COLORS.home
+                    const isActive = active === id
+                    return (
+                      <button key={id} onClick={() => { setActive(id); setSidebarOpen(false) }}
+                        aria-current={isActive ? 'page' : undefined}
+                        className={`w-full flex items-center gap-3 px-6 py-2.5 transition-all duration-200 ${
+                          isActive
+                            ? `${colors.active} text-white border-l-[3px] ${colors.border}`
+                            : 'text-[#6B7A90]/70 hover:bg-white/5 hover:text-white border-l-[3px] border-transparent'
+                        }`}>
+                        <div className={`w-9 h-9 rounded-full ${isActive ? 'bg-white/12' : colors.bg} flex items-center justify-center shrink-0`}>
+                          <Icon size={22} strokeWidth={1.8} className={isActive ? 'text-white' : colors.text} />
+                        </div>
+                        <span className="flex-1 text-left font-semibold text-[14px]">{label}</span>
+                        {id === 'billing' && pendingApprovalCount > 0 && (
+                          <span className="bg-violet-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1">
+                            {pendingApprovalCount}
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })}
         </nav>
 
         {/* User footer */}
