@@ -1458,6 +1458,7 @@ function BudgetView({ project, client }) {
     <img src="https://yaelsiso.vercel.app/yael-logo.jpeg" alt="Yael Siso" style="height: 40px; margin-bottom: 16px;">
     <h2 style="color: #091426; font-size: 18px; margin-bottom: 16px;">Payment Request</h2>
     <div style="color: #333; font-size: 14px; white-space: pre-line; margin-bottom: 24px;">${emailBody}</div>
+    ${budgetDriveLink ? `<p style="margin-top: 16px;"><a href="${budgetDriveLink}" style="color: #7B5800; font-size: 13px; font-weight: 600; text-decoration: none;">📁 View Budget Folder</a></p>` : ''}
     <p style="color: #B8960B; font-size: 11px; margin-top: 32px; letter-spacing: 2px; text-transform: uppercase;">Yael Siso — Interior Design</p>
    </div>
   `
@@ -1536,6 +1537,7 @@ function BudgetView({ project, client }) {
       onChange={e => setBudgetDriveLink(e.target.value)}
       onBlur={async () => {
        await supabase.from('projects').update({ budget_drive_link: budgetDriveLink || null }).eq('id', project.id)
+       project.budget_drive_link = budgetDriveLink || null
       }}
       placeholder="https://drive.google.com/..."
       className="flex-1 bg-[#F3F3F3] rounded-lg px-3 py-1.5 text-xs border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 text-[#091426]"
@@ -1563,7 +1565,6 @@ function BudgetView({ project, client }) {
         <th className="text-right px-4 py-3">Paid</th>
         <th className="text-right px-4 py-3">Remaining</th>
         <th className="text-center px-4 py-3">Status</th>
-        <th className="text-center px-4 py-3">Link</th>
         <th className="text-center px-4 py-3">Actions</th>
        </tr>
       </thead>
@@ -1595,13 +1596,6 @@ function BudgetView({ project, client }) {
             <span className={`text-[10px] font-bold tracking-wider px-2.5 py-0.5 rounded-full ${statusChip[status]}`}>
              {status === 'paid' ? 'Paid' : status === 'partial' ? 'Partial' : 'Pending'}
             </span>
-           </td>
-           <td className="px-4 py-3 text-center">
-            {item.drive_link ? (
-             <a href={item.drive_link} target="_blank" rel="noopener noreferrer" className="text-[#6B7A90] hover:text-[#091426] transition">
-              <ExternalLink size={14} strokeWidth={1.8} />
-             </a>
-            ) : <span className="text-[#6B7A90]">—</span>}
            </td>
            <td className="px-4 py-3">
             <div className="flex items-center justify-center gap-1">
@@ -1759,12 +1753,6 @@ function BudgetView({ project, client }) {
         <label className={lbl}>Notes</label>
         <textarea value={addForm.notes} onChange={e => setAddForm(f => ({ ...f, notes: e.target.value }))}
          rows={2} className={`${inp} resize-none`} />
-       </div>
-       <div>
-        <label className={lbl}>Drive Link</label>
-        <input value={addForm.drive_link} onChange={e => setAddForm(f => ({ ...f, drive_link: e.target.value }))}
-         placeholder="https://drive.google.com/..."
-         className={inp} />
        </div>
       </div>
       <div className="flex gap-3 p-5 border-t border-[#F3F3F3]">
