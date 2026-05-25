@@ -952,22 +952,29 @@ function ClientCard({ project }) {
     <div className="space-y-3">
      {contacts.map(ct => (
       <div key={ct.id} className="bg-[#F3F3F3] rounded-2xl p-4 relative group">
-       <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition">
-        <button onClick={() => {
+       <div className="absolute top-3 right-3 flex gap-1">
+        <button onClick={e => {
+         e.stopPropagation()
          const parts = [
           ct.name ? `Name: ${ct.name}` : null,
           card?.address ? `Address: ${card.address}` : null,
           ct.id_number ? `ID: ${ct.id_number}` : null,
           ct.phone ? `Phone: ${ct.phone}` : null,
+          ct.email ? `Email: ${ct.email}` : null,
          ].filter(Boolean)
-         navigator.clipboard.writeText(parts.join('\n'))
-         const btn = document.activeElement
-         btn.textContent = '✓'
-         setTimeout(() => { btn.textContent = '📋' }, 1500)
+         const text = parts.join('\n')
+         try {
+          navigator.clipboard.writeText(text)
+         } catch {
+          const ta = document.createElement('textarea')
+          ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta)
+         }
+         e.currentTarget.textContent = '✓ Copied'
+         setTimeout(() => { e.currentTarget.textContent = '📋 Copy' }, 2000)
         }}
          title="Copy for WhatsApp"
-         className="text-[#6B7A90] hover:text-[#091426] p-1 rounded hover:bg-white transition text-sm">
-         📋
+         className="text-[#7B5800] bg-amber-50 hover:bg-amber-100 px-2.5 py-1 rounded-xl text-xs font-medium transition">
+         📋 Copy
         </button>
         <button onClick={() => deleteContact(ct.id)}
          className="text-[#6B7A90] hover:text-red-500 p-1 rounded hover:bg-white transition">
