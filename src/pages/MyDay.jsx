@@ -37,12 +37,19 @@ export default function MyDay({ userRole, onOpenProject }) {
   const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
+  const [googleConnected, setGoogleConnected] = useState(false)
   const [addForm, setAddForm] = useState({ title: '', due_date: new Date().toISOString().split('T')[0], project_id: '' })
 
   const userName = userRole?.name || 'User'
   const userEmail = userRole?.email || ''
 
-  useEffect(() => { fetchAll() }, [])
+  useEffect(() => { fetchAll(); checkGoogleConnection() }, [])
+
+  async function checkGoogleConnection() {
+    if (!userEmail) return
+    const { data } = await supabase.from('google_task_tokens').select('id').eq('user_email', userEmail).maybeSingle()
+    setGoogleConnected(!!data)
+  }
 
   async function fetchAll() {
     const [{ data: tasks }, { data: daily }, { data: proj }] = await Promise.all([
@@ -202,10 +209,22 @@ export default function MyDay({ userRole, onOpenProject }) {
             {new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
           </p>
         </div>
-        <button onClick={() => setShowAdd(true)}
-          className="bg-[#091426] text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all flex items-center gap-2">
-          <Plus size={15} strokeWidth={1.8} /> Add Task
-        </button>
+        <div className="flex items-center gap-2">
+          {googleConnected ? (
+            <span className="text-xs text-emerald-600 bg-emerald-50 px-3 py-2 rounded-xl font-medium flex items-center gap-1.5">
+              <CheckCircle2 size={14} strokeWidth={1.8} /> Google Tasks
+            </span>
+          ) : (
+            <a href={`/api/google-tasks-auth?email=${encodeURIComponent(userEmail)}`}
+              className="text-xs text-[#6B7A90] bg-[#F3F3F3] hover:bg-[#E2E8F0] px-3 py-2 rounded-xl font-medium transition flex items-center gap-1.5">
+              Connect Google Tasks
+            </a>
+          )}
+          <button onClick={() => setShowAdd(true)}
+            className="bg-[#091426] text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all flex items-center gap-2">
+            <Plus size={15} strokeWidth={1.8} /> Add Task
+          </button>
+        </div>
       </div>
 
       {/* באיחור */}
