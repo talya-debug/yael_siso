@@ -39,7 +39,7 @@ const SECTIONS = [
 // admin = sees everything, team = limited
 const allModules = [
   { id: 'home',             label: 'Dashboard',          Icon: LayoutDashboard, access: 'admin' },
-  { id: 'myday',            label: 'My Day',             Icon: CalendarDays,    access: 'team' },
+  { id: 'myday',            label: 'My Day',             Icon: CalendarDays,    access: 'all' },
   { id: 'clients',          label: 'Clients',             Icon: Users,           access: 'admin' },
   { id: 'projects',         label: 'Projects',            Icon: FolderKanban,    access: 'all' },
   { id: 'billing',          label: 'Client Billing',      Icon: Wallet,          access: 'admin' },
