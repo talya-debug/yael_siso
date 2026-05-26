@@ -291,7 +291,7 @@ export default function MyDay({ userRole, onOpenProject }) {
                 <select value={addTaskProject} onChange={e => setAddTaskProject(e.target.value)}
                   className="text-[10px] bg-[#F3F3F3] rounded px-2 py-1 text-[#64748B] border-0 w-24">
                   <option value="">Project</option>
-                  {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  {myProjects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
               </div>
 
