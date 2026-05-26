@@ -7,15 +7,52 @@ import {
  LayoutList, BarChart2, Flag, Pencil,
  Users, FileText, MapPin, ExternalLink, Link2, ContactRound,
  Check, Download, CreditCard, Upload, Search,
+ Home, Building2, Hammer, Ruler, Hotel, PaintBucket, Sofa,
 } from 'lucide-react'
+
+// מיפוי שמות אייקונים לקומפוננטות
+const ICON_MAP = { Home, Building2, Hammer, Pencil, Ruler, Hotel, PaintBucket, Sofa }
 import * as XLSX from 'xlsx'
 
 // ── קבועים ──
 const STATUS = {
- pending:   { label: 'Pending', color: 'bg-[#F3F3F3] text-[#6B7A90]',   dot: 'bg-[#6B7A90]',  bar: '#94a3b8' },
- in_progress: { label: 'In Progress', color: 'bg-[#F3F3F3] text-[#091426]',    dot: 'bg-[#091426]',   bar: '#374151' },
- done:    { label: 'Completed', color: 'bg-emerald-50 text-emerald-700', dot: 'bg-emerald-500', bar: '#10b981' },
- blocked:   { label: 'Blocked',  color: 'bg-red-50 text-red-600',     dot: 'bg-red-500',   bar: '#ef4444' },
+ pending:   { label: 'Pending',     color: 'bg-amber-50 text-amber-700',      dot: 'bg-amber-500',   bar: '#f59e0b', icon: '○' },
+ in_progress: { label: 'In Progress', color: 'bg-blue-50 text-blue-700',       dot: 'bg-blue-500',    bar: '#3b82f6', icon: '◑' },
+ done:    { label: 'Completed',   color: 'bg-emerald-50 text-emerald-700',  dot: 'bg-emerald-500', bar: '#10b981', icon: '✓' },
+ blocked:   { label: 'Blocked',     color: 'bg-red-50 text-red-600',          dot: 'bg-red-500',     bar: '#ef4444', icon: '⚠' },
+}
+
+// צבעים ואייקונים לפרויקטים
+const PROJECT_COLORS = ['#4F46E5', '#7C3AED', '#2563EB', '#0891B2', '#059669', '#D97706', '#DC2626', '#DB2777']
+const PROJECT_ICONS = ['Home', 'Building2', 'Hammer', 'Pencil', 'Ruler', 'Hotel', 'PaintBucket', 'Sofa']
+
+function getProjectColor(projectId) {
+ if (!projectId) return PROJECT_COLORS[0]
+ let hash = 0
+ for (let i = 0; i < projectId.length; i++) hash = projectId.charCodeAt(i) + ((hash << 5) - hash)
+ return PROJECT_COLORS[Math.abs(hash) % PROJECT_COLORS.length]
+}
+
+function getProjectIconName(projectId) {
+ if (!projectId) return 'Home'
+ let hash = 0
+ for (let i = 0; i < projectId.length; i++) hash = projectId.charCodeAt(i) + ((hash << 5) - hash)
+ return PROJECT_ICONS[Math.abs(hash) % PROJECT_ICONS.length]
+}
+
+// קומפוננטת אייקון פרויקט — מרובע צבעוני עם אייקון לבן
+function ProjectIcon({ projectId, size = 40 }) {
+ const color = getProjectColor(projectId)
+ const iconName = getProjectIconName(projectId)
+ const IconComp = ICON_MAP[iconName] || Home
+ const iconSize = size === 40 ? 20 : size === 24 ? 13 : 16
+ const radius = size === 40 ? 'rounded-[10px]' : 'rounded-lg'
+ return (
+  <div className={`${radius} flex items-center justify-center shrink-0`}
+   style={{ width: size, height: size, backgroundColor: color }}>
+   <IconComp size={iconSize} strokeWidth={1.8} className="text-white" />
+  </div>
+ )
 }
 const PRIORITY = {
  low:  { label: 'Low', color: 'text-[#6B7A90]',  icon: '↓' },
@@ -2895,7 +2932,7 @@ export default function Projects({ openProjectId, onProjectOpened }) {
 
    {projects.length === 0 && (
     <div className="flex flex-col items-center justify-center py-20 text-center">
-     <div className="w-16 h-16 bg-[#F3F3F3] rounded-2xl flex items-center justify-center text-3xl mb-4">📐</div>
+     <div className="w-16 h-16 bg-[#F3F3F3] rounded-2xl flex items-center justify-center mb-4"><Ruler size={28} className="text-[#6B7A90]" /></div>
      <h3 className="text-base font-semibold text-[#091426] font-[Manrope] tracking-tight mb-1">No projects yet</h3>
      <p className="text-sm text-[#6B7A90]">Approve a client proposal — a project will be created automatically</p>
     </div>
@@ -2942,7 +2979,7 @@ export default function Projects({ openProjectId, onProjectOpened }) {
              <Trash2 size={13} strokeWidth={1.8} />
             </button>
             <div className="flex items-center justify-between mb-2">
-             <span className="text-lg">📐</span>
+             <ProjectIcon projectId={p.id} size={40} />
              <span className={`inline-flex items-center text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full ${meta.chip}`}>
               {meta.label}
              </span>
