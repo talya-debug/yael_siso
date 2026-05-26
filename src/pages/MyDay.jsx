@@ -259,90 +259,97 @@ export default function MyDay({ userRole, onOpenProject }) {
               </div>
             )}
 
-            {/* Add Task */}
-            <div className="p-4 border-t border-[#E2E8F0] flex gap-3">
-              <input value={addTaskInput} onChange={e => setAddTaskInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && addQuickTask()}
-                placeholder="+ Add a task..."
-                className="flex-1 bg-[#F3F3F3] rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-[#B8960B]/30 focus:outline-none placeholder:text-[#94A3B8]" />
-              <select value={addTaskProject} onChange={e => setAddTaskProject(e.target.value)}
-                className="bg-[#F3F3F3] rounded-lg px-3 py-2 text-xs text-[#64748B] focus:ring-2 focus:ring-[#B8960B]/30 w-36">
-                <option value="">Select Project</option>
-                {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
-              <button onClick={addQuickTask} className="bg-[#091426] text-white p-3 rounded-lg hover:bg-[#1E293B] transition shrink-0">
-                <Plus size={18} strokeWidth={2} />
-              </button>
-            </div>
           </div>
 
-          {/* Sticky Notes */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {activeDailyTasks.map(t => {
-              const pColor = getProjectColor(t.project_id)
-              const pName = t.project_id ? projects.find(p => p.id === t.project_id)?.name : null
-              const bgColor = t.project_id ? pColor + '18' : '#F3F4F6'
-              const borderColor = t.project_id ? pColor + '30' : '#E2E8F0'
-              return (
-                <div key={t.id} className="p-5 rounded-xl relative group hover:shadow-md transition-all"
-                  style={{ backgroundColor: bgColor, border: `1px solid ${borderColor}` }}>
-                  <Pin size={16} className="absolute top-4 left-4 rotate-12" style={{ color: t.project_id ? pColor : '#94A3B8' }} strokeWidth={1.8} />
-                  <button onClick={() => deleteDaily(t.id)}
-                    className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 text-[#64748B] hover:text-red-500 transition">
-                    <X size={16} strokeWidth={1.8} />
-                  </button>
-                  <p className="text-sm text-[#091426] mt-7 mb-4 leading-relaxed">{t.title}</p>
-                  <div className="flex justify-between items-center">
-                    {pName ? (
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: pColor }} />
-                        <span className="text-[11px] text-[#64748B]">{pName}</span>
-                      </div>
-                    ) : <span />}
-                    <button onClick={() => toggleDaily(t.id, t.status)}
-                      className="text-[11px] font-bold px-2.5 py-1 rounded border transition"
-                      style={{ color: t.project_id ? pColor : '#64748B', borderColor: t.project_id ? pColor : '#CBD5E1' }}>
-                      DONE
-                    </button>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-
-          {/* Done notes */}
-          {doneDailyTasks.length > 0 && (
-            <div className="flex gap-2 flex-wrap">
-              {doneDailyTasks.slice(0, 4).map(t => (
-                <span key={t.id} className="text-xs text-[#94A3B8] line-through bg-[#F3F3F3] px-3 py-1.5 rounded-lg">{t.title}</span>
-              ))}
-              {doneDailyTasks.length > 4 && <span className="text-xs text-[#94A3B8]">+{doneDailyTasks.length - 4} more</span>}
-            </div>
-          )}
-
-          {/* Add Note */}
-          <div className="bg-white rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-dashed border-[#CBD5E1] p-4">
-            <div className="flex gap-3">
-              <div className="flex items-center gap-2 flex-1">
-                <Pencil size={16} className="text-[#14B8A6] shrink-0" strokeWidth={1.8} />
-                <input value={noteInput} onChange={e => setNoteInput(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && addNote()}
-                  placeholder="Add a note..."
-                  className="flex-1 text-sm bg-transparent border-0 focus:outline-none placeholder:text-[#94A3B8]" />
-              </div>
-              <select value={noteProject} onChange={e => setNoteProject(e.target.value)}
-                className="bg-[#F3F3F3] rounded-lg px-3 py-2 text-xs text-[#64748B] w-32">
-                <option value="">No Project</option>
-                {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
+          {/* My Notes — פנקס חופשי */}
+          <div className="bg-white rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-dashed border-[#CBD5E1] p-5">
+            <h3 className="font-bold text-sm text-[#091426] font-[Manrope] flex items-center gap-2 mb-3">
+              <Pencil size={16} className="text-[#14B8A6]" strokeWidth={1.8} /> My Notes
+            </h3>
+            <div className="flex gap-2 mb-3">
+              <input value={noteInput} onChange={e => setNoteInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && addNote()}
+                placeholder="Add a note..."
+                className="flex-1 text-sm bg-[#F8F9FC] border border-[#E2E8F0] rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-[#14B8A6]/30 focus:outline-none placeholder:text-[#94A3B8]" />
               <button onClick={addNote} disabled={!noteInput.trim()}
-                className="bg-[#B8960B] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-[#9A7D09] transition disabled:opacity-40">Save</button>
+                className="bg-[#14B8A6] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-[#0D9488] transition disabled:opacity-40">Save</button>
             </div>
           </div>
         </div>
 
         {/* ── Right Panel ── */}
         <div className="lg:w-[40%] space-y-6">
+          {/* Quick Tasks — למעלה, הכי בולט */}
+          <section>
+            <div className="bg-white rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-[#E2E8F0] overflow-hidden">
+              <div className="bg-[#091426] px-5 py-3 flex items-center justify-between">
+                <h2 className="font-bold text-sm text-white font-[Manrope] flex items-center gap-2">
+                  <ListChecks size={16} strokeWidth={1.8} className="text-[#B8960B]" /> Quick Tasks
+                </h2>
+                <span className="text-[11px] text-[#64748B] font-medium">{activeDailyTasks.length} tasks</span>
+              </div>
+
+              {/* Add task inline */}
+              <div className="px-4 py-3 border-b border-[#E2E8F0] flex items-center gap-2">
+                <Plus size={16} className="text-[#B8960B] shrink-0" strokeWidth={2} />
+                <input value={addTaskInput} onChange={e => setAddTaskInput(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && addQuickTask()}
+                  placeholder="Add a quick task..."
+                  className="flex-1 text-sm bg-transparent border-0 focus:outline-none placeholder:text-[#94A3B8] text-[#091426]" />
+                <select value={addTaskProject} onChange={e => setAddTaskProject(e.target.value)}
+                  className="text-[10px] bg-[#F3F3F3] rounded px-2 py-1 text-[#64748B] border-0 w-24">
+                  <option value="">Project</option>
+                  {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+              </div>
+
+              {/* Task list */}
+              {activeDailyTasks.length === 0 ? (
+                <div className="px-4 py-6 text-center text-sm text-[#94A3B8]">No quick tasks yet</div>
+              ) : (
+                <div className="divide-y divide-[#E2E8F0]">
+                  {activeDailyTasks.map(t => {
+                    const pName = t.project_id ? projects.find(p => p.id === t.project_id)?.name : null
+                    const pColor = getProjectColor(t.project_id)
+                    return (
+                      <div key={t.id} className="px-4 py-3 flex items-center gap-3 group hover:bg-[#F8F9FC] transition">
+                        <button onClick={() => toggleDaily(t.id, t.status)} className="shrink-0">
+                          <Circle size={18} className="text-[#CBD5E1] group-hover:text-emerald-500 transition" strokeWidth={1.8} />
+                        </button>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-[#091426]">{t.title}</p>
+                          {pName && (
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: pColor }} />
+                              <span className="text-[10px] text-[#64748B]">{pName}</span>
+                            </div>
+                          )}
+                        </div>
+                        <button onClick={() => deleteDaily(t.id)}
+                          className="opacity-0 group-hover:opacity-100 text-[#94A3B8] hover:text-red-500 transition shrink-0">
+                          <X size={14} strokeWidth={1.8} />
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+
+              {/* Done tasks — collapsed */}
+              {doneDailyTasks.length > 0 && (
+                <div className="px-4 py-2 bg-[#F8F9FC] border-t border-[#E2E8F0]">
+                  {doneDailyTasks.slice(0, 3).map(t => (
+                    <div key={t.id} className="flex items-center gap-2 py-1 opacity-40">
+                      <CheckCircle2 size={14} className="text-emerald-500 shrink-0" strokeWidth={1.8} />
+                      <span className="text-xs text-[#091426] line-through truncate">{t.title}</span>
+                    </div>
+                  ))}
+                  {doneDailyTasks.length > 3 && <p className="text-[10px] text-[#94A3B8]">+{doneDailyTasks.length - 3} more done</p>}
+                </div>
+              )}
+            </div>
+          </section>
+
           {/* My Projects */}
           <section>
             <div className="flex items-center justify-between mb-4">
