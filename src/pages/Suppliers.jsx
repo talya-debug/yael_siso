@@ -461,7 +461,7 @@ export default function Suppliers({ isAdmin = true }) {
           const hasMore = existingCats.length > shownCats.length
           return (
             <div className="flex gap-1.5 flex-wrap items-center">
-              <button onClick={() => setFilterFav(!filterFav)}
+              <button onClick={() => { setFilterFav(!filterFav); if (!filterFav) setFilterCat('All') }}
                 className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
                   filterFav
                     ? 'bg-amber-100 text-amber-700'
@@ -470,7 +470,7 @@ export default function Suppliers({ isAdmin = true }) {
                 ⭐ Favorites
               </button>
               {shownCats.map(cat => (
-                <button key={cat} onClick={() => setFilterCat(cat)}
+                <button key={cat} onClick={() => { setFilterCat(cat); setFilterFav(false) }}
                   className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
                     filterCat === cat
                       ? 'bg-[#091426] text-white'
