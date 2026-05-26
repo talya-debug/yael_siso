@@ -1,6 +1,48 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { Plus, X, Trash2, Phone, Mail, Globe, MapPin, Search, Pencil, Save } from 'lucide-react'
+import { Plus, X, Trash2, Phone, Mail, Globe, MapPin, Search, Pencil, Save,
+  Zap, Droplet, Hammer, Snowflake, PaintBucket, Square, Lightbulb, Wrench, Package,
+  Blinds, Sofa, TreePine, Scissors, Shield, Wifi, Sun, Truck, Ruler, HardHat,
+} from 'lucide-react'
+
+// אייקונים וצבעים לקטגוריות ספקים
+const CATEGORY_ICONS = {
+  'Electrician':            { Icon: Zap,         color: '#D97706' },
+  'Plumber':                { Icon: Droplet,     color: '#2563EB' },
+  'Carpenter':              { Icon: Hammer,      color: '#92400E' },
+  'HVAC Technician':        { Icon: Snowflake,   color: '#0891B2' },
+  'Painter':                { Icon: PaintBucket, color: '#DB2777' },
+  'Flooring':               { Icon: Square,      color: '#059669' },
+  'Lighting':               { Icon: Lightbulb,   color: '#D97706' },
+  'Renovation Contractor':  { Icon: HardHat,     color: '#4F46E5' },
+  'Drywall':                { Icon: Square,      color: '#6B7280' },
+  'Furniture':              { Icon: Sofa,        color: '#7C3AED' },
+  'Curtains & Blinds':      { Icon: Blinds,      color: '#6366F1' },
+  'Countertops & Kitchens': { Icon: Scissors,    color: '#DC2626' },
+  'Tiles & Cladding':       { Icon: Square,      color: '#0891B2' },
+  'Landscaping':            { Icon: TreePine,    color: '#059669' },
+  'Iron & Metalwork':       { Icon: Wrench,      color: '#6B7280' },
+  'Glass & Mirrors':        { Icon: Square,      color: '#0EA5E9' },
+  'Doors':                  { Icon: Square,      color: '#92400E' },
+  'Windows & Shutters':     { Icon: Sun,         color: '#D97706' },
+  'Smart Home & Automation':{ Icon: Wifi,        color: '#4F46E5' },
+  'Security Systems':       { Icon: Shield,      color: '#DC2626' },
+  'Moving & Storage':       { Icon: Truck,       color: '#6B7280' },
+  'Architect':              { Icon: Ruler,       color: '#4F46E5' },
+  'Structural Engineer':    { Icon: Ruler,       color: '#0891B2' },
+  'Other':                  { Icon: Package,     color: '#6B7280' },
+}
+
+function CategoryIcon({ category, size = 20 }) {
+  const cat = CATEGORY_ICONS[category] || CATEGORY_ICONS['Other']
+  const IconComp = cat.Icon
+  return (
+    <div className="rounded-lg flex items-center justify-center shrink-0"
+      style={{ width: size + 4, height: size + 4, backgroundColor: cat.color + '18' }}>
+      <IconComp size={size - 4} strokeWidth={1.8} style={{ color: cat.color }} />
+    </div>
+  )
+}
 
 // קטגוריות ספקים
 const CATEGORIES = [
@@ -228,7 +270,8 @@ function SupplierCard({ supplier, isAdmin, onEdit, onDelete, onAddPurchase, onTo
       <div className="flex items-start justify-between mb-3">
         <div>
           <h3 className="font-semibold text-[#091426] text-base leading-tight font-[Manrope] tracking-tight">{supplier.name}</h3>
-          <div className="flex items-center gap-2 mt-1 flex-wrap">
+          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+            <CategoryIcon category={supplier.category} size={20} />
             <span className="text-[10px] font-bold tracking-wider bg-[#F3F3F3] text-[#091426] px-2 py-0.5 rounded-full">
               {supplier.category}
             </span>
@@ -321,6 +364,7 @@ export default function Suppliers({ isAdmin = true }) {
   const [search, setSearch]       = useState('')
   const [filterCat, setFilterCat] = useState('All')
   const [filterFav, setFilterFav] = useState(false)
+  const [showAllCats, setShowAllCats] = useState(false)
   const [purchaseModal, setPurchaseModal] = useState(null)
   const [purchaseForm, setPurchaseForm]   = useState({ project_id: '', description: '', amount: '', quote_link: '' })
   const [savingPurchase, setSavingPurchase] = useState(false)
@@ -424,26 +468,39 @@ export default function Suppliers({ isAdmin = true }) {
           />
         </div>
 
-        <div className="flex gap-1.5 flex-wrap">
-          <button onClick={() => setFilterFav(!filterFav)}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
-              filterFav
-                ? 'bg-amber-100 text-amber-700'
-                : 'bg-white text-[#6B7A90] hover:bg-[#F3F3F3]'
-            }`}>
-            ⭐ Favorites
-          </button>
-          {existingCats.map(cat => (
-            <button key={cat} onClick={() => setFilterCat(cat)}
-              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
-                filterCat === cat
-                  ? 'bg-[#091426] text-white'
-                  : 'bg-white text-[#6B7A90] hover:bg-[#F3F3F3]'
-              }`}>
-              {cat}
-            </button>
-          ))}
-        </div>
+        {(() => {
+          const PRIMARY_CATS = ['All', 'Renovation Contractor', 'Electrician', 'Plumber', 'Carpenter', 'Furniture', 'Lighting', 'Flooring', 'Countertops & Kitchens']
+          const shownCats = showAllCats ? existingCats : existingCats.filter(c => PRIMARY_CATS.includes(c))
+          const hasMore = existingCats.length > shownCats.length
+          return (
+            <div className="flex gap-1.5 flex-wrap items-center">
+              <button onClick={() => setFilterFav(!filterFav)}
+                className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
+                  filterFav
+                    ? 'bg-amber-100 text-amber-700'
+                    : 'bg-white text-[#6B7A90] hover:bg-[#F3F3F3]'
+                }`}>
+                ⭐ Favorites
+              </button>
+              {shownCats.map(cat => (
+                <button key={cat} onClick={() => setFilterCat(cat)}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
+                    filterCat === cat
+                      ? 'bg-[#091426] text-white'
+                      : 'bg-white text-[#6B7A90] hover:bg-[#F3F3F3]'
+                  }`}>
+                  {cat}
+                </button>
+              ))}
+              {hasMore && (
+                <button onClick={() => setShowAllCats(!showAllCats)}
+                  className="rounded-full px-3 py-1.5 text-sm font-medium text-[#7B5800] hover:bg-amber-50 transition-all">
+                  {showAllCats ? '← Less' : `+${existingCats.length - shownCats.length} more →`}
+                </button>
+              )}
+            </div>
+          )
+        })()}
       </div>
 
       {filtered.length === 0 ? (
