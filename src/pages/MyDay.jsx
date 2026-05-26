@@ -49,7 +49,7 @@ export default function MyDay({ userRole, onOpenProject }) {
   async function fetchAll() {
     const [{ data: tasks }, { data: daily }, { data: proj }, { data: allTasks }] = await Promise.all([
       supabase.from('tasks').select('*, projects(name)').eq('assigned_to', userName).neq('status', 'done').order('due_date'),
-      supabase.from('daily_tasks').select('*').eq('user_email', userEmail).order('created_at', { ascending: false }),
+      supabase.from('daily_tasks').select('*').eq('user_email', userEmail).order('created_at', { ascending: true }),
       supabase.from('projects').select('id, name, status, default_assignee').eq('status', 'active').order('name'),
       supabase.from('tasks').select('id, project_id, status, due_date, level').eq('assigned_to', userName),
     ])
@@ -110,8 +110,11 @@ export default function MyDay({ userRole, onOpenProject }) {
 
   async function addQuickTask() {
     if (!addTaskInput.trim()) return
-    const { data } = await supabase.from('daily_tasks').insert({
-      user_email: userEmail, title: addTaskInput.trim(), due_date: today.toISOString().split('T')[0], project_id: addTaskProject || null,
+    const email = userEmail || userRole?.email
+    if (!email) return
+    const { data, error } = await supabase.from('daily_tasks').insert({
+      user_email: email, title: addTaskInput.trim(), due_date: today.toISOString().split('T')[0],
+      project_id: addTaskProject || null, type: 'task',
     }).select().single()
     if (data) await syncGoogle('create', data.id, { name: addTaskInput.trim(), due_date: today.toISOString().split('T')[0] })
     setAddTaskInput(''); setAddTaskProject('')
@@ -120,11 +123,12 @@ export default function MyDay({ userRole, onOpenProject }) {
 
   async function addNote() {
     if (!noteInput.trim()) return
-    const { data } = await supabase.from('daily_tasks').insert({
-      user_email: userEmail, title: noteInput.trim(), due_date: today.toISOString().split('T')[0], project_id: noteProject || null,
-    }).select().single()
-    if (data) await syncGoogle('create', data.id, { name: noteInput.trim(), due_date: today.toISOString().split('T')[0] })
-    setNoteInput(''); setNoteProject('')
+    const email = userEmail || userRole?.email
+    if (!email) return
+    await supabase.from('daily_tasks').insert({
+      user_email: email, title: noteInput.trim(), due_date: today.toISOString().split('T')[0], type: 'note',
+    })
+    setNoteInput('')
     fetchAll()
   }
 
@@ -132,8 +136,10 @@ export default function MyDay({ userRole, onOpenProject }) {
 
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
-  const activeDailyTasks = dailyTasks.filter(t => t.status !== 'done')
-  const doneDailyTasks = dailyTasks.filter(t => t.status === 'done')
+  const quickTasks = dailyTasks.filter(t => t.type !== 'note')
+  const notes = dailyTasks.filter(t => t.type === 'note')
+  const activeDailyTasks = quickTasks.filter(t => t.status !== 'done')
+  const doneDailyTasks = quickTasks.filter(t => t.status === 'done')
   const efficiency = weeklyTotal > 0 ? Math.round((weeklyDone / weeklyTotal) * 100) : 0
 
   if (loading) return <div className="flex items-center justify-center p-8"><div className="w-6 h-6 border-2 border-[#091426] border-t-transparent rounded-full animate-spin" /></div>
@@ -261,20 +267,6 @@ export default function MyDay({ userRole, onOpenProject }) {
 
           </div>
 
-          {/* My Notes — פנקס חופשי */}
-          <div className="bg-white rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-dashed border-[#CBD5E1] p-5">
-            <h3 className="font-bold text-sm text-[#091426] font-[Manrope] flex items-center gap-2 mb-3">
-              <Pencil size={16} className="text-[#14B8A6]" strokeWidth={1.8} /> My Notes
-            </h3>
-            <div className="flex gap-2 mb-3">
-              <input value={noteInput} onChange={e => setNoteInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && addNote()}
-                placeholder="Add a note..."
-                className="flex-1 text-sm bg-[#F8F9FC] border border-[#E2E8F0] rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-[#14B8A6]/30 focus:outline-none placeholder:text-[#94A3B8]" />
-              <button onClick={addNote} disabled={!noteInput.trim()}
-                className="bg-[#14B8A6] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-[#0D9488] transition disabled:opacity-40">Save</button>
-            </div>
-          </div>
         </div>
 
         {/* ── Right Panel ── */}
@@ -335,16 +327,15 @@ export default function MyDay({ userRole, onOpenProject }) {
                 </div>
               )}
 
-              {/* Done tasks — collapsed */}
+              {/* Done tasks — עם פס, נמחקים אחרי יום */}
               {doneDailyTasks.length > 0 && (
                 <div className="px-4 py-2 bg-[#F8F9FC] border-t border-[#E2E8F0]">
-                  {doneDailyTasks.slice(0, 3).map(t => (
-                    <div key={t.id} className="flex items-center gap-2 py-1 opacity-40">
-                      <CheckCircle2 size={14} className="text-emerald-500 shrink-0" strokeWidth={1.8} />
-                      <span className="text-xs text-[#091426] line-through truncate">{t.title}</span>
+                  {doneDailyTasks.map(t => (
+                    <div key={t.id} className="flex items-center gap-2 py-1.5 opacity-50">
+                      <CheckCircle2 size={16} className="text-emerald-500 shrink-0" strokeWidth={1.8} />
+                      <span className="text-sm text-[#091426] line-through truncate flex-1">{t.title}</span>
                     </div>
                   ))}
-                  {doneDailyTasks.length > 3 && <p className="text-[10px] text-[#94A3B8]">+{doneDailyTasks.length - 3} more done</p>}
                 </div>
               )}
             </div>
