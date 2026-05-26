@@ -81,7 +81,7 @@ function ScopeSelector({ tree, selected, onChange }) {
         const phaseSome = allPhaseIds.some(id => selected.has(id)) && !phaseAll
 
         return (
-          <div key={phase.id} className="rounded-xl overflow-hidden shadow-[0_2px_20px_rgba(9,20,38,0.04)]">
+          <div key={phase.id} className="rounded-xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.05)]">
             {/* שלב */}
             <div className={`flex items-center gap-3 px-3 py-2.5 ${phaseAll ? 'bg-[#091426]' : 'bg-[#F3F3F3]'} cursor-pointer`}
               onClick={() => togglePhase(phase)}>
@@ -114,7 +114,7 @@ function ScopeSelector({ tree, selected, onChange }) {
 
                   return (
                     <div key={task.id}>
-                      <div className="flex items-center gap-3 px-5 py-2 cursor-pointer hover:bg-[#F9F9F9] transition"
+                      <div className="flex items-center gap-3 px-5 py-2 cursor-pointer hover:bg-[#F8F9FC] transition"
                         onClick={() => toggleTask(task)}>
                         <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 border ${
                           taskAll ? 'bg-[#091426] border-[#091426]' : taskSome ? 'border-[#6B7A90] bg-white' : 'border-[#6B7A90]/40 bg-white'
@@ -142,7 +142,7 @@ function ScopeSelector({ tree, selected, onChange }) {
 
                       {/* תת-משימות */}
                       {expanded[task.id] && task.subtasks.map(sub => (
-                        <div key={sub.id} className="flex items-center gap-3 px-9 py-1.5 cursor-pointer hover:bg-[#F9F9F9] transition"
+                        <div key={sub.id} className="flex items-center gap-3 px-9 py-1.5 cursor-pointer hover:bg-[#F8F9FC] transition"
                           onClick={() => toggleSub(sub.id)}>
                           <div className={`w-3.5 h-3.5 rounded flex items-center justify-center shrink-0 border ${
                             isSelected(sub.id) ? 'bg-[#091426] border-[#091426]' : 'border-[#6B7A90]/40 bg-white'
@@ -606,11 +606,11 @@ export default function Clients() {
         {filtered.map(c => {
           const proposal = clientProposal(c.id)
           const propMeta = proposal ? PROPOSAL_STATUS[proposal.status] : null
-          const colors = ['bg-[#F3F3F3] text-[#091426]', 'bg-[#F9F9F9] text-[#091426]', 'bg-emerald-50 text-emerald-700', 'bg-amber-50 text-amber-700']
+          const colors = ['bg-[#F3F3F3] text-[#091426]', 'bg-[#F8F9FC] text-[#091426]', 'bg-emerald-50 text-emerald-700', 'bg-amber-50 text-amber-700']
           const color = colors[c.name.charCodeAt(0) % colors.length]
 
           return (
-            <div key={c.id} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4 hover:scale-[1.02] transition-all">
+            <div key={c.id} className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-4 hover:scale-[1.02] transition-all">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="flex items-center gap-4">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-base shrink-0 ${color}`}>
@@ -683,7 +683,7 @@ export default function Clients() {
                     className="text-xs text-[#7B5800] hover:text-[#B8960B] px-3 py-1.5 rounded-xl hover:bg-amber-50 transition-all font-medium">
                     Edit Scope
                   </button>
-                  <button onClick={() => openEdit(c)} className="text-xs text-[#6B7A90] hover:text-[#091426] px-3 py-1.5 rounded-xl hover:bg-[#F9F9F9] transition-all">Edit</button>
+                  <button onClick={() => openEdit(c)} className="text-xs text-[#6B7A90] hover:text-[#091426] px-3 py-1.5 rounded-xl hover:bg-[#F8F9FC] transition-all">Edit</button>
                   <button onClick={() => remove(c.id)} className="text-xs text-[#6B7A90] hover:text-red-500 px-3 py-1.5 rounded-xl hover:bg-red-50 transition-all">Delete</button>
                 </div>
               </div>
@@ -760,7 +760,7 @@ export default function Clients() {
               {editClient ? (
                 <>
                   <button onClick={save} className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all">Save</button>
-                  <button onClick={() => setShowForm(false)} className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F9F9F9] transition-all">Cancel</button>
+                  <button onClick={() => setShowForm(false)} className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F8F9FC] transition-all">Cancel</button>
                 </>
               ) : step === 1 ? (
                 <>
@@ -769,14 +769,14 @@ export default function Clients() {
                     className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                     Next: Select Scope →
                   </button>
-                  <button onClick={() => setShowForm(false)} className="bg-[#F3F3F3] px-4 py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F9F9F9] transition-all">Cancel</button>
+                  <button onClick={() => setShowForm(false)} className="bg-[#F3F3F3] px-4 py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F8F9FC] transition-all">Cancel</button>
                 </>
               ) : (
                 <>
                   <button onClick={save} className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all">
                     Save Client {selectedScope.size > 0 ? `+ ${selectedScope.size} scope items` : '(no scope)'}
                   </button>
-                  <button onClick={() => setStep(1)} className="bg-[#F3F3F3] px-4 py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F9F9F9] transition-all">← Back</button>
+                  <button onClick={() => setStep(1)} className="bg-[#F3F3F3] px-4 py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F8F9FC] transition-all">← Back</button>
                 </>
               )}
             </div>
@@ -814,7 +814,7 @@ export default function Clients() {
                 {savingScope ? 'Saving...' : `Save Scope (${selectedScope.size} items)`}
               </button>
               <button onClick={() => setShowScopeEdit(false)}
-                className="bg-[#F3F3F3] px-4 py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F9F9F9] transition-all">
+                className="bg-[#F3F3F3] px-4 py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F8F9FC] transition-all">
                 Cancel
               </button>
             </div>
@@ -833,7 +833,7 @@ export default function Clients() {
           <div className="fixed inset-0 bg-[#091426]/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
               {/* כותרת */}
-              <div className="px-6 py-4 border-b border-[#F3F3F3] sticky top-0 bg-white rounded-t-2xl z-10">
+              <div className="px-6 py-4 border-b border-[#E2E8F0] sticky top-0 bg-white rounded-t-2xl z-10">
                 <h2 className="text-base font-semibold text-[#091426] font-[Manrope] tracking-tight">
                   Open Project — Billing Setup
                 </h2>
@@ -875,7 +875,7 @@ export default function Clients() {
                   </label>
                   <div className="space-y-2">
                     {billingRows.map((row, i) => (
-                      <div key={i} className="bg-[#F9F9F9] rounded-xl px-4 py-3">
+                      <div key={i} className="bg-[#F8F9FC] rounded-xl px-4 py-3">
                         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                           {/* שם */}
                           <input type="text" value={row.name}
@@ -933,7 +933,7 @@ export default function Clients() {
                 </div>
 
                 {/* סיכום */}
-                <div className="flex items-center justify-between px-4 py-3 bg-[#F9F9F9] rounded-xl flex-wrap gap-2">
+                <div className="flex items-center justify-between px-4 py-3 bg-[#F8F9FC] rounded-xl flex-wrap gap-2">
                   <div>
                     <span className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">ALLOCATED</span>
                     <div className="text-sm font-bold text-[#091426]">₪{allocated.toLocaleString()}</div>
@@ -952,7 +952,7 @@ export default function Clients() {
               </div>
 
               {/* פעולות */}
-              <div className="flex flex-wrap gap-2 px-6 py-4 border-t border-[#F3F3F3] sticky bottom-0 bg-white rounded-b-2xl">
+              <div className="flex flex-wrap gap-2 px-6 py-4 border-t border-[#E2E8F0] sticky bottom-0 bg-white rounded-b-2xl">
                 <button onClick={createProject}
                   disabled={!isBalanced || creatingProject}
                   className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-[#1E293B] transition-all disabled:opacity-40 disabled:cursor-not-allowed">
@@ -960,7 +960,7 @@ export default function Clients() {
                 </button>
                 <button onClick={() => setShowOpenProject(null)}
                   disabled={creatingProject}
-                  className="bg-[#F3F3F3] px-4 py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F9F9F9] transition-all disabled:opacity-40">
+                  className="bg-[#F3F3F3] px-4 py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F8F9FC] transition-all disabled:opacity-40">
                   Cancel
                 </button>
               </div>

@@ -208,11 +208,11 @@ export default function FinanceDashboard() {
 
       {/* Hourly Rates Editor */}
       {showRates && (
-        <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-5">
+        <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-5">
           <h3 className="font-semibold text-[#091426] font-[Manrope] tracking-tight mb-3">Hourly Rates by Role</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {rates.map(r => (
-              <div key={r.id} className="bg-[#F9F9F9] rounded-xl p-3">
+              <div key={r.id} className="bg-[#F8F9FC] rounded-xl p-3">
                 <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mb-1.5">{r.role}</p>
                 <div className="flex items-center gap-1">
                   <span className="text-sm text-[#6B7A90]">₪</span>
@@ -235,7 +235,7 @@ export default function FinanceDashboard() {
           { label: 'TOTAL EXPENSES', value: fmt(totalExpensesAll), icon: TrendingDown, iconBg: 'bg-red-50', iconColor: 'text-red-500' },
           { label: 'GROSS PROFIT', value: fmt(totalProfit), icon: Target, iconBg: totalProfit >= 0 ? 'bg-emerald-50' : 'bg-red-50', iconColor: totalProfit >= 0 ? 'text-emerald-600' : 'text-red-500' },
         ].map(k => (
-          <div key={k.label} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-5">
+          <div key={k.label} className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-5">
             <div className={`w-8 h-8 rounded-xl ${k.iconBg} flex items-center justify-center mb-2`}>
               <k.icon size={16} className={k.iconColor} strokeWidth={1.8} />
             </div>
@@ -266,10 +266,10 @@ export default function FinanceDashboard() {
             const f = projectFinance(p)
             const isOpen = expanded[p.id]
             return (
-              <div key={p.id} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] overflow-hidden">
+              <div key={p.id} className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-hidden">
                 {/* Header row */}
                 <button onClick={() => setExpanded(prev => ({ ...prev, [p.id]: !prev[p.id] }))}
-                  className="w-full px-4 md:px-6 py-4 flex items-center gap-3 md:gap-4 hover:bg-[#F9F9F9] transition-colors text-left">
+                  className="w-full px-4 md:px-6 py-4 flex items-center gap-3 md:gap-4 hover:bg-[#F8F9FC] transition-colors text-left">
                   {isOpen ? <ChevronDown size={16} className="text-[#6B7A90] shrink-0" /> : <ChevronRight size={16} className="text-[#6B7A90] shrink-0" />}
                   <div className="flex-1 min-w-0">
                     <span className="font-semibold text-[#091426] font-[Manrope] tracking-tight text-sm md:text-base">{p.name}</span>
@@ -296,13 +296,13 @@ export default function FinanceDashboard() {
 
                 {/* Expanded detail */}
                 {isOpen && (
-                  <div className="px-4 md:px-6 pb-6 border-t border-[#F3F3F3]">
+                  <div className="px-4 md:px-6 pb-6 border-t border-[#E2E8F0]">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-5">
 
                       {/* Left — Revenue breakdown */}
                       <div className="space-y-4">
                         {/* Project Price */}
-                        <div className="bg-[#F9F9F9] rounded-xl p-4">
+                        <div className="bg-[#F8F9FC] rounded-xl p-4">
                           <div className="flex items-center justify-between mb-1">
                             <span className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Project Price</span>
                             {editPrice === p.id ? (
@@ -355,7 +355,7 @@ export default function FinanceDashboard() {
                           ) : (
                             <div className="space-y-1.5">
                               {Object.entries(f.hoursByRole).map(([role, data]) => (
-                                <div key={role} className="flex items-center justify-between bg-[#F9F9F9] rounded-lg px-3 py-2 text-sm">
+                                <div key={role} className="flex items-center justify-between bg-[#F8F9FC] rounded-lg px-3 py-2 text-sm">
                                   <div>
                                     <span className="text-[#091426] font-medium">{role}</span>
                                     <span className="text-[#6B7A90] ml-2">{data.hours}h × ₪{data.rate}</span>
@@ -384,7 +384,7 @@ export default function FinanceDashboard() {
                             <p className="text-sm text-[#6B7A90]">No direct expenses</p>
                           )}
                           {f.projExpenses.map(e => (
-                            <div key={e.id} className="flex items-center justify-between bg-[#F9F9F9] rounded-lg px-3 py-2 text-sm mb-1.5 group">
+                            <div key={e.id} className="flex items-center justify-between bg-[#F8F9FC] rounded-lg px-3 py-2 text-sm mb-1.5 group">
                               <span className="text-[#091426]">{e.name}</span>
                               <div className="flex items-center gap-2">
                                 <span className="font-semibold text-[#091426]">{fmt(e.amount)}</span>
@@ -396,7 +396,7 @@ export default function FinanceDashboard() {
                             </div>
                           ))}
                           {showExpenseForm === p.id && (
-                            <div className="bg-[#F9F9F9] rounded-xl p-3 space-y-2 mt-2">
+                            <div className="bg-[#F8F9FC] rounded-xl p-3 space-y-2 mt-2">
                               <input value={expForm.name} onChange={e => setExpForm({...expForm, name: e.target.value})}
                                 placeholder="Expense name (e.g. Carpentry plans)" className={inp} />
                               <div className="flex gap-2">
@@ -430,7 +430,7 @@ export default function FinanceDashboard() {
                                 const override = rateOverrides.find(o => o.project_id === p.id && o.name === `RATE:${r.role}`)
                                 const isOverridden = !!override
                                 return (
-                                  <div key={r.id} className={`rounded-xl p-2.5 ${isOverridden ? 'bg-amber-50' : 'bg-[#F9F9F9]'}`}>
+                                  <div key={r.id} className={`rounded-xl p-2.5 ${isOverridden ? 'bg-amber-50' : 'bg-[#F8F9FC]'}`}>
                                     <div className="flex items-center justify-between mb-1">
                                       <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">{r.role}</p>
                                       {isOverridden && (

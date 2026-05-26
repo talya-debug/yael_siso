@@ -271,11 +271,11 @@ Yael Siso | Interior Design`)
 
  return (
   <div className="fixed inset-0 z-40" onClick={onClose}>
-   <div className="absolute right-0 top-0 h-full w-full sm:w-[440px] bg-white shadow-2xl border-l border-[#F3F3F3] flex flex-col"
+   <div className="absolute right-0 top-0 h-full w-full sm:w-[440px] bg-white shadow-2xl border-l border-[#E2E8F0] flex flex-col"
     onClick={e => e.stopPropagation()}>
 
     {/* כותרת */}
-    <div className="flex items-start justify-between px-5 py-4 border-b border-[#F3F3F3] gap-3">
+    <div className="flex items-start justify-between px-5 py-4 border-b border-[#E2E8F0] gap-3">
      <div className="flex-1 min-w-0">
       {editing ? (
        <input value={name} onChange={e => setName(e.target.value)}
@@ -298,7 +298,7 @@ Yael Siso | Interior Design`)
 
     <div className="flex-1 overflow-y-auto">
      {/* שדות */}
-     <div className="px-5 py-4 space-y-3 border-b border-[#F3F3F3]">
+     <div className="px-5 py-4 space-y-3 border-b border-[#E2E8F0]">
       {/* סטטוס */}
       <div className="flex items-center gap-3">
        <span className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] w-20 shrink-0">Status</span>
@@ -361,7 +361,7 @@ Yael Siso | Interior Design`)
 
      {/* Signature — זמין לכל משימה */}
      {(
-      <div className="px-5 py-4 border-b border-[#F3F3F3]">
+      <div className="px-5 py-4 border-b border-[#E2E8F0]">
        <h4 className="text-[10px] font-semibold tracking-widest uppercase text-[#7B5800] mb-2 flex items-center gap-1.5">
         ✍️ Digital Signature
        </h4>
@@ -369,11 +369,11 @@ Yael Siso | Interior Design`)
         <div className="space-y-2">
          <div className="bg-emerald-50 rounded-xl px-3 py-2 text-xs text-emerald-700 font-medium">✓ Signed & Completed</div>
          {signatureInfo && (
-          <div className="bg-[#F9F9F9] rounded-xl p-3 border border-[#F3F3F3]">
+          <div className="bg-[#F8F9FC] rounded-xl p-3 border border-[#E2E8F0]">
            <p className="text-[10px] text-[#6B7A90] mb-1">Signed by: <span className="font-semibold text-[#091426]">{signatureInfo.signer_name}</span></p>
            {signatureInfo.signed_at && <p className="text-[10px] text-[#6B7A90] mb-2">Date: {new Date(signatureInfo.signed_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>}
            {signatureInfo.signature_data && (
-            <div className="bg-white rounded-lg border border-[#F3F3F3] p-2">
+            <div className="bg-white rounded-lg border border-[#E2E8F0] p-2">
              <img src={signatureInfo.signature_data} alt="Client signature" className="max-h-20 mx-auto" />
             </div>
            )}
@@ -397,7 +397,7 @@ Yael Siso | Interior Design`)
        {showEmailPreview && (
         <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4" onClick={() => setShowEmailPreview(false)}>
          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
-          <div className="px-6 py-4 border-b border-[#F3F3F3] flex items-center justify-between">
+          <div className="px-6 py-4 border-b border-[#E2E8F0] flex items-center justify-between">
            <h3 className="text-sm font-bold text-[#091426] font-[Manrope]">Email Preview</h3>
            <button onClick={() => setShowEmailPreview(false)} className="text-[#6B7A90] hover:text-[#091426] transition">✕</button>
           </div>
@@ -435,12 +435,12 @@ Yael Siso | Interior Design`)
            </div>
 
            {/* תצוגה מקדימה של הלינק */}
-           <div className="bg-[#F9F9F9] rounded-xl p-3 border border-[#F3F3F3]">
+           <div className="bg-[#F8F9FC] rounded-xl p-3 border border-[#E2E8F0]">
             <p className="text-[10px] text-[#6B7A90] mb-1">The email will include a signing button:</p>
             <div className="bg-[#091426] text-white text-xs text-center py-2 px-4 rounded-lg inline-block font-medium">Review & Sign</div>
            </div>
           </div>
-          <div className="px-6 py-4 border-t border-[#F3F3F3] flex gap-2">
+          <div className="px-6 py-4 border-t border-[#E2E8F0] flex gap-2">
            <button onClick={() => setShowEmailPreview(false)}
             className="flex-1 bg-[#F3F3F3] text-[#091426] py-2.5 rounded-xl text-sm font-medium hover:bg-[#E8E8E8] transition">
             Cancel
@@ -458,14 +458,14 @@ Yael Siso | Interior Design`)
 
      {/* Related Resources from Knowledge Base */}
      {resources.length > 0 && (
-      <div className="px-5 py-4 border-b border-[#F3F3F3]">
+      <div className="px-5 py-4 border-b border-[#E2E8F0]">
        <h4 className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mb-2 flex items-center gap-1.5">
         <FileText size={12} strokeWidth={1.8} /> Related Resources
        </h4>
        <div className="space-y-1.5">
         {resources.map(r => (
          <button key={r.id} onClick={() => setViewingResource(r)}
-          className="w-full flex items-center gap-2 bg-[#F9F9F9] rounded-xl px-3 py-2.5 text-xs hover:bg-[#F3F3F3] transition-all text-left">
+          className="w-full flex items-center gap-2 bg-[#F8F9FC] rounded-xl px-3 py-2.5 text-xs hover:bg-[#F3F3F3] transition-all text-left">
           <span className="text-[10px]">📎</span>
           <span className="text-[#091426] font-medium flex-1">{r.title}</span>
           <span className="text-[#7B5800] font-medium shrink-0">View →</span>
@@ -475,7 +475,7 @@ Yael Siso | Interior Design`)
 
        {/* Resource detail inline */}
        {viewingResource && (
-        <div className="mt-3 bg-white border border-[#F3F3F3] rounded-xl p-4">
+        <div className="mt-3 bg-white border border-[#E2E8F0] rounded-xl p-4">
          <div className="flex items-start justify-between mb-2">
           <h5 className="text-sm font-semibold text-[#091426] font-[Manrope]">{viewingResource.title}</h5>
           <button onClick={() => setViewingResource(null)} className="text-[#6B7A90] hover:text-[#091426] p-0.5">
@@ -546,7 +546,7 @@ function TaskCard({ task, subtasks, hasResource, onSelect, onStatusChange, onDel
  const priMeta  = PRIORITY[task.priority] || PRIORITY.normal
 
  return (
-  <div className={`bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] mb-2 transition-shadow overflow-hidden ${
+  <div className={`bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] mb-2 transition-shadow overflow-hidden ${
    task.status === 'blocked' ? 'ring-1 ring-red-200' : ''
   }`}>
    {/* שורה ראשית */}
@@ -646,7 +646,7 @@ function TaskCard({ task, subtasks, hasResource, onSelect, onStatusChange, onDel
 
    {/* צ'קליסט */}
    {open && total > 0 && (
-    <div className="border-t border-[#F3F3F3] bg-[#F9F9F9] py-1 px-1">
+    <div className="border-t border-[#E2E8F0] bg-[#F8F9FC] py-1 px-1">
      {subtasks.map(sub => (
       <div key={sub.id} className="flex items-center gap-2.5 px-4 py-1.5 rounded-lg hover:bg-white/80 transition cursor-pointer"
        onClick={() => onStatusChange(sub.id, sub.status === 'done' ? 'pending' : 'done')}>
@@ -698,14 +698,14 @@ function GanttView({ tasks, project, onSelectTask }) {
  const chartMinWidth = Math.max(800, totalDays * 4)
 
  return (
-  <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] overflow-x-auto -mx-4 md:-mx-8">
+  <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-x-auto -mx-4 md:-mx-8">
    <div style={{ minWidth: chartMinWidth }}>
     {/* כותרת ציר זמן — חודשים */}
-    <div className="flex border-b border-[#F3F3F3] sticky top-0 bg-white z-10">
-     <div className="w-56 shrink-0 px-4 py-2.5 text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] bg-[#F9F9F9] border-r border-[#F3F3F3]">
+    <div className="flex border-b border-[#E2E8F0] sticky top-0 bg-white z-10">
+     <div className="w-56 shrink-0 px-4 py-2.5 text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] bg-[#F8F9FC] border-r border-[#E2E8F0]">
       Task
      </div>
-     <div className="flex-1 relative h-9 bg-[#F9F9F9]">
+     <div className="flex-1 relative h-9 bg-[#F8F9FC]">
       {months.map((m, i) => {
        const leftPct = Math.max(0, (m.offset / totalDays) * 100)
        if (leftPct > 100) return null
@@ -736,8 +736,8 @@ function GanttView({ tasks, project, onSelectTask }) {
      const phaseProgress = phaseTasks.length ? Math.round(phaseDone / phaseTasks.length * 100) : 0
      return (
       <div key={phase}>
-       <div className="flex border-b border-[#F3F3F3] bg-[#091426]/[0.03]">
-        <div className="w-56 shrink-0 px-4 py-2 border-r border-[#F3F3F3] flex items-center gap-2">
+       <div className="flex border-b border-[#E2E8F0] bg-[#091426]/[0.03]">
+        <div className="w-56 shrink-0 px-4 py-2 border-r border-[#E2E8F0] flex items-center gap-2">
          <span className="text-xs font-bold text-[#091426]">{phase}</span>
          <span className="text-[10px] text-[#6B7A90]">{phaseProgress}%</span>
         </div>
@@ -762,9 +762,9 @@ function GanttView({ tasks, project, onSelectTask }) {
         const barWidth = Math.max(0.5, ((row.endDay - row.startDay) / totalDays) * 100)
         const statusColor = STATUS[task.status]?.bar || '#94a3b8'
         return (
-         <div key={task.id} className={`flex border-b border-[#F3F3F3] hover:bg-[#F9F9F9]/80 transition cursor-pointer ${idx % 2 === 1 ? 'bg-[#F9F9F9]/30' : ''}`}
+         <div key={task.id} className={`flex border-b border-[#E2E8F0] hover:bg-[#F8F9FC]/80 transition cursor-pointer ${idx % 2 === 1 ? 'bg-[#F8F9FC]/30' : ''}`}
           onClick={() => onSelectTask(task)}>
-          <div className="w-56 shrink-0 px-3 py-2 border-r border-[#F3F3F3]">
+          <div className="w-56 shrink-0 px-3 py-2 border-r border-[#E2E8F0]">
            <p className="text-xs text-[#091426] truncate">{task.name}</p>
            <p className="text-[10px] text-[#6B7A90] mt-0.5">
             {task.start_date ? fmtDate(task.start_date) : ''}
@@ -777,7 +777,7 @@ function GanttView({ tasks, project, onSelectTask }) {
            {months.map((m, i) => {
             const leftPct = Math.max(0, (m.offset / totalDays) * 100)
             if (leftPct > 100) return null
-            return <div key={i} className="absolute top-0 bottom-0 border-l border-[#F3F3F3]" style={{ left: `${leftPct}%` }} />
+            return <div key={i} className="absolute top-0 bottom-0 border-l border-[#E2E8F0]" style={{ left: `${leftPct}%` }} />
            })}
            {/* קו היום */}
            {todayDay >= 0 && todayDay <= totalDays && (
@@ -811,7 +811,7 @@ function GanttView({ tasks, project, onSelectTask }) {
     })}
 
     {/* מקרא */}
-    <div className="flex items-center gap-5 px-4 py-2.5 border-t border-[#F3F3F3] bg-[#F9F9F9] flex-wrap">
+    <div className="flex items-center gap-5 px-4 py-2.5 border-t border-[#E2E8F0] bg-[#F8F9FC] flex-wrap">
      {Object.entries(STATUS).map(([k, v]) => (
       <div key={k} className="flex items-center gap-1.5">
        <div className="w-4 h-2.5 rounded-sm" style={{ backgroundColor: v.bar }} />
@@ -922,7 +922,7 @@ function ClientCard({ project }) {
   <div className="space-y-4 pb-6">
 
    {/* ── סרגל שמירה ── */}
-   <div className="flex items-center justify-between bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] px-5 py-3 sticky top-0 z-10">
+   <div className="flex items-center justify-between bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] px-5 py-3 sticky top-0 z-10">
     <span className="text-sm text-[#6B7A90]">Client Card — {project.name}</span>
     <button onClick={saveAll}
      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${
@@ -935,13 +935,13 @@ function ClientCard({ project }) {
    </div>
 
    {/* ── אנשי קשר ── */}
-   <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-5">
+   <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-5">
     <div className="flex items-center justify-between mb-4">
      <h3 className="font-semibold text-[#091426] font-[Manrope] tracking-tight flex items-center gap-2">
       <Users size={16} className="text-[#6B7A90]" strokeWidth={1.8} /> Contacts
      </h3>
      <button onClick={addContact}
-      className="text-xs bg-[#F3F3F3] text-[#091426] px-3 py-1.5 rounded-xl hover:bg-[#F9F9F9] transition-all font-medium flex items-center gap-1">
+      className="text-xs bg-[#F3F3F3] text-[#091426] px-3 py-1.5 rounded-xl hover:bg-[#F8F9FC] transition-all font-medium flex items-center gap-1">
       <Plus size={12} strokeWidth={1.8} /> Add
      </button>
     </div>
@@ -1044,7 +1044,7 @@ function ClientCard({ project }) {
    </div>
 
    {/* ── פרטי הנכס ── */}
-   <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-5">
+   <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-5">
     <h3 className="font-semibold text-[#091426] font-[Manrope] tracking-tight mb-4 flex items-center gap-2">
      <MapPin size={16} className="text-[#6B7A90]" strokeWidth={1.8} /> Property Details
     </h3>
@@ -1077,7 +1077,7 @@ function ClientCard({ project }) {
    </div>
 
    {/* ── קישורים ── */}
-   <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-5">
+   <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-5">
     <h3 className="font-semibold text-[#091426] font-[Manrope] tracking-tight mb-4 flex items-center gap-2">
      <Link2 size={16} className="text-[#6B7A90]" strokeWidth={1.8} /> Links
     </h3>
@@ -1114,7 +1114,7 @@ function ClientCard({ project }) {
    </div>
 
    {/* ── הערות ── */}
-   <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-5">
+   <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-5">
     <h3 className="font-semibold text-[#091426] font-[Manrope] tracking-tight mb-4 flex items-center gap-2">
      <MessageSquare size={16} className="text-[#6B7A90]" strokeWidth={1.8} /> Important Notes from Proposal
     </h3>
@@ -1511,7 +1511,7 @@ function BudgetView({ project, client }) {
  return (
   <div className="space-y-4">
    {/* סרגל סיכום */}
-   <div className="bg-white rounded-2xl p-5 shadow-[0_2px_20px_rgba(9,20,38,0.04)]">
+   <div className="bg-white rounded-2xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.05)]">
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-3">
      <div>
       <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Total (excl. VAT)</p>
@@ -1537,7 +1537,7 @@ function BudgetView({ project, client }) {
      <span className="text-xs font-bold text-[#091426] font-[Manrope]">{progressPct}%</span>
     </div>
     {/* לינק כללי לתיקיית תקציב */}
-    <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#F3F3F3]">
+    <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#E2E8F0]">
      <span className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] shrink-0">Budget Folder</span>
      <input
       value={budgetDriveLink}
@@ -1559,11 +1559,11 @@ function BudgetView({ project, client }) {
    </div>
 
    {/* טבלת פריטי תקציב */}
-   <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] overflow-hidden">
+   <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-hidden">
     <div className="overflow-x-auto">
      <table className="w-full text-sm">
       <thead>
-       <tr className="border-b border-[#F3F3F3] text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">
+       <tr className="border-b border-[#E2E8F0] text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">
         <th className="w-8 px-2 py-3"></th>
         <th className="text-left px-4 py-3">Category</th>
         <th className="text-left px-4 py-3">Supplier</th>
@@ -1587,7 +1587,7 @@ function BudgetView({ project, client }) {
 
         return (
          <>
-          <tr key={item.id} className="border-b border-[#F3F3F3] hover:bg-[#F9F9F9] transition">
+          <tr key={item.id} className="border-b border-[#E2E8F0] hover:bg-[#F8F9FC] transition">
            <td className="px-2 py-3 text-center">
             <button onClick={() => toggleRow(item.id)} className="text-[#6B7A90] hover:text-[#091426] transition p-0.5">
              {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
@@ -1627,7 +1627,7 @@ function BudgetView({ project, client }) {
           </tr>
           {/* שורה מורחבת — היסטוריית תשלומים */}
           {isExpanded && (
-           <tr key={`${item.id}-expanded`} className="bg-[#F9F9F9]">
+           <tr key={`${item.id}-expanded`} className="bg-[#F8F9FC]">
             <td colSpan={10} className="px-6 py-3">
              {itemPayments.length > 0 ? (
               <div className="space-y-2">
@@ -1684,7 +1684,7 @@ function BudgetView({ project, client }) {
     {items.length === 0 && (
      <div className="text-center py-12 text-[#6B7A90] text-sm">No budget items yet</div>
     )}
-    <div className="p-4 border-t border-[#F3F3F3] flex items-center gap-4">
+    <div className="p-4 border-t border-[#E2E8F0] flex items-center gap-4">
      <button onClick={() => openAddModal()}
       className="flex items-center gap-2 text-sm font-medium text-[#091426] hover:text-[#B8960B] transition">
       <Plus size={14} strokeWidth={1.8} /> Add Budget Item
@@ -1700,7 +1700,7 @@ function BudgetView({ project, client }) {
    {showAdd && (
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-[#091426]/60" onClick={() => { setShowAdd(false); setEditItem(null) }}>
      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-      <div className="flex items-center justify-between p-5 border-b border-[#F3F3F3]">
+      <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
        <h2 className="font-semibold text-[#091426] font-[Manrope] tracking-tight">{editItem ? 'Edit Budget Item' : 'Add Budget Item'}</h2>
        <button onClick={() => { setShowAdd(false); setEditItem(null) }} className="text-[#6B7A90] hover:text-[#091426] p-1 rounded-xl hover:bg-[#F3F3F3] transition"><X size={18} strokeWidth={1.8} /></button>
       </div>
@@ -1717,10 +1717,10 @@ function BudgetView({ project, client }) {
           className={`${inp} pl-8`} />
         </div>
         {showSupplierDropdown && (
-         <div className="absolute z-10 w-full mt-1 bg-white rounded-xl shadow-lg border border-[#F3F3F3] max-h-40 overflow-y-auto">
+         <div className="absolute z-10 w-full mt-1 bg-white rounded-xl shadow-lg border border-[#E2E8F0] max-h-40 overflow-y-auto">
           {filteredSuppliers.map(s => (
            <button key={s.id} onClick={() => { setAddForm(f => ({ ...f, supplier_id: s.id })); setSupplierSearch(s.name); setShowSupplierDropdown(false) }}
-            className="w-full text-left px-3 py-2 text-sm hover:bg-[#F9F9F9] transition">
+            className="w-full text-left px-3 py-2 text-sm hover:bg-[#F8F9FC] transition">
             {s.name}
            </button>
           ))}
@@ -1762,11 +1762,11 @@ function BudgetView({ project, client }) {
          rows={2} className={`${inp} resize-none`} />
        </div>
       </div>
-      <div className="flex gap-3 p-5 border-t border-[#F3F3F3]">
+      <div className="flex gap-3 p-5 border-t border-[#E2E8F0]">
        <button onClick={saveItem} className="flex-1 bg-[#091426] text-white rounded-xl py-2.5 text-sm font-medium hover:bg-[#1E293B] transition-all">
         {editItem ? 'Save Changes' : 'Add Item'}
        </button>
-       <button onClick={() => { setShowAdd(false); setEditItem(null) }} className="px-4 py-2.5 rounded-xl text-sm text-[#6B7A90] hover:bg-[#F9F9F9] bg-[#F3F3F3] transition-all">Cancel</button>
+       <button onClick={() => { setShowAdd(false); setEditItem(null) }} className="px-4 py-2.5 rounded-xl text-sm text-[#6B7A90] hover:bg-[#F8F9FC] bg-[#F3F3F3] transition-all">Cancel</button>
       </div>
      </div>
     </div>
@@ -1781,7 +1781,7 @@ function BudgetView({ project, client }) {
     return (
      <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-[#091426]/60" onClick={() => setShowPayment(null)}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
-       <div className="flex items-center justify-between p-5 border-b border-[#F3F3F3]">
+       <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
         <div>
          <h2 className="font-semibold text-[#091426] font-[Manrope] tracking-tight">Add Payment</h2>
          <p className="text-xs text-[#6B7A90] mt-0.5">{showPayment.category}{paySupplier ? ` — ${paySupplier.name}` : ''}</p>
@@ -1849,10 +1849,10 @@ function BudgetView({ project, client }) {
           className={inp} />
         </div>
        </div>
-       <div className="flex gap-3 p-5 border-t border-[#F3F3F3]">
+       <div className="flex gap-3 p-5 border-t border-[#E2E8F0]">
         <button onClick={recordPayment} disabled={!payForm.amount}
          className="flex-1 bg-[#091426] text-white rounded-xl py-2.5 text-sm font-medium hover:bg-[#1E293B] transition-all disabled:opacity-40">Record Payment</button>
-        <button onClick={() => setShowPayment(null)} className="px-4 py-2.5 rounded-xl text-sm text-[#6B7A90] hover:bg-[#F9F9F9] bg-[#F3F3F3] transition-all">Cancel</button>
+        <button onClick={() => setShowPayment(null)} className="px-4 py-2.5 rounded-xl text-sm text-[#6B7A90] hover:bg-[#F8F9FC] bg-[#F3F3F3] transition-all">Cancel</button>
        </div>
       </div>
      </div>
@@ -1863,7 +1863,7 @@ function BudgetView({ project, client }) {
    {showEmail && (
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-[#091426]/60" onClick={() => setShowEmail(null)}>
      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4" onClick={e => e.stopPropagation()}>
-      <div className="flex items-center justify-between p-5 border-b border-[#F3F3F3]">
+      <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
        <h2 className="font-semibold text-[#091426] font-[Manrope] tracking-tight">Send Payment Request</h2>
        <button onClick={() => setShowEmail(null)} className="text-[#6B7A90] hover:text-[#091426] p-1 rounded-xl hover:bg-[#F3F3F3] transition"><X size={18} strokeWidth={1.8} /></button>
       </div>
@@ -1906,12 +1906,12 @@ function BudgetView({ project, client }) {
         </label>
        </div>
       </div>
-      <div className="flex gap-3 p-5 border-t border-[#F3F3F3]">
+      <div className="flex gap-3 p-5 border-t border-[#E2E8F0]">
        <button onClick={sendPaymentEmail} disabled={!emailTo || sendingEmail}
         className="flex-1 bg-[#091426] text-white rounded-xl py-2.5 text-sm font-medium hover:bg-[#1E293B] transition-all disabled:opacity-40 flex items-center justify-center gap-2">
         <Send size={14} strokeWidth={1.8} /> {sendingEmail ? 'Sending...' : 'Send Email'}
        </button>
-       <button onClick={() => setShowEmail(null)} className="px-4 py-2.5 rounded-xl text-sm text-[#6B7A90] hover:bg-[#F9F9F9] bg-[#F3F3F3] transition-all">Cancel</button>
+       <button onClick={() => setShowEmail(null)} className="px-4 py-2.5 rounded-xl text-sm text-[#6B7A90] hover:bg-[#F8F9FC] bg-[#F3F3F3] transition-all">Cancel</button>
       </div>
      </div>
     </div>
@@ -1979,7 +1979,7 @@ function ScopeSelectorModal({ tree, selected, onChange }) {
     const phaseSome = allPhaseIds.some(id => selected.has(id)) && !phaseAll
 
     return (
-     <div key={phase.id} className="rounded-xl overflow-hidden shadow-[0_2px_20px_rgba(9,20,38,0.04)]">
+     <div key={phase.id} className="rounded-xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.05)]">
       <div className={`flex items-center gap-3 px-3 py-2.5 ${phaseAll ? 'bg-[#091426]' : 'bg-[#F3F3F3]'} cursor-pointer`}
        onClick={() => togglePhase(phase)}>
        <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 border ${
@@ -2002,7 +2002,7 @@ function ScopeSelectorModal({ tree, selected, onChange }) {
          const taskSome = taskIds.some(id => selected.has(id)) && !taskAll
          return (
           <div key={task.id}>
-           <div className="flex items-center gap-3 px-5 py-2 cursor-pointer hover:bg-[#F9F9F9] transition"
+           <div className="flex items-center gap-3 px-5 py-2 cursor-pointer hover:bg-[#F8F9FC] transition"
             onClick={() => toggleTask(task)}>
             <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 border ${
              taskAll ? 'bg-[#091426] border-[#091426]' : taskSome ? 'border-[#6B7A90] bg-white' : 'border-[#6B7A90]/40 bg-white'
@@ -2021,7 +2021,7 @@ function ScopeSelectorModal({ tree, selected, onChange }) {
             )}
            </div>
            {expanded[task.id] && task.subtasks.map(sub => (
-            <div key={sub.id} className="flex items-center gap-3 px-9 py-1.5 cursor-pointer hover:bg-[#F9F9F9] transition"
+            <div key={sub.id} className="flex items-center gap-3 px-9 py-1.5 cursor-pointer hover:bg-[#F8F9FC] transition"
              onClick={() => toggleSub(sub.id)}>
              <div className={`w-3.5 h-3.5 rounded flex items-center justify-center shrink-0 border ${
               isSelected(sub.id) ? 'bg-[#091426] border-[#091426]' : 'border-[#6B7A90]/40 bg-white'
@@ -2534,7 +2534,7 @@ function ProjectDetail({ project, clients, onBack }) {
      { label: 'In Progress', value: mainTasks.filter(t => t.status === 'in_progress').length, color: 'text-[#091426]' },
      { label: 'Blocked', value: mainTasks.filter(t => t.status === 'blocked').length,   color: 'text-red-500' },
     ].map(kpi => (
-     <div key={kpi.label} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-3 text-center">
+     <div key={kpi.label} className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-3 text-center">
       <div className={`text-2xl font-bold ${kpi.color}`}>{kpi.value}</div>
       <div className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-0.5">{kpi.label}</div>
      </div>
@@ -2544,7 +2544,7 @@ function ProjectDetail({ project, clients, onBack }) {
 
    {/* Progress bar — רק בטאב Tasks */}
    {view === 'tasks' && mainTasks.length > 0 && (
-    <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] px-5 py-3 mb-4 flex items-center gap-4">
+    <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] px-5 py-3 mb-4 flex items-center gap-4">
      <span className="text-sm font-medium text-[#091426] shrink-0">Progress</span>
      <div className="flex-1 bg-[#F3F3F3] rounded-full h-2">
       <div className="bg-[#091426] h-2 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
@@ -2591,13 +2591,13 @@ function ProjectDetail({ project, clients, onBack }) {
        const isOpen = phaseExpanded[phase] !== undefined ? phaseExpanded[phase] : defaultOpen
 
        return (
-        <div key={phase} className={`bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] overflow-hidden ${
+        <div key={phase} className={`bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-hidden ${
          isCurrentPhase ? 'ring-2 ring-[#7B5800]/30' : ''
         }`}>
          {/* כותרת שלב */}
          <button onClick={() => setPhaseExpanded(p => ({ ...p, [phase]: !isOpen }))}
-          className={`w-full flex items-center gap-3 px-4 py-3 transition border-b border-[#F3F3F3] ${
-           phaseStatus === 'completed' ? 'bg-emerald-50/50' : isCurrentPhase ? 'bg-[#F9F9F9]' : 'bg-[#F9F9F9] hover:bg-[#F3F3F3]'
+          className={`w-full flex items-center gap-3 px-4 py-3 transition border-b border-[#E2E8F0] ${
+           phaseStatus === 'completed' ? 'bg-emerald-50/50' : isCurrentPhase ? 'bg-[#F8F9FC]' : 'bg-[#F8F9FC] hover:bg-[#F3F3F3]'
           }`}>
           {/* Phase status icon */}
           {phaseStatus === 'completed'
@@ -2667,7 +2667,7 @@ function ProjectDetail({ project, clients, onBack }) {
    {showNewTask && (
     <div className="fixed inset-0 bg-[#091426]/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-[#F3F3F3]">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2E8F0]">
        <h2 className="text-base font-semibold text-[#091426] font-[Manrope] tracking-tight">New Task</h2>
        <button onClick={() => setShowNewTask(false)} className="w-8 h-8 rounded-xl hover:bg-[#F3F3F3] flex items-center justify-center text-[#6B7A90]"><X size={16} strokeWidth={1.8} /></button>
       </div>
@@ -2703,9 +2703,9 @@ function ProjectDetail({ project, clients, onBack }) {
         </div>
        </div>
       </div>
-      <div className="flex gap-2 px-6 py-4 border-t border-[#F3F3F3]">
+      <div className="flex gap-2 px-6 py-4 border-t border-[#E2E8F0]">
        <button onClick={addTask} className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all">Add</button>
-       <button onClick={() => setShowNewTask(false)} className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F9F9F9] transition-all">Cancel</button>
+       <button onClick={() => setShowNewTask(false)} className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F8F9FC] transition-all">Cancel</button>
       </div>
      </div>
     </div>
@@ -2731,7 +2731,7 @@ function ProjectDetail({ project, clients, onBack }) {
    {showImportScope && (
     <div className="fixed inset-0 bg-[#091426]/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-[#F3F3F3]">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2E8F0]">
        <h2 className="text-base font-semibold text-[#091426] font-[Manrope] tracking-tight">Import Scope</h2>
        <button onClick={() => setShowImportScope(false)} className="w-8 h-8 rounded-xl hover:bg-[#F3F3F3] flex items-center justify-center text-[#6B7A90]"><X size={16} strokeWidth={1.8} /></button>
       </div>
@@ -2739,13 +2739,13 @@ function ProjectDetail({ project, clients, onBack }) {
        <p className="text-xs text-[#6B7A90] mb-3">Select scope items to import as tasks. Existing tasks will not be affected.</p>
        <ScopeSelectorModal tree={scopeTree} selected={selectedScope} onChange={setSelectedScope} />
       </div>
-      <div className="flex gap-2 px-6 py-4 border-t border-[#F3F3F3]">
+      <div className="flex gap-2 px-6 py-4 border-t border-[#E2E8F0]">
        <button onClick={importScope}
         disabled={selectedScope.size === 0 || importingScope}
         className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all disabled:opacity-40">
         {importingScope ? 'Importing...' : `Import ${selectedScope.size} Items`}
        </button>
-       <button onClick={() => setShowImportScope(false)} className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F9F9F9] transition-all">Cancel</button>
+       <button onClick={() => setShowImportScope(false)} className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F8F9FC] transition-all">Cancel</button>
       </div>
      </div>
     </div>
@@ -2755,7 +2755,7 @@ function ProjectDetail({ project, clients, onBack }) {
    {showBilling && (
     <div className="fixed inset-0 bg-[#091426]/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-[#F3F3F3]">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2E8F0]">
        <h2 className="text-base font-semibold text-[#091426] font-[Manrope] tracking-tight">Setup Billing</h2>
        <button onClick={() => setShowBilling(false)} className="w-8 h-8 rounded-xl hover:bg-[#F3F3F3] flex items-center justify-center text-[#6B7A90]"><X size={16} strokeWidth={1.8} /></button>
       </div>
@@ -2807,13 +2807,13 @@ function ProjectDetail({ project, clients, onBack }) {
         </span>
        </div>
       </div>
-      <div className="flex gap-2 px-6 py-4 border-t border-[#F3F3F3]">
+      <div className="flex gap-2 px-6 py-4 border-t border-[#E2E8F0]">
        <button onClick={createBillingPayments}
         disabled={!billingPrice || billingTotalPct !== 100 || creatingBilling}
         className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all disabled:opacity-40">
         {creatingBilling ? 'Creating...' : `Create ${billingRows.length} Payments`}
        </button>
-       <button onClick={() => setShowBilling(false)} className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F9F9F9] transition-all">Cancel</button>
+       <button onClick={() => setShowBilling(false)} className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F8F9FC] transition-all">Cancel</button>
       </div>
      </div>
     </div>
@@ -2890,7 +2890,7 @@ export default function Projects({ openProjectId, onProjectOpened }) {
    {projects.length > 0 && (
     <input value={search} onChange={e => setSearch(e.target.value)}
      placeholder="Search by project name or client..."
-     className="w-full bg-white rounded-xl px-4 py-2.5 text-sm border-0 shadow-[0_2px_20px_rgba(9,20,38,0.04)] focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 mb-4" />
+     className="w-full bg-white rounded-xl px-4 py-2.5 text-sm border-0 shadow-[0_2px_12px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 mb-4" />
    )}
 
    {projects.length === 0 && (
@@ -2919,9 +2919,9 @@ export default function Projects({ openProjectId, onProjectOpened }) {
     return (
      <div className="space-y-4">
       {Object.entries(byClient).map(([clientId, group]) => (
-       <div key={clientId} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] overflow-hidden">
+       <div key={clientId} className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-hidden">
         {/* כותרת לקוח */}
-        <div className="flex items-center gap-3 px-5 py-3 bg-[#F9F9F9] border-b border-[#F3F3F3]">
+        <div className="flex items-center gap-3 px-5 py-3 bg-[#F8F9FC] border-b border-[#E2E8F0]">
          <div className="w-8 h-8 rounded-full bg-[#091426] flex items-center justify-center text-white text-xs font-bold shrink-0">
           {group.name.charAt(0)}
          </div>
@@ -2935,7 +2935,7 @@ export default function Projects({ openProjectId, onProjectOpened }) {
          {group.projects.map(p => {
           const meta = PROJECT_STATUS[p.status] || PROJECT_STATUS.active
           return (
-           <div key={p.id} className="bg-[#F9F9F9] rounded-xl p-4 cursor-pointer hover:bg-[#F3F3F3] transition-all group relative"
+           <div key={p.id} className="bg-[#F8F9FC] rounded-xl p-4 cursor-pointer hover:bg-[#F3F3F3] transition-all group relative"
             onClick={() => setSelected(p)}>
             <button onClick={e => { e.stopPropagation(); deleteProject(p.id) }}
              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition text-[#6B7A90] hover:text-red-500 p-1 rounded-lg hover:bg-red-50">
@@ -2969,7 +2969,7 @@ export default function Projects({ openProjectId, onProjectOpened }) {
    {showNew && (
     <div className="fixed inset-0 bg-[#091426]/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-[#F3F3F3]">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2E8F0]">
        <h2 className="text-base font-semibold text-[#091426] font-[Manrope] tracking-tight">New Project</h2>
        <button onClick={() => setShowNew(false)} className="w-8 h-8 rounded-xl hover:bg-[#F3F3F3] flex items-center justify-center text-[#6B7A90]"><X size={16} strokeWidth={1.8} /></button>
       </div>
@@ -3001,9 +3001,9 @@ export default function Projects({ openProjectId, onProjectOpened }) {
         </div>
        </div>
       </div>
-      <div className="flex gap-2 px-6 py-4 border-t border-[#F3F3F3]">
+      <div className="flex gap-2 px-6 py-4 border-t border-[#E2E8F0]">
        <button onClick={create} className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all">Create Project</button>
-       <button onClick={() => setShowNew(false)} className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F9F9F9] transition-all">Cancel</button>
+       <button onClick={() => setShowNew(false)} className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F8F9FC] transition-all">Cancel</button>
       </div>
      </div>
     </div>

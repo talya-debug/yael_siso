@@ -101,13 +101,13 @@ export default function SignaturePage() {
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center">
+    <div className="min-h-screen bg-[#F8F9FC] flex items-center justify-center">
       <div className="w-6 h-6 border-2 border-[#091426] border-t-transparent rounded-full animate-spin" />
     </div>
   )
 
   if (!sigRequest) return (
-    <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[#F8F9FC] flex items-center justify-center p-6">
       <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
         <img src={yaelLogo} alt="Yael Siso" className="h-12 mx-auto mb-4" />
         <p className="text-[#6B7A90]">This signature link is invalid or has expired.</p>
@@ -116,7 +116,7 @@ export default function SignaturePage() {
   )
 
   if (signed) return (
-    <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[#F8F9FC] flex items-center justify-center p-6">
       <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
         <img src={yaelLogo} alt="Yael Siso" className="h-12 mx-auto mb-4" />
         <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -130,14 +130,14 @@ export default function SignaturePage() {
   )
 
   return (
-    <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[#F8F9FC] flex items-center justify-center p-6">
       <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
         {/* לוגו */}
         <div className="flex flex-col items-center mb-6">
           <img src={yaelLogo} alt="Yael Siso" className="h-14 mb-2" />
         </div>
 
-        <div className="border-t border-[#F3F3F3] pt-5 mb-5">
+        <div className="border-t border-[#E2E8F0] pt-5 mb-5">
           <h2 className="text-base font-semibold text-[#091426] font-[Manrope] tracking-tight mb-1">
             Document Approval
           </h2>
@@ -163,7 +163,7 @@ export default function SignaturePage() {
         {/* Signature canvas */}
         <div className="mb-4">
           <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mb-1.5">Your Signature</p>
-          <div className="border-2 border-dashed border-[#F3F3F3] rounded-xl overflow-hidden bg-white">
+          <div className="border-2 border-dashed border-[#E2E8F0] rounded-xl overflow-hidden bg-white">
             <canvas
               ref={canvasRef}
               width={400}

@@ -74,7 +74,7 @@ function PaymentModal({ onClose, onSave, projects, editItem }) {
   return (
     <div className="fixed inset-0 bg-[#091426]/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#F3F3F3]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2E8F0]">
           <h2 className="text-base font-semibold text-[#091426] font-[Manrope] tracking-tight">{editItem ? 'Edit Payment' : 'New Payment'}</h2>
           <button onClick={onClose} className="w-8 h-8 rounded-xl hover:bg-[#F3F3F3] flex items-center justify-center text-[#6B7A90]"><X size={16} strokeWidth={1.8} /></button>
         </div>
@@ -127,7 +127,7 @@ function PaymentModal({ onClose, onSave, projects, editItem }) {
               rows={2} placeholder="Additional details..." className={inp + ' resize-none'} />
           </div>
         </div>
-        <div className="flex gap-2 px-6 py-4 border-t border-[#F3F3F3]">
+        <div className="flex gap-2 px-6 py-4 border-t border-[#E2E8F0]">
           <button onClick={() => {
             // לא לשלוח שדות מיותרים
             const { due_date, ...rest } = form
@@ -137,7 +137,7 @@ function PaymentModal({ onClose, onSave, projects, editItem }) {
             className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all disabled:opacity-40">
             Save
           </button>
-          <button onClick={onClose} className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F9F9F9] transition-all">Cancel</button>
+          <button onClick={onClose} className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F8F9FC] transition-all">Cancel</button>
         </div>
       </div>
     </div>
@@ -159,7 +159,7 @@ function TemplateModal({ onClose, onSave, projects }) {
   return (
     <div className="fixed inset-0 bg-[#091426]/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#F3F3F3]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2E8F0]">
           <h2 className="text-base font-semibold text-[#091426] font-[Manrope] tracking-tight">Create Billing Template for Project</h2>
           <button onClick={onClose} className="w-8 h-8 rounded-xl hover:bg-[#F3F3F3] flex items-center justify-center text-[#6B7A90]"><X size={16} strokeWidth={1.8} /></button>
         </div>
@@ -220,13 +220,13 @@ function TemplateModal({ onClose, onSave, projects }) {
             </span>
           </div>
         </div>
-        <div className="flex gap-2 px-6 py-4 border-t border-[#F3F3F3]">
+        <div className="flex gap-2 px-6 py-4 border-t border-[#E2E8F0]">
           <button onClick={() => onSave({ projectId, contractTotal, rows })}
             disabled={!projectId || !contractTotal}
             className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all disabled:opacity-40">
             Create {rows.length} Payments
           </button>
-          <button onClick={onClose} className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F9F9F9] transition-all">Cancel</button>
+          <button onClick={onClose} className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F8F9FC] transition-all">Cancel</button>
         </div>
       </div>
     </div>
@@ -258,7 +258,7 @@ function PaymentRow({ payment, project, clients, onEdit, onStatusChange, onTerms
 
   return (
     <div className={`${rowOpacity} ${overdue ? 'bg-red-50/40' : ''}`}>
-      <div className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3.5 border-b border-[#F3F3F3] last:border-0 hover:bg-[#F9F9F9] transition-colors group flex-wrap`}>
+      <div className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3.5 border-b border-[#E2E8F0] last:border-0 hover:bg-[#F8F9FC] transition-colors group flex-wrap`}>
         {/* שם השלב */}
         <div className="flex-1 min-w-0">
           <p className={`text-sm font-medium truncate ${cls === 'paid' ? 'line-through text-[#6B7A90]' : 'text-[#091426]'}`}>
@@ -337,7 +337,7 @@ function PaymentRow({ payment, project, clients, onEdit, onStatusChange, onTerms
 
       {/* יומן פעילות — מתרחב */}
       {expandedLog && (
-        <div className="px-4 py-3 bg-[#FAFAFA] border-b border-[#F3F3F3]">
+        <div className="px-4 py-3 bg-[#FAFAFA] border-b border-[#E2E8F0]">
           <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
             {(!logs || logs.length === 0) && (
               <p className="text-xs text-[#6B7A90] italic">No activity yet</p>
@@ -355,7 +355,7 @@ function PaymentRow({ payment, project, clients, onEdit, onStatusChange, onTerms
               value={logText}
               onChange={e => setLogText(e.target.value)}
               placeholder="Add a note..."
-              className="flex-1 bg-white rounded-lg px-3 py-1.5 text-xs border border-[#F3F3F3] focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20"
+              className="flex-1 bg-white rounded-lg px-3 py-1.5 text-xs border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20"
               onKeyDown={e => { if (e.key === 'Enter' && logText.trim()) { onAddLog(payment.id, logText.trim()); setLogText('') } }}
             />
             <button
@@ -641,11 +641,11 @@ THANKS!`)
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <button onClick={exportCSV}
-            className="flex items-center gap-1.5 bg-[#F3F3F3] text-[#6B7A90] px-3 py-2 rounded-xl text-sm hover:bg-[#F9F9F9] transition-all">
+            className="flex items-center gap-1.5 bg-[#F3F3F3] text-[#6B7A90] px-3 py-2 rounded-xl text-sm hover:bg-[#F8F9FC] transition-all">
             <Download size={14} strokeWidth={1.8} /> Download CSV
           </button>
           <button onClick={() => setShowTemplate(true)}
-            className="bg-[#F3F3F3] text-[#091426] px-3 py-2 rounded-xl text-sm font-medium hover:bg-[#F9F9F9] transition-all flex items-center gap-1.5">
+            className="bg-[#F3F3F3] text-[#091426] px-3 py-2 rounded-xl text-sm font-medium hover:bg-[#F8F9FC] transition-all flex items-center gap-1.5">
             <Plus size={14} strokeWidth={1.8} /> Project Template
           </button>
           <button onClick={() => { setEditItem(null); setShowNew(true) }}
@@ -657,19 +657,19 @@ THANKS!`)
 
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-        <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4 text-center">
+        <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-4 text-center">
           <div className="text-xl font-bold text-violet-600">{pendingApprovalCount}</div>
           <div className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-0.5">Pending Approval</div>
         </div>
-        <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4 text-center">
+        <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-4 text-center">
           <div className="text-xl font-bold text-[#091426]">{fmt(toCollectNow)}</div>
           <div className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-0.5">To Collect Now</div>
         </div>
-        <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4 text-center">
+        <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-4 text-center">
           <div className="text-xl font-bold text-emerald-600">{fmt(totalPaid)}</div>
           <div className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-0.5">Paid</div>
         </div>
-        <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4 text-center">
+        <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-4 text-center">
           <div className={`text-xl font-bold ${overdueCount > 0 ? 'text-red-500' : 'text-[#6B7A90]'}`}>{overdueCount}</div>
           <div className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-0.5">Overdue</div>
         </div>
@@ -738,9 +738,9 @@ THANKS!`)
           const isOpen    = collapsed[projectId] !== true
 
           return (
-            <div key={projectId} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] overflow-hidden">
+            <div key={projectId} className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-hidden">
               <button onClick={() => setCollapsed(prev => ({ ...prev, [projectId]: !prev[projectId] }))}
-                className="w-full flex items-center gap-3 px-4 py-3 bg-[#F9F9F9] hover:bg-[#F3F3F3] transition-colors border-b border-[#F3F3F3]">
+                className="w-full flex items-center gap-3 px-4 py-3 bg-[#F8F9FC] hover:bg-[#F3F3F3] transition-colors border-b border-[#E2E8F0]">
                 {isOpen ? <ChevronDown size={14} className="text-[#6B7A90]" strokeWidth={1.8} /> : <ChevronRight size={14} className="text-[#6B7A90]" strokeWidth={1.8} />}
                 <div className="flex-1 text-left">
                   <span className="font-semibold text-[#091426] text-sm">
@@ -802,7 +802,7 @@ THANKS!`)
       {emailModal && (
         <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4" onClick={() => setEmailModal(null)}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
-            <div className="px-6 py-4 border-b border-[#F3F3F3] flex items-center justify-between">
+            <div className="px-6 py-4 border-b border-[#E2E8F0] flex items-center justify-between">
               <h3 className="text-sm font-bold text-[#091426] font-[Manrope]">Send Payment Request</h3>
               <button onClick={() => setEmailModal(null)} className="text-[#6B7A90] hover:text-[#091426] transition"><X size={16} strokeWidth={1.8} /></button>
             </div>
@@ -847,7 +847,7 @@ THANKS!`)
                 </label>
               </div>
             </div>
-            <div className="px-6 py-4 border-t border-[#F3F3F3] flex gap-2">
+            <div className="px-6 py-4 border-t border-[#E2E8F0] flex gap-2">
               <button onClick={() => setEmailModal(null)}
                 className="flex-1 bg-[#F3F3F3] text-[#091426] py-2.5 rounded-xl text-sm font-medium hover:bg-[#E8E8E8] transition">
                 Cancel

@@ -178,7 +178,7 @@ export default function Dashboard({ userRole, onLogout }) {
       </aside>
 
       <main className="flex-1 overflow-auto" role="main">
-        <div className="sticky top-0 z-10 bg-[#F9F9F9]/80 backdrop-blur-xl px-4 md:px-8 py-3 md:py-4 flex items-center justify-between">
+        <div className="sticky top-0 z-10 bg-[#F8F9FC]/80 backdrop-blur-xl px-4 md:px-8 py-3 md:py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button onClick={() => setSidebarOpen(true)} className="md:hidden w-9 h-9 rounded-xl bg-white hover:bg-[#F3F3F3] flex items-center justify-center transition-colors" aria-label="Open menu">
               <Menu size={18} className="text-[#091426]" />

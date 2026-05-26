@@ -114,7 +114,7 @@ export default function Home({ onNavigate, isAdmin = true }) {
             className={`relative overflow-hidden rounded-2xl p-6 text-left transition-all duration-300 hover:scale-[1.02] hover:shadow-lg group ${
               k.accent
                 ? 'bg-[#091426] text-white'
-                : 'bg-white shadow-[0_2px_20px_rgba(9,20,38,0.04)]'
+                : 'bg-white shadow-[0_2px_12px_rgba(0,0,0,0.05)]'
             }`}>
             <div className="flex items-start justify-between mb-4">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
@@ -136,7 +136,7 @@ export default function Home({ onNavigate, isAdmin = true }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Recent Projects — wider column */}
-        <div className="lg:col-span-3 bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] overflow-hidden">
+        <div className="lg:col-span-3 bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-hidden">
           <div className="px-6 py-5 flex items-center justify-between">
             <h3 className="font-bold text-[#091426] font-[Manrope]">Recent Projects</h3>
             <button onClick={() => onNavigate('projects')}
@@ -162,7 +162,7 @@ export default function Home({ onNavigate, isAdmin = true }) {
                     const meta = STATUS_META[p.status] || STATUS_META.active
                     return (
                       <tr key={p.id}
-                        className="group cursor-pointer hover:bg-[#F9F9F9] transition-colors"
+                        className="group cursor-pointer hover:bg-[#F8F9FC] transition-colors"
                         onClick={() => onNavigate('projects')}>
                         <td className="py-3.5">
                           <div className="flex items-center gap-3">
@@ -196,7 +196,7 @@ export default function Home({ onNavigate, isAdmin = true }) {
         </div>
 
         {/* Upcoming Tasks — narrower column */}
-        <div className="lg:col-span-2 bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] overflow-hidden">
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-hidden">
           <div className="px-6 py-5 flex items-center justify-between">
             <h3 className="font-bold text-[#091426] font-[Manrope]">Upcoming Tasks</h3>
           </div>
@@ -208,7 +208,7 @@ export default function Home({ onNavigate, isAdmin = true }) {
                 const isOverdue = task.due_date && new Date(task.due_date) < new Date()
                 return (
                   <div key={task.id}
-                    className={`px-4 py-3.5 rounded-xl transition-all duration-200 hover:bg-[#F9F9F9] cursor-pointer ${
+                    className={`px-4 py-3.5 rounded-xl transition-all duration-200 hover:bg-[#F8F9FC] cursor-pointer ${
                       isOverdue ? 'border-l-3 border-l-red-400' : ''
                     }`}>
                     <div className="flex items-start justify-between gap-2">

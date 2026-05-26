@@ -132,7 +132,7 @@ export default function WorkLog({ isAdmin = true, userRole }) {
             className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all ${
               copied
                 ? 'bg-emerald-50 text-emerald-600'
-                : 'bg-[#F3F3F3] text-[#6B7A90] hover:bg-[#F9F9F9]'
+                : 'bg-[#F3F3F3] text-[#6B7A90] hover:bg-[#F8F9FC]'
             }`}>
             {copied ? <Check size={14} strokeWidth={1.8} /> : <Link2 size={14} strokeWidth={1.8} />}
             {copied ? 'Copied!' : 'Public Link'}
@@ -163,7 +163,7 @@ export default function WorkLog({ isAdmin = true, userRole }) {
       {isAdmin && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
           {ROLES.map(r => (
-            <div key={r} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4">
+            <div key={r} className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-4">
               <p className="text-2xl font-bold text-[#091426]">{hoursByRole[r] || 0}<span className="text-sm font-normal text-[#6B7A90]">h</span></p>
               <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-0.5">{r}</p>
             </div>
@@ -200,11 +200,11 @@ export default function WorkLog({ isAdmin = true, userRole }) {
       {!isAdmin && (
         <div className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4">
+            <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-4">
               <p className="text-2xl font-bold text-[#091426]">{thisMonthTotal}<span className="text-sm font-normal text-[#6B7A90]">h</span></p>
               <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-0.5">My Hours This Month</p>
             </div>
-            <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4">
+            <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-4">
               <div className="flex items-center gap-2 mb-1">
                 <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">By Project</p>
                 {loggedToday && (
@@ -236,7 +236,7 @@ export default function WorkLog({ isAdmin = true, userRole }) {
       {filtered.length > 0 && (
         <div className="space-y-2">
           {filtered.map(l => (
-            <div key={l.id} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4 flex items-start justify-between group">
+            <div key={l.id} className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-4 flex items-start justify-between group">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap mb-1">
                   <span className="text-sm font-medium text-[#6B7A90]">
@@ -277,7 +277,7 @@ export default function WorkLog({ isAdmin = true, userRole }) {
       {showForm && (
         <div className="fixed inset-0 bg-[#091426]/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#F3F3F3]">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2E8F0]">
               <h2 className="text-base font-semibold text-[#091426] font-[Manrope] tracking-tight">Log Work</h2>
               <button onClick={() => setShowForm(false)}
                 className="w-8 h-8 rounded-xl hover:bg-[#F3F3F3] flex items-center justify-center text-[#6B7A90]">
@@ -327,13 +327,13 @@ export default function WorkLog({ isAdmin = true, userRole }) {
                   className={inp + (!isAdmin && teamWorkerName ? ' opacity-60 cursor-not-allowed' : '')} placeholder="Name..." />
               </div>
             </div>
-            <div className="flex gap-2 px-6 py-4 border-t border-[#F3F3F3]">
+            <div className="flex gap-2 px-6 py-4 border-t border-[#E2E8F0]">
               <button onClick={save}
                 className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all">
                 Save
               </button>
               <button onClick={() => setShowForm(false)}
-                className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F9F9F9] transition-all">
+                className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F8F9FC] transition-all">
                 Cancel
               </button>
             </div>

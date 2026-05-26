@@ -130,7 +130,7 @@ export default function Contents() {
         </div>
         <div className="flex gap-2 flex-wrap">
           <button onClick={importTemplate} disabled={importing}
-            className="bg-[#F3F3F3] text-[#091426] px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-[#F9F9F9] transition-all flex items-center gap-2 disabled:opacity-50">
+            className="bg-[#F3F3F3] text-[#091426] px-3 py-2.5 rounded-xl text-sm font-medium hover:bg-[#F8F9FC] transition-all flex items-center gap-2 disabled:opacity-50">
             <Download size={15} strokeWidth={1.8} /> {importing ? 'Importing...' : 'Import Template'}
           </button>
           <button onClick={() => openModal('phase')}
@@ -157,7 +157,7 @@ export default function Contents() {
       {/* עץ תכולות */}
       <div className="space-y-3">
         {tree.map(phase => (
-          <div key={phase.id} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] overflow-hidden">
+          <div key={phase.id} className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-hidden">
             {/* כותרת שלב */}
             <div className="bg-[#091426] rounded-t-2xl px-4 py-3 flex items-center justify-between">
               <button onClick={() => toggle(phase.id)} className="flex items-center gap-2 flex-1 text-left">
@@ -195,7 +195,7 @@ export default function Contents() {
                 {phase.tasks.map(task => (
                   <div key={task.id}>
                     {/* שורת משימה */}
-                    <div className="flex items-center justify-between px-5 py-3.5 hover:bg-[#F9F9F9] group transition-colors">
+                    <div className="flex items-center justify-between px-5 py-3.5 hover:bg-[#F8F9FC] group transition-colors">
                       <div className="flex items-center gap-2 flex-1">
                         <button onClick={() => toggle(task.id)}
                           className="text-[#6B7A90] hover:text-[#091426] transition shrink-0">
@@ -242,7 +242,7 @@ export default function Contents() {
 
                     {/* תת-משימות */}
                     {expanded[task.id] && task.subtasks.length > 0 && (
-                      <div className="bg-[#F9F9F9] divide-y divide-[#F3F3F3]">
+                      <div className="bg-[#F8F9FC] divide-y divide-[#F3F3F3]">
                         {task.subtasks.map(sub => (
                           <div key={sub.id} className="flex items-center justify-between px-10 py-2.5 group hover:bg-[#F3F3F3] transition-colors">
                             <div className="flex items-center gap-2">
@@ -275,7 +275,7 @@ export default function Contents() {
       {modal && (
         <div className="fixed inset-0 bg-[#091426]/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#F3F3F3]">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2E8F0]">
               <h2 className="text-base font-semibold text-[#091426] font-[Manrope] tracking-tight">
                 {modal.edit ? 'Edit' : modal.mode === 'phase' ? '+ New Phase' : modal.mode === 'task' ? '+ New Task' : '+ New Subtask'}
                 {modal.parent && <span className="text-[#6B7A90] font-normal text-sm ml-2">under {modal.parent.name}</span>}
@@ -313,9 +313,9 @@ export default function Contents() {
                   rows={2} placeholder="Notes, instructions or additional details" />
               </div>
             </div>
-            <div className="flex gap-2 px-6 py-4 border-t border-[#F3F3F3]">
+            <div className="flex gap-2 px-6 py-4 border-t border-[#E2E8F0]">
               <button onClick={save} className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all">Save</button>
-              <button onClick={() => setModal(null)} className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F9F9F9] transition-all">Cancel</button>
+              <button onClick={() => setModal(null)} className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F8F9FC] transition-all">Cancel</button>
             </div>
           </div>
         </div>

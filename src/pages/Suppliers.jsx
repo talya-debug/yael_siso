@@ -101,7 +101,7 @@ function SupplierModal({ supplier, onClose, onSaved, isAdmin = true }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-[#091426]/60" onClick={onClose}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between p-5 border-b border-[#F3F3F3]">
+        <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
           <h2 className="font-semibold text-[#091426] font-[Manrope] tracking-tight">{isEdit ? 'Edit Supplier' : 'New Supplier'}</h2>
           <button onClick={onClose} className="text-[#6B7A90] hover:text-[#091426] transition p-1 rounded-xl hover:bg-[#F3F3F3]">
             <X size={18} strokeWidth={1.8} />
@@ -165,7 +165,7 @@ function SupplierModal({ supplier, onClose, onSaved, isAdmin = true }) {
           </div>
 
           {/* פרטי בנק — גלוי לכולם */}
-          <div className="border-t border-[#F3F3F3] pt-4 mt-4">
+          <div className="border-t border-[#E2E8F0] pt-4 mt-4">
             <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mb-3">Bank Details</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
@@ -199,14 +199,14 @@ function SupplierModal({ supplier, onClose, onSaved, isAdmin = true }) {
           </div>
         </div>
 
-        <div className="flex gap-3 p-5 border-t border-[#F3F3F3]">
+        <div className="flex gap-3 p-5 border-t border-[#E2E8F0]">
           <button onClick={handleSave} disabled={saving}
             className="flex-1 bg-[#091426] text-white rounded-xl py-2.5 text-sm font-medium hover:bg-[#1E293B] transition-all disabled:opacity-50 flex items-center justify-center gap-2">
             <Save size={15} strokeWidth={1.8} />
             {saving ? 'Saving...' : isEdit ? 'Update' : 'Add Supplier'}
           </button>
           <button onClick={onClose}
-            className="px-4 py-2.5 rounded-xl text-sm text-[#6B7A90] hover:bg-[#F9F9F9] bg-[#F3F3F3] transition-all">
+            className="px-4 py-2.5 rounded-xl text-sm text-[#6B7A90] hover:bg-[#F8F9FC] bg-[#F3F3F3] transition-all">
             Cancel
           </button>
         </div>
@@ -223,7 +223,7 @@ function SupplierModal({ supplier, onClose, onSaved, isAdmin = true }) {
 // כרטיס ספק
 function SupplierCard({ supplier, isAdmin, onEdit, onDelete, onAddPurchase, onToggleFavorite, supplierProjects }) {
   return (
-    <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-5 hover:shadow-[0_4px_30px_rgba(9,20,38,0.08)] transition-all group cursor-pointer"
+    <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-5 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all group cursor-pointer"
       onClick={() => onEdit(supplier)}>
       <div className="flex items-start justify-between mb-3">
         <div>
@@ -292,7 +292,7 @@ function SupplierCard({ supplier, isAdmin, onEdit, onDelete, onAddPurchase, onTo
       </div>
 
       {supplierProjects && supplierProjects.length > 0 && (
-        <div className="mt-3 border-t border-[#F3F3F3] pt-3 flex items-center gap-1.5 flex-wrap">
+        <div className="mt-3 border-t border-[#E2E8F0] pt-3 flex items-center gap-1.5 flex-wrap">
           <span className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Projects:</span>
           {supplierProjects.map(p => (
             <span key={p.id} className="text-[10px] bg-[#F3F3F3] text-[#091426] px-2 py-0.5 rounded-full font-medium">
@@ -303,7 +303,7 @@ function SupplierCard({ supplier, isAdmin, onEdit, onDelete, onAddPurchase, onTo
       )}
 
       {supplier.notes && (
-        <p className="mt-3 text-xs text-[#6B7A90] border-t border-[#F3F3F3] pt-3 leading-relaxed">
+        <p className="mt-3 text-xs text-[#6B7A90] border-t border-[#E2E8F0] pt-3 leading-relaxed">
           {supplier.notes}
         </p>
       )}
@@ -478,7 +478,7 @@ export default function Suppliers({ isAdmin = true }) {
       {purchaseModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-[#091426]/60" onClick={() => setPurchaseModal(null)}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-5 border-b border-[#F3F3F3]">
+            <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
               <div>
                 <h2 className="font-semibold text-[#091426] font-[Manrope] tracking-tight">Add Purchase</h2>
                 <p className="text-xs text-[#6B7A90] mt-0.5">Supplier: {purchaseModal.name}</p>
@@ -516,13 +516,13 @@ export default function Suppliers({ isAdmin = true }) {
                 <p className="text-[10px] text-[#6B7A90] mt-1">Upload the quote to Google Drive and paste the link here</p>
               </div>
             </div>
-            <div className="flex gap-3 p-5 border-t border-[#F3F3F3]">
+            <div className="flex gap-3 p-5 border-t border-[#E2E8F0]">
               <button onClick={savePurchase} disabled={!purchaseForm.project_id || !purchaseForm.amount || savingPurchase}
                 className="flex-1 bg-[#091426] text-white rounded-xl py-2.5 text-sm font-medium hover:bg-[#1E293B] transition-all disabled:opacity-40">
                 {savingPurchase ? 'Saving...' : 'Submit Purchase'}
               </button>
               <button onClick={() => setPurchaseModal(null)}
-                className="px-4 py-2.5 rounded-xl text-sm text-[#6B7A90] hover:bg-[#F9F9F9] bg-[#F3F3F3] transition-all">
+                className="px-4 py-2.5 rounded-xl text-sm text-[#6B7A90] hover:bg-[#F8F9FC] bg-[#F3F3F3] transition-all">
                 Cancel
               </button>
             </div>

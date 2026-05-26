@@ -63,13 +63,13 @@ export default function PublicWorkLog() {
   const lbl = "text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5"
 
   if (loading) return (
-    <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center">
+    <div className="min-h-screen bg-[#F8F9FC] flex items-center justify-center">
       <div className="w-6 h-6 border-2 border-[#091426] border-t-transparent rounded-full animate-spin" />
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[#F8F9FC] flex items-center justify-center p-6">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
@@ -82,13 +82,13 @@ export default function PublicWorkLog() {
 
         {/* Form */}
         {submitted ? (
-          <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-8 text-center">
+          <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-8 text-center">
             <CheckCircle2 size={48} className="text-emerald-500 mx-auto mb-3" strokeWidth={1.5} />
             <h2 className="text-lg font-bold text-[#091426] font-[Manrope]">Hours Logged!</h2>
             <p className="text-sm text-[#6B7A90] mt-1">Thank you. You can submit another entry.</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-6 space-y-4">
+          <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-6 space-y-4">
             {error && <div className="bg-red-50 text-red-600 text-sm rounded-xl px-4 py-3">{error}</div>}
             <div>
               <label className={lbl}>Your Name *</label>

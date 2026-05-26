@@ -183,7 +183,7 @@ export default function MonthlyReport() {
         <p className="text-sm text-[#6B7A90] mt-0.5">Generate a progress report and send via email</p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-5">
+      <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-5">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-1">
             <label className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5">Project</label>
@@ -221,32 +221,32 @@ export default function MonthlyReport() {
       {report && project && (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4 text-center">
+            <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-4 text-center">
               <p className="text-3xl font-bold text-[#091426]">{progress}%</p>
               <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-1">Overall Progress</p>
             </div>
-            <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4 text-center">
+            <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-4 text-center">
               <p className="text-3xl font-bold text-emerald-600">{report.doneTasks.length}</p>
               <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-1">Tasks Completed</p>
             </div>
-            <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4 text-center">
+            <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-4 text-center">
               <p className="text-3xl font-bold text-[#091426]">{report.activeTasks.length}</p>
               <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-1">In Progress</p>
             </div>
-            <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-4 text-center">
+            <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-4 text-center">
               <p className="text-2xl font-bold text-[#091426]">₪{report.totalPaid.toLocaleString('en-US')}</p>
               <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mt-1">Paid So Far</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-5">
+          <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-5">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
               <h2 className="font-semibold text-[#091426] font-[Manrope] tracking-tight">
                 Report {MONTHS[month]} {year} — {project.name}
               </h2>
               <div className="flex gap-2 flex-wrap">
                 <button onClick={handleExport}
-                  className="flex items-center gap-1.5 text-xs bg-[#F3F3F3] px-3 py-2 rounded-xl text-[#6B7A90] hover:bg-[#F9F9F9] transition-all">
+                  className="flex items-center gap-1.5 text-xs bg-[#F3F3F3] px-3 py-2 rounded-xl text-[#6B7A90] hover:bg-[#F8F9FC] transition-all">
                   <Download size={13} strokeWidth={1.8} /> Export
                 </button>
                 <button onClick={handleSendEmail}
@@ -296,7 +296,7 @@ export default function MonthlyReport() {
                   </h3>
                   <div className="space-y-1">
                     {report.activeTasks.map(t => (
-                      <div key={t.id} className="flex items-center gap-2 text-sm text-[#091426] bg-[#F9F9F9] rounded-xl px-3 py-1.5">
+                      <div key={t.id} className="flex items-center gap-2 text-sm text-[#091426] bg-[#F8F9FC] rounded-xl px-3 py-1.5">
                         {statusIcon(t.status)}
                         <span>{t.name}</span>
                         {t.phase_name && <span className="text-xs text-[#6B7A90] ml-auto">{t.phase_name}</span>}
@@ -330,7 +330,7 @@ export default function MonthlyReport() {
                   </h3>
                   <div className="space-y-1">
                     {report.nextSteps.map(t => (
-                      <div key={t.id} className="flex items-center gap-2 text-sm text-[#091426] bg-[#F9F9F9] rounded-xl px-3 py-1.5">
+                      <div key={t.id} className="flex items-center gap-2 text-sm text-[#091426] bg-[#F8F9FC] rounded-xl px-3 py-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#7B5800] shrink-0" />
                         <span>{t.name}</span>
                         {t.phase_name && <span className="text-xs text-[#6B7A90] ml-auto">{t.phase_name}</span>}
@@ -363,7 +363,7 @@ export default function MonthlyReport() {
             </div>
 
             {(project.clients?.name || project.clients?.email) && (
-              <div className="mt-5 pt-4 border-t border-[#F3F3F3] flex flex-col sm:flex-row gap-2 sm:gap-4 text-xs text-[#6B7A90]">
+              <div className="mt-5 pt-4 border-t border-[#E2E8F0] flex flex-col sm:flex-row gap-2 sm:gap-4 text-xs text-[#6B7A90]">
                 {project.clients?.name  && <span>Client: <strong className="text-[#091426]">{project.clients.name}</strong></span>}
                 {project.clients?.email && <span>Email: <strong className="text-[#091426]">{project.clients.email}</strong></span>}
               </div>

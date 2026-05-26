@@ -129,7 +129,7 @@ export default function MyDay({ userRole, onOpenProject }) {
     const isDone = task.status === 'done'
 
     return (
-      <div className={`flex items-center gap-3 px-4 py-3 border-b border-[#F3F3F3] last:border-0 hover:bg-[#F9F9F9] transition-colors group ${isDone ? 'opacity-50' : ''}`}>
+      <div className={`flex items-center gap-3 px-4 py-3 border-b border-[#E2E8F0] last:border-0 hover:bg-[#F8F9FC] transition-colors group ${isDone ? 'opacity-50' : ''}`}>
         <button onClick={() => onToggle(task.id, task.status)}
           className="shrink-0">
           {isDone
@@ -173,8 +173,8 @@ export default function MyDay({ userRole, onOpenProject }) {
   function Section({ title, icon: Icon, iconColor, tasks, isProject = true, onToggle, onDelete, emptyText, accent, onOpenProject }) {
     if (tasks.length === 0 && !emptyText) return null
     return (
-      <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] overflow-hidden">
-        <div className={`flex items-center gap-2 px-4 py-3 border-b border-[#F3F3F3] ${accent || 'bg-[#F9F9F9]'}`}>
+      <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-hidden">
+        <div className={`flex items-center gap-2 px-4 py-3 border-b border-[#E2E8F0] ${accent || 'bg-[#F8F9FC]'}`}>
           <Icon size={16} className={iconColor || 'text-[#6B7A90]'} strokeWidth={1.8} />
           <span className="text-xs font-bold tracking-wider uppercase text-[#6B7A90]">{title}</span>
           <span className="text-xs text-[#6B7A90] ml-auto">{tasks.length}</span>
@@ -243,8 +243,8 @@ export default function MyDay({ userRole, onOpenProject }) {
       />
 
       {/* משימות יומיומיות */}
-      <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] overflow-hidden">
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-[#F3F3F3] bg-[#F9F9F9]">
+      <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-hidden">
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-[#E2E8F0] bg-[#F8F9FC]">
           <CheckCircle2 size={16} className="text-[#091426]" strokeWidth={1.8} />
           <span className="text-xs font-bold tracking-wider uppercase text-[#6B7A90]">My Tasks</span>
           <span className="text-xs text-[#6B7A90] ml-auto">{activeDailyTasks.length}</span>
@@ -273,7 +273,7 @@ export default function MyDay({ userRole, onOpenProject }) {
       {showAdd && (
         <div className="fixed inset-0 bg-[#091426]/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#F3F3F3]">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2E8F0]">
               <h2 className="text-base font-semibold text-[#091426] font-[Manrope] tracking-tight">Add Task</h2>
               <button onClick={() => setShowAdd(false)} className="w-8 h-8 rounded-xl hover:bg-[#F3F3F3] flex items-center justify-center text-[#6B7A90]">
                 <X size={16} strokeWidth={1.8} />
@@ -303,13 +303,13 @@ export default function MyDay({ userRole, onOpenProject }) {
                 </div>
               </div>
             </div>
-            <div className="flex gap-2 px-6 py-4 border-t border-[#F3F3F3]">
+            <div className="flex gap-2 px-6 py-4 border-t border-[#E2E8F0]">
               <button onClick={addDailyTask} disabled={!addForm.title.trim()}
                 className="flex-1 bg-[#091426] text-white py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all disabled:opacity-40">
                 Add Task
               </button>
               <button onClick={() => setShowAdd(false)}
-                className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F9F9F9] transition-all">
+                className="flex-1 bg-[#F3F3F3] py-2.5 rounded-xl text-sm font-medium text-[#6B7A90] hover:bg-[#F8F9FC] transition-all">
                 Cancel
               </button>
             </div>

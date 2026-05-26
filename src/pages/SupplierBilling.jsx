@@ -112,7 +112,7 @@ function EntryModal({ entry, suppliers: initialSuppliers, projects, onClose, onS
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-[#091426]/60" onClick={onClose}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between p-5 border-b border-[#F3F3F3]">
+        <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
           <h2 className="font-semibold text-[#091426] font-[Manrope] tracking-tight">{isEdit ? 'Edit Payment' : 'New Supplier Payment'}</h2>
           <button onClick={onClose} className="text-[#6B7A90] hover:text-[#091426] p-1 rounded-xl hover:bg-[#F3F3F3] transition"><X size={18} strokeWidth={1.8} /></button>
         </div>
@@ -144,7 +144,7 @@ function EntryModal({ entry, suppliers: initialSuppliers, projects, onClose, onS
 
             {/* הוספת ספק חדש inline */}
             {showNewSupplier && (
-              <div className="mt-3 bg-[#F9F9F9] rounded-xl p-3 space-y-2">
+              <div className="mt-3 bg-[#F8F9FC] rounded-xl p-3 space-y-2">
                 <p className="text-[10px] font-semibold tracking-widest uppercase text-[#7B5800]">Quick Add Supplier</p>
                 <input value={newSupplier.name} onChange={e => setNewSupplier(p => ({ ...p, name: e.target.value }))}
                   placeholder="Supplier name *" className={inp} />
@@ -216,7 +216,7 @@ function EntryModal({ entry, suppliers: initialSuppliers, projects, onClose, onS
           </div>
         </div>
 
-        <div className="flex gap-3 p-5 border-t border-[#F3F3F3]">
+        <div className="flex gap-3 p-5 border-t border-[#E2E8F0]">
           <button onClick={handleSave}
             className="flex-1 bg-[#091426] text-white rounded-xl py-2.5 text-sm font-medium hover:bg-[#1E293B] transition-all flex items-center justify-center gap-2">
             <Save size={15} strokeWidth={1.8} /> {isEdit ? 'Update' : 'Add Payment'}
@@ -238,7 +238,7 @@ function PaymentRow({ payment, supplierName, projectName, supplier, project, onE
     : 0
 
   return (
-    <tr className="border-b border-[#F3F3F3] hover:bg-[#F9F9F9] transition-colors group">
+    <tr className="border-b border-[#E2E8F0] hover:bg-[#F8F9FC] transition-colors group">
       <td className="py-3.5 px-4 text-sm font-medium text-[#091426]">{supplierName}</td>
       <td className="py-3.5 px-4 text-sm text-[#6B7A90]">{projectName || '—'}</td>
       <td className="py-3.5 px-4 text-sm text-[#091426] max-w-48 truncate">{payment.description || '—'}</td>
@@ -379,7 +379,7 @@ export default function SupplierBilling() {
         </div>
         <div className="flex gap-2 flex-wrap">
           <button onClick={exportCSV}
-            className="flex items-center gap-2 bg-[#F3F3F3] text-[#6B7A90] px-3 py-2.5 rounded-xl text-sm hover:bg-[#F9F9F9] transition-all">
+            className="flex items-center gap-2 bg-[#F3F3F3] text-[#6B7A90] px-3 py-2.5 rounded-xl text-sm hover:bg-[#F8F9FC] transition-all">
             <Download size={15} strokeWidth={1.8} /> CSV
           </button>
           <button onClick={() => setModal('add')}
@@ -391,7 +391,7 @@ export default function SupplierBilling() {
 
       {/* KPIs — commissions focus */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-5">
+        <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-5">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-9 h-9 bg-[#F3F3F3] rounded-xl flex items-center justify-center">
               <TrendingUp size={18} className="text-[#091426]" strokeWidth={1.8} />
@@ -400,7 +400,7 @@ export default function SupplierBilling() {
           </div>
           <p className="text-2xl font-bold text-[#091426]">₪{Math.round(totalCommission).toLocaleString('en-US')}</p>
         </div>
-        <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-5">
+        <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-5">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-9 h-9 bg-emerald-50 rounded-xl flex items-center justify-center">
               <CheckCircle size={18} className="text-emerald-500" strokeWidth={1.8} />
@@ -409,7 +409,7 @@ export default function SupplierBilling() {
           </div>
           <p className="text-2xl font-bold text-emerald-600">₪{Math.round(collectedCommission).toLocaleString('en-US')}</p>
         </div>
-        <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] p-5">
+        <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-5">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center">
               <Clock size={18} className="text-amber-500" strokeWidth={1.8} />
@@ -450,10 +450,10 @@ export default function SupplierBilling() {
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-[0_2px_20px_rgba(9,20,38,0.04)] overflow-x-auto">
+        <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] overflow-x-auto">
           <table className="w-full min-w-[600px]">
             <thead>
-              <tr className="border-b border-[#F3F3F3] bg-[#F9F9F9]">
+              <tr className="border-b border-[#E2E8F0] bg-[#F8F9FC]">
                 <th className="text-left py-3.5 px-4 text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Supplier</th>
                 <th className="text-left py-3.5 px-4 text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Project</th>
                 <th className="text-left py-3.5 px-4 text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Description</th>
@@ -498,7 +498,7 @@ export default function SupplierBilling() {
       {emailModal && (
         <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4" onClick={() => setEmailModal(null)}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-auto" dir="rtl" onClick={e => e.stopPropagation()}>
-            <div className="px-6 py-4 border-b border-[#F3F3F3] flex items-center justify-between">
+            <div className="px-6 py-4 border-b border-[#E2E8F0] flex items-center justify-between">
               <h3 className="text-sm font-bold text-[#091426] font-[Manrope]">שליחת דרישת עמלה</h3>
               <button onClick={() => setEmailModal(null)} className="text-[#6B7A90] hover:text-[#091426] transition">✕</button>
             </div>
@@ -543,7 +543,7 @@ export default function SupplierBilling() {
                 </label>
               </div>
             </div>
-            <div className="px-6 py-4 border-t border-[#F3F3F3] flex gap-2">
+            <div className="px-6 py-4 border-t border-[#E2E8F0] flex gap-2">
               <button onClick={() => setEmailModal(null)}
                 className="flex-1 bg-[#F3F3F3] text-[#091426] py-2.5 rounded-xl text-sm font-medium hover:bg-[#E8E8E8] transition">
                 ביטול
