@@ -262,93 +262,79 @@ function SupplierModal({ supplier, onClose, onSaved, isAdmin = true }) {
   )
 }
 
-// כרטיס ספק
+// כרטיס ספק — לפי רפרנס סטיץ' החדש
 function SupplierCard({ supplier, isAdmin, onEdit, onDelete, onAddPurchase, onToggleFavorite, supplierProjects }) {
+  const cat = CATEGORY_ICONS[supplier.category] || CATEGORY_ICONS['Other']
+
   return (
-    <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] p-5 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all group cursor-pointer"
+    <div className="bg-white rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all cursor-pointer border border-[#E2E8F0] hover:border-[#CBD5E1] flex flex-col h-full group"
       onClick={() => onEdit(supplier)}>
-      <div className="flex items-start justify-between mb-3">
-        <div>
-          <h3 className="font-semibold text-[#091426] text-base leading-tight font-[Manrope] tracking-tight">{supplier.name}</h3>
-          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-            <CategoryIcon category={supplier.category} size={20} />
-            <span className="text-[10px] font-bold tracking-wider bg-[#F3F3F3] text-[#091426] px-2 py-0.5 rounded-full">
-              {supplier.category}
-            </span>
-            {isAdmin && supplier.commission_pct != null && (
-              <span className="text-[10px] font-bold tracking-wider bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full">
-                Commission {supplier.commission_pct}%
-              </span>
-            )}
+      <div className="p-6 flex-grow">
+        {/* שם + כוכב + Active badge */}
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="font-bold text-[#091426] text-lg font-[Manrope] tracking-tight leading-tight">{supplier.name}</h3>
+              <button onClick={e => { e.stopPropagation(); onToggleFavorite(supplier) }}
+                className="text-base transition hover:scale-110 shrink-0">
+                {supplier.is_favorite ? '⭐' : '☆'}
+              </button>
+            </div>
           </div>
+          <span className="text-[10px] font-bold tracking-wider bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-md shrink-0 ml-2">
+            ACTIVE
+          </span>
         </div>
-        <button onClick={e => { e.stopPropagation(); onToggleFavorite(supplier) }}
-          className="text-lg shrink-0 transition hover:scale-110" title={supplier.is_favorite ? 'Remove favorite' : 'Add favorite'}>
-          {supplier.is_favorite ? '⭐' : '☆'}
-        </button>
-        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition" onClick={e => e.stopPropagation()}>
-          <button onClick={() => onAddPurchase(supplier)}
-            className="px-2.5 py-1 rounded-xl text-[10px] font-bold tracking-wider text-[#7B5800] bg-amber-50 hover:bg-amber-100 transition">
-            + Purchase
-          </button>
-          <button onClick={() => onEdit(supplier)}
-            className="p-1.5 rounded-xl text-[#6B7A90] hover:text-[#091426] hover:bg-[#F3F3F3] transition">
-            <Pencil size={14} strokeWidth={1.8} />
-          </button>
-          {isAdmin && (
-            <button onClick={() => onDelete(supplier)}
-              className="p-1.5 rounded-xl text-[#6B7A90] hover:text-red-500 hover:bg-red-50 transition">
-              <Trash2 size={14} strokeWidth={1.8} />
-            </button>
+
+        {/* קטגוריה badge */}
+        <div className="mb-4">
+          <span className="text-[12px] font-semibold px-3 py-1 rounded-full border"
+            style={{ color: cat.color, borderColor: cat.color + '40', backgroundColor: cat.color + '10' }}>
+            {supplier.category}
+          </span>
+          {isAdmin && supplier.commission_pct != null && (
+            <span className="text-[11px] font-bold text-emerald-700 ml-2">
+              {supplier.commission_pct}%
+            </span>
+          )}
+        </div>
+
+        {/* פרטי קשר */}
+        <div className="space-y-2.5">
+          {supplier.phone && (
+            <div className="flex items-center gap-3 text-[#64748B] text-sm" onClick={e => e.stopPropagation()}>
+              <Phone size={16} className="shrink-0" strokeWidth={1.8} />
+              <a href={`tel:${supplier.phone}`} className="hover:text-[#091426] transition">{supplier.phone}</a>
+            </div>
+          )}
+          {supplier.email && (
+            <div className="flex items-center gap-3 text-[#64748B] text-sm" onClick={e => e.stopPropagation()}>
+              <Mail size={16} className="shrink-0" strokeWidth={1.8} />
+              <a href={`mailto:${supplier.email}`} className="hover:text-[#091426] transition truncate">{supplier.email}</a>
+            </div>
+          )}
+          {supplier.website && (
+            <div className="flex items-center gap-3 text-[#64748B] text-sm" onClick={e => e.stopPropagation()}>
+              <Globe size={16} className="shrink-0" strokeWidth={1.8} />
+              <a href={supplier.website} target="_blank" rel="noopener noreferrer" className="hover:text-[#091426] transition truncate">{supplier.website.replace(/^https?:\/\//, '')}</a>
+            </div>
           )}
         </div>
       </div>
 
-      <div className="space-y-1.5">
-        {supplier.phone && (
-          <a href={`tel:${supplier.phone}`}
-            className="flex items-center gap-2 text-sm text-[#091426] hover:text-[#091426] transition">
-            <Phone size={13} className="text-[#6B7A90] shrink-0" strokeWidth={1.8} />
-            <span>{supplier.phone}</span>
-          </a>
-        )}
-        {supplier.email && (
-          <a href={`mailto:${supplier.email}`}
-            className="flex items-center gap-2 text-sm text-[#091426] hover:text-[#091426] transition">
-            <Mail size={13} className="text-[#6B7A90] shrink-0" strokeWidth={1.8} />
-            <span className="truncate">{supplier.email}</span>
-          </a>
-        )}
-        {supplier.address && (
-          <div className="flex items-center gap-2 text-sm text-[#6B7A90]">
-            <MapPin size={13} className="text-[#6B7A90] shrink-0" strokeWidth={1.8} />
-            <span>{supplier.address}</span>
-          </div>
-        )}
-        {supplier.website && (
-          <a href={supplier.website} target="_blank" rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm text-[#091426] hover:text-[#091426] transition">
-            <Globe size={13} className="shrink-0" strokeWidth={1.8} />
-            <span className="truncate">Website / Link</span>
-          </a>
-        )}
-      </div>
-
+      {/* פרויקטים */}
       {supplierProjects && supplierProjects.length > 0 && (
-        <div className="mt-3 border-t border-[#E2E8F0] pt-3 flex items-center gap-1.5 flex-wrap">
-          <span className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90]">Projects:</span>
-          {supplierProjects.map(p => (
-            <span key={p.id} className="text-[10px] bg-[#F3F3F3] text-[#091426] px-2 py-0.5 rounded-full font-medium">
-              {p.name}
-            </span>
-          ))}
+        <div className="border-t border-[#E2E8F0] px-6 py-4">
+          <p className="text-[10px] font-bold tracking-widest uppercase text-[#94A3B8] mb-2">Current Projects</p>
+          <div className="flex flex-wrap gap-1.5">
+            {supplierProjects.map(p => (
+              <span key={p.id} className="text-[11px] font-medium px-2.5 py-1 rounded-full border border-[#E2E8F0] text-[#091426] flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
+                {p.name}
+              </span>
+            ))}
+          </div>
         </div>
-      )}
-
-      {supplier.notes && (
-        <p className="mt-3 text-xs text-[#6B7A90] border-t border-[#E2E8F0] pt-3 leading-relaxed">
-          {supplier.notes}
-        </p>
       )}
     </div>
   )
@@ -365,6 +351,7 @@ export default function Suppliers({ isAdmin = true }) {
   const [filterCat, setFilterCat] = useState('All')
   const [filterFav, setFilterFav] = useState(false)
   const [showAllCats, setShowAllCats] = useState(false)
+  const [viewSupplier, setViewSupplier] = useState(null)
   const [purchaseModal, setPurchaseModal] = useState(null)
   const [purchaseForm, setPurchaseForm]   = useState({ project_id: '', description: '', amount: '', quote_link: '' })
   const [savingPurchase, setSavingPurchase] = useState(false)
@@ -449,11 +436,11 @@ export default function Suppliers({ isAdmin = true }) {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-[#091426] font-[Manrope] tracking-tight">Supplier Directory</h1>
-          <p className="text-sm text-[#6B7A90] mt-0.5">{suppliers.length} suppliers in directory</p>
+          <p className="text-sm text-[#64748B] mt-1">Manage and discover trusted partners for your studio projects.</p>
         </div>
         <button onClick={() => setModal('add')}
-          className="flex items-center gap-2 bg-[#091426] text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-[#1E293B] transition-all">
-          <Plus size={16} strokeWidth={1.8} /> New Supplier
+          className="flex items-center gap-2 bg-[#B8960B] hover:bg-[#9A7D09] text-white px-6 py-3 rounded-lg text-sm font-bold transition-all">
+          <Plus size={16} strokeWidth={1.8} /> Add Supplier
         </button>
       </div>
 
@@ -510,10 +497,10 @@ export default function Suppliers({ isAdmin = true }) {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {filtered.map(s => (
             <SupplierCard key={s.id} supplier={s} isAdmin={isAdmin}
-              onEdit={sup => setModal(sup)}
+              onEdit={sup => setViewSupplier(sup)}
               onDelete={handleDelete}
               onAddPurchase={sup => { setPurchaseModal(sup); setPurchaseForm({ project_id: '', description: '', amount: '', quote_link: '' }) }}
               onToggleFavorite={toggleFavorite}
@@ -586,6 +573,130 @@ export default function Suppliers({ isAdmin = true }) {
           </div>
         </div>
       )}
+      {/* Supplier Detail Drawer */}
+      {viewSupplier && (() => {
+        const vs = viewSupplier
+        const vsCat = CATEGORY_ICONS[vs.category] || CATEGORY_ICONS['Other']
+        const VsCatIcon = vsCat.Icon
+        const vsProjects = getSupplierProjects(vs.id)
+        return (
+          <>
+            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[60]" onClick={() => setViewSupplier(null)} />
+            <div className="fixed right-0 top-0 h-screen w-full max-w-md bg-white z-[70] shadow-2xl flex flex-col">
+              {/* Header */}
+              <div className="flex items-center justify-between p-6 border-b border-[#E2E8F0]">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                    style={{ backgroundColor: vsCat.color }}>
+                    <VsCatIcon size={24} strokeWidth={1.8} className="text-white" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="font-bold text-lg text-[#091426] font-[Manrope]">{vs.name}</h2>
+                      <span className="bg-emerald-100 text-emerald-700 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">Active</span>
+                    </div>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <span className="text-[#B8960B]">⭐</span>
+                      <span className="text-xs text-[#64748B]">{vs.category}</span>
+                    </div>
+                  </div>
+                </div>
+                <button onClick={() => setViewSupplier(null)}
+                  className="w-10 h-10 rounded-full hover:bg-[#F3F3F3] flex items-center justify-center text-[#6B7A90]">
+                  <X size={20} strokeWidth={1.8} />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                {/* Action buttons */}
+                <div className="flex gap-3">
+                  <button onClick={() => { setViewSupplier(null); setModal(vs) }}
+                    className="flex-1 py-2.5 px-4 border border-[#CBD5E1] text-[#091426] font-bold rounded-lg hover:bg-[#F8F9FC] transition">
+                    Edit Information
+                  </button>
+                  <button onClick={() => { setViewSupplier(null); setPurchaseModal(vs); setPurchaseForm({ project_id: '', description: '', amount: '', quote_link: '' }) }}
+                    className="flex-1 py-2.5 px-4 bg-[#B8960B] text-white font-bold rounded-lg hover:bg-[#9A7D09] transition">
+                    + Purchase
+                  </button>
+                </div>
+
+                {/* Details grid */}
+                <div className="space-y-5">
+                  {[
+                    { icon: <VsCatIcon size={20} strokeWidth={1.8} />, label: 'Category', value: vs.category },
+                    { icon: <Phone size={20} strokeWidth={1.8} />, label: 'Phone', value: vs.phone, link: vs.phone ? `tel:${vs.phone}` : null },
+                    { icon: <Mail size={20} strokeWidth={1.8} />, label: 'Email', value: vs.email, link: vs.email ? `mailto:${vs.email}` : null },
+                    { icon: <Globe size={20} strokeWidth={1.8} />, label: 'Website', value: vs.website?.replace(/^https?:\/\//, ''), link: vs.website },
+                    { icon: <MapPin size={20} strokeWidth={1.8} />, label: 'Address', value: vs.address },
+                  ].filter(r => r.value).map(row => (
+                    <div key={row.label} className="flex items-start gap-4">
+                      <div className="text-[#64748B] mt-0.5 shrink-0">{row.icon}</div>
+                      <div>
+                        <p className="text-[10px] font-bold tracking-widest uppercase text-[#94A3B8] mb-0.5">{row.label}</p>
+                        {row.link ? (
+                          <a href={row.link} target={row.link.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer"
+                            className="text-sm text-[#091426] hover:text-[#7B5800] transition">{row.value}</a>
+                        ) : (
+                          <p className="text-sm text-[#091426]">{row.value}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Bank details - admin only */}
+                  {isAdmin && vs.bank_name && (
+                    <div className="flex items-start gap-4">
+                      <div className="text-[#64748B] mt-0.5 shrink-0"><Wrench size={20} strokeWidth={1.8} /></div>
+                      <div>
+                        <p className="text-[10px] font-bold tracking-widest uppercase text-[#94A3B8] mb-0.5">Bank Details</p>
+                        <p className="text-sm text-[#091426]">{vs.bank_name} · Branch {vs.bank_branch} · {vs.bank_account}</p>
+                        {vs.account_holder && <p className="text-xs text-[#64748B] mt-0.5">{vs.account_holder}</p>}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Commission - admin only */}
+                  {isAdmin && vs.commission_pct != null && (
+                    <div className="flex items-start gap-4">
+                      <div className="text-[#64748B] mt-0.5 shrink-0"><span className="text-lg">%</span></div>
+                      <div>
+                        <p className="text-[10px] font-bold tracking-widest uppercase text-[#94A3B8] mb-0.5">Commission</p>
+                        <p className="text-sm text-[#091426] font-bold">{vs.commission_pct}%</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Projects */}
+                {vsProjects.length > 0 && (
+                  <div>
+                    <p className="text-[10px] font-bold tracking-widest uppercase text-[#94A3B8] mb-3">Active In Projects</p>
+                    <div className="flex flex-wrap gap-2">
+                      {vsProjects.map(p => (
+                        <span key={p.id} className="text-[12px] font-bold px-3 py-1.5 rounded-full bg-blue-50 text-blue-700">
+                          {p.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Notes */}
+                {vs.notes && (
+                  <div>
+                    <p className="text-[10px] font-bold tracking-widest uppercase text-[#94A3B8] mb-3">Notes</p>
+                    <div className="bg-[#F8F9FC] p-4 rounded-xl border border-[#E2E8F0]">
+                      <p className="text-sm text-[#091426] italic leading-relaxed">{vs.notes}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        )
+      })()}
+
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#091426] text-white px-5 py-3 rounded-xl text-sm shadow-lg z-50 animate-fade-in">
           {toast}
