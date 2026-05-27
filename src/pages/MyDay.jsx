@@ -97,15 +97,15 @@ export default function MyDay({ userRole, onOpenProject }) {
 
   async function toggleTask(taskId) {
     await supabase.from('tasks').update({ status: 'done' }).eq('id', taskId)
-    await syncGoogle('complete', taskId)
     fetchAll()
+    syncGoogle('complete', taskId)
   }
 
   async function toggleDaily(taskId, currentStatus) {
     const newStatus = currentStatus === 'done' ? 'pending' : 'done'
     await supabase.from('daily_tasks').update({ status: newStatus }).eq('id', taskId)
-    await syncGoogle(newStatus === 'done' ? 'complete' : 'uncomplete', taskId)
     fetchAll()
+    syncGoogle(newStatus === 'done' ? 'complete' : 'uncomplete', taskId)
   }
 
   async function addQuickTask() {
@@ -116,9 +116,9 @@ export default function MyDay({ userRole, onOpenProject }) {
       user_email: email, title: addTaskInput.trim(), due_date: today.toISOString().split('T')[0],
       project_id: addTaskProject || null, type: 'task',
     }).select().single()
-    if (data) await syncGoogle('create', data.id, { name: addTaskInput.trim(), due_date: today.toISOString().split('T')[0] })
     setAddTaskInput(''); setAddTaskProject('')
     fetchAll()
+    if (data) syncGoogle('create', data.id, { name: addTaskInput.trim(), due_date: today.toISOString().split('T')[0] })
   }
 
   async function addNote() {
