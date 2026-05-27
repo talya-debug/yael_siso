@@ -112,9 +112,9 @@ export default function MyDay({ userRole, onOpenProject }) {
   }
 
   async function toggleTask(taskId) {
-    await supabase.from('tasks').update({ status: 'done' }).eq('id', taskId)
-    fetchAll()
-    syncGoogle('complete', taskId)
+    // עדכון אופטימיסטי — נעלם מיד מהרשימה
+    setProjectTasks(prev => prev.filter(t => t.id !== taskId))
+    supabase.from('tasks').update({ status: 'done' }).eq('id', taskId)
   }
 
   async function toggleDaily(taskId, currentStatus) {
