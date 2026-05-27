@@ -33,7 +33,7 @@ async function createGoogleTask(accessToken, taskListId, task) {
     body: JSON.stringify({
       title: task.name,
       notes: task.phase_name ? `Project phase: ${task.phase_name}` : '',
-      due: task.due_date ? new Date(task.due_date).toISOString() : undefined,
+      due: task.due_date ? `${task.due_date}T00:00:00.000Z` : undefined,
     }),
   })
   return res.json()
@@ -114,7 +114,7 @@ export default async function handler(req, res) {
       const { data: task } = await supabase.from('tasks').select('google_task_id').eq('id', task_id).single()
       if (task?.google_task_id && task_data?.due_date) {
         await updateGoogleTask(accessToken, taskListId, task.google_task_id, {
-          due: new Date(task_data.due_date).toISOString(),
+          due: `${task_data.due_date}T00:00:00.000Z`,
         })
       }
       return res.json({ synced: true })
