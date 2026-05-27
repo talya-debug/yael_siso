@@ -85,6 +85,7 @@ export default function MyDay({ userRole, onOpenProject }) {
   }
 
   const today = new Date(); today.setHours(0,0,0,0)
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`
   const weekEnd = new Date(today); weekEnd.setDate(weekEnd.getDate() + 7)
   const overdueTasks = projectTasks.filter(t => t.due_date && new Date(t.due_date) < today)
   const todayOnlyTasks = projectTasks.filter(t => { if (!t.due_date) return false; const d = new Date(t.due_date); d.setHours(0,0,0,0); return d.getTime() === today.getTime() })
@@ -131,16 +132,16 @@ export default function MyDay({ userRole, onOpenProject }) {
     const projId = addTaskProject || null
     // עדכון אופטימיסטי — מוסיף ל-UI מיד
     const tempId = 'temp-' + Date.now()
-    setDailyTasks(prev => [{ id: tempId, title, status: 'pending', due_date: today.toISOString().split('T')[0], project_id: projId, type: 'task', user_email: email }, ...prev])
+    setDailyTasks(prev => [{ id: tempId, title, status: 'pending', due_date: todayStr, project_id: projId, type: 'task', user_email: email }, ...prev])
     setAddTaskInput(''); setAddTaskProject('')
     // שמירה ב-DB ברקע
     const { data } = await supabase.from('daily_tasks').insert({
-      user_email: email, title, due_date: today.toISOString().split('T')[0],
+      user_email: email, title, due_date: todayStr,
       project_id: projId, type: 'task',
     }).select().single()
     if (data) {
       setDailyTasks(prev => prev.map(t => t.id === tempId ? data : t))
-      syncGoogle('create', data.id, { name: title, due_date: today.toISOString().split('T')[0] })
+      syncGoogle('create', data.id, { name: title, due_date: todayStr })
     }
   }
 
@@ -149,7 +150,7 @@ export default function MyDay({ userRole, onOpenProject }) {
     const email = userEmail || userRole?.email
     if (!email) return
     await supabase.from('daily_tasks').insert({
-      user_email: email, title: noteInput.trim(), due_date: today.toISOString().split('T')[0], type: 'note',
+      user_email: email, title: noteInput.trim(), due_date: todayStr, type: 'note',
     })
     setNoteInput('')
     fetchAll()
