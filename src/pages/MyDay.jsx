@@ -156,7 +156,11 @@ export default function MyDay({ userRole, onOpenProject }) {
     fetchAll()
   }
 
-  async function deleteDaily(id) { await supabase.from('daily_tasks').delete().eq('id', id); fetchAll() }
+  async function deleteDaily(id) {
+    setDailyTasks(prev => prev.filter(t => t.id !== id))
+    syncGoogle('delete', id)
+    await supabase.from('daily_tasks').delete().eq('id', id)
+  }
 
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
