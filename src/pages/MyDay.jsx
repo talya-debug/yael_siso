@@ -38,7 +38,7 @@ export default function MyDay({ userRole, onOpenProject }) {
   const userName = userRole?.name || 'User'
   const userEmail = userRole?.email || ''
 
-  useEffect(() => { fetchAll(); checkGoogle() }, [])
+  useEffect(() => { fetchAll(); checkGoogle().then(() => pullFromGoogle()) }, [])
 
   async function checkGoogle() {
     if (!userEmail) return
@@ -91,8 +91,22 @@ export default function MyDay({ userRole, onOpenProject }) {
   const weekTasks = projectTasks.filter(t => !overdueTasks.includes(t) && !todayOnlyTasks.includes(t) && t.due_date && new Date(t.due_date) > today && new Date(t.due_date) <= weekEnd)
 
   async function syncGoogle(action, taskId, taskData) {
-    if (!googleConnected) return
-    try { await fetch('/api/sync-tasks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, user_email: userEmail, task_id: taskId, task_data: taskData }) }) } catch {}
+    const email = userEmail || userRole?.email
+    if (!email) return
+    try { await fetch('/api/sync-tasks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, user_email: email, task_id: taskId, task_data: taskData }) }) } catch {}
+  }
+
+  async function pullFromGoogle() {
+    const email = userEmail || userRole?.email
+    if (!email) return
+    try {
+      const res = await fetch('/api/sync-tasks', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'pull', user_email: email }),
+      })
+      const data = await res.json()
+      if (data?.updated > 0) fetchAll()
+    } catch {}
   }
 
   async function toggleTask(taskId) {
@@ -103,8 +117,9 @@ export default function MyDay({ userRole, onOpenProject }) {
 
   async function toggleDaily(taskId, currentStatus) {
     const newStatus = currentStatus === 'done' ? 'pending' : 'done'
-    await supabase.from('daily_tasks').update({ status: newStatus }).eq('id', taskId)
-    fetchAll()
+    // עדכון אופטימיסטי — UI מיד
+    setDailyTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t))
+    supabase.from('daily_tasks').update({ status: newStatus }).eq('id', taskId)
     syncGoogle(newStatus === 'done' ? 'complete' : 'uncomplete', taskId)
   }
 
@@ -112,13 +127,21 @@ export default function MyDay({ userRole, onOpenProject }) {
     if (!addTaskInput.trim()) return
     const email = userEmail || userRole?.email
     if (!email) return
-    const { data, error } = await supabase.from('daily_tasks').insert({
-      user_email: email, title: addTaskInput.trim(), due_date: today.toISOString().split('T')[0],
-      project_id: addTaskProject || null, type: 'task',
-    }).select().single()
+    const title = addTaskInput.trim()
+    const projId = addTaskProject || null
+    // עדכון אופטימיסטי — מוסיף ל-UI מיד
+    const tempId = 'temp-' + Date.now()
+    setDailyTasks(prev => [{ id: tempId, title, status: 'pending', due_date: today.toISOString().split('T')[0], project_id: projId, type: 'task', user_email: email }, ...prev])
     setAddTaskInput(''); setAddTaskProject('')
-    fetchAll()
-    if (data) syncGoogle('create', data.id, { name: addTaskInput.trim(), due_date: today.toISOString().split('T')[0] })
+    // שמירה ב-DB ברקע
+    const { data } = await supabase.from('daily_tasks').insert({
+      user_email: email, title, due_date: today.toISOString().split('T')[0],
+      project_id: projId, type: 'task',
+    }).select().single()
+    if (data) {
+      setDailyTasks(prev => prev.map(t => t.id === tempId ? data : t))
+      syncGoogle('create', data.id, { name: title, due_date: today.toISOString().split('T')[0] })
+    }
   }
 
   async function addNote() {
