@@ -32,6 +32,7 @@ export default function MyDay({ userRole, onOpenProject }) {
   const [noteProject, setNoteProject] = useState('')
   const [addTaskInput, setAddTaskInput] = useState('')
   const [addTaskProject, setAddTaskProject] = useState('')
+  const [syncing, setSyncing] = useState(false)
   const [weeklyDone, setWeeklyDone] = useState(0)
   const [weeklyTotal, setWeeklyTotal] = useState(0)
 
@@ -206,7 +207,21 @@ export default function MyDay({ userRole, onOpenProject }) {
         </div>
         <div className="flex items-center gap-3">
           {googleConnected ? (
-            <span className="text-xs text-emerald-600 bg-emerald-50 px-3 py-2 rounded-xl font-medium flex items-center gap-1.5"><CheckCircle2 size={14} strokeWidth={1.8} /> Synced</span>
+            <button onClick={async () => {
+              setSyncing(true)
+              await pullFromGoogle()
+              await fetchAll()
+              setSyncing(false)
+            }}
+              className="text-xs text-emerald-600 bg-emerald-50 hover:bg-emerald-100 px-3 py-2 rounded-xl font-medium flex items-center gap-1.5 transition"
+              title="Click to sync with Google Tasks">
+              {syncing ? (
+                <div className="w-3.5 h-3.5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22 5.18L10.59 16.6l-4.24-4.24 1.41-1.41 2.83 2.83 10-10L22 5.18zm-2.21 5.04c.13.57.21 1.17.21 1.78 0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8c1.58 0 3.04.46 4.28 1.25l1.44-1.44A9.9 9.9 0 0012 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10c0-1.19-.22-2.33-.6-3.39l-1.61 1.61z" fill="currentColor"/></svg>
+              )}
+              {syncing ? 'Syncing...' : 'Google Tasks'}
+            </button>
           ) : (
             <a href={`/api/google-tasks-auth?email=${encodeURIComponent(userEmail)}`}
               className="text-xs text-[#64748B] bg-[#F3F3F3] hover:bg-[#E2E8F0] px-3 py-2 rounded-xl font-medium transition">Connect Google Tasks</a>
