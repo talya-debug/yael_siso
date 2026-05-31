@@ -10,12 +10,94 @@ import {
 } from 'lucide-react'
 import * as XLSX from 'xlsx'
 
+// ── מודאל הוספת ספק חדש ──
+const SUPPLIER_CATEGORIES = [
+ 'General Contractor','A.C.','Aluminum & Windows','Blinds & Curtains','Carpentry','Ceramics & Tiles',
+ 'Cleaning','Doors','Drywall','Electrical','Elevator','Flooring','Furniture','Glass & Mirrors',
+ 'Interior Design','Iron & Metal','Kitchen','Landscaping','Lighting','Locksmith','Marble & Stone',
+ 'Moving','Paint','Plaster','Plumbing','Roofing','Safety & Security','Sanitary','Smart Home',
+ 'Waterproofing','Other'
+]
+
+function NewSupplierModal({ initialName, onClose, onCreated }) {
+ const [form, setForm] = useState({
+  name: initialName || '', category: SUPPLIER_CATEGORIES[0], phone: '', email: '',
+  address: '', website: '', notes: '', bank_name: '', bank_branch: '', bank_account: '', account_holder: ''
+ })
+ const [saving, setSaving] = useState(false)
+ const set = (f, v) => setForm(p => ({ ...p, [f]: v }))
+ const inp = "w-full bg-[#F3F3F3] rounded-xl px-3 py-2.5 text-sm border-0 focus:outline-none focus:ring-2 focus:ring-[#7B5800]/20 transition"
+ const lbl = "text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] block mb-1.5"
+
+ async function handleSave() {
+  if (!form.name.trim()) return
+  setSaving(true)
+  const { data, error } = await supabase.from('suppliers').insert({
+   name: form.name.trim(), category: form.category, phone: form.phone.trim(),
+   email: form.email.trim(), address: form.address.trim(), website: form.website.trim(),
+   notes: form.notes.trim(), bank_name: form.bank_name.trim(), bank_branch: form.bank_branch.trim(),
+   bank_account: form.bank_account.trim(), account_holder: form.account_holder.trim(),
+   updated_at: new Date().toISOString(),
+  }).select().single()
+  setSaving(false)
+  if (error) { alert('Error: ' + error.message); return }
+  onCreated(data)
+ }
+
+ return (
+  <div className="fixed inset-0 z-[60] flex items-center justify-center backdrop-blur-sm bg-[#091426]/60" onClick={onClose}>
+   <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+    <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
+     <h2 className="font-semibold text-[#091426] font-[Manrope]">New Supplier</h2>
+     <button onClick={onClose} className="text-[#6B7A90] hover:text-[#091426] transition p-1 rounded-xl hover:bg-[#F3F3F3]"><X size={18} /></button>
+    </div>
+    <div className="p-5 space-y-4">
+     <div>
+      <label className={lbl}>Supplier Name *</label>
+      <input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Supplier / Business name" className={inp} autoFocus />
+     </div>
+     <div>
+      <label className={lbl}>Category</label>
+      <select value={form.category} onChange={e => set('category', e.target.value)} className={inp}>
+       {SUPPLIER_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+      </select>
+     </div>
+     <div className="grid grid-cols-2 gap-3">
+      <div><label className={lbl}>Phone</label><input value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="050-0000000" className={inp} /></div>
+      <div><label className={lbl}>Email</label><input value={form.email} onChange={e => set('email', e.target.value)} placeholder="email@example.com" className={inp} /></div>
+     </div>
+     <div><label className={lbl}>Address</label><input value={form.address} onChange={e => set('address', e.target.value)} placeholder="Street, City" className={inp} /></div>
+     <div><label className={lbl}>Website</label><input value={form.website} onChange={e => set('website', e.target.value)} placeholder="https://..." className={inp} /></div>
+     <div><label className={lbl}>Notes</label><textarea value={form.notes} onChange={e => set('notes', e.target.value)} rows={2} className={inp} /></div>
+     <div className="border-t border-[#E2E8F0] pt-4">
+      <p className="text-[10px] font-semibold tracking-widest uppercase text-[#6B7A90] mb-3">Bank Details</p>
+      <div className="grid grid-cols-2 gap-3">
+       <div><label className={lbl}>Bank Name</label><input value={form.bank_name} onChange={e => set('bank_name', e.target.value)} className={inp} /></div>
+       <div><label className={lbl}>Branch</label><input value={form.bank_branch} onChange={e => set('bank_branch', e.target.value)} className={inp} /></div>
+       <div><label className={lbl}>Account #</label><input value={form.bank_account} onChange={e => set('bank_account', e.target.value)} className={inp} /></div>
+       <div><label className={lbl}>Account Holder</label><input value={form.account_holder} onChange={e => set('account_holder', e.target.value)} className={inp} /></div>
+      </div>
+     </div>
+    </div>
+    <div className="flex justify-end gap-3 p-5 border-t border-[#E2E8F0]">
+     <button onClick={onClose} className="px-4 py-2.5 rounded-xl text-sm text-[#6B7A90] hover:bg-[#F3F3F3]">Cancel</button>
+     <button onClick={handleSave} disabled={saving || !form.name.trim()}
+      className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-[#091426] text-white hover:bg-[#1E293B] disabled:opacity-50 transition">
+      {saving ? 'Saving...' : 'Save & Select'}
+     </button>
+    </div>
+   </div>
+  </div>
+ )
+}
+
 // ── בוחר ספק — dropdown מרשימת ספקים קיימים + הוספת חדש ──
 function SupplierPicker({ value, onChange, placeholder = 'Search supplier...' }) {
  const [open, setOpen] = useState(false)
  const [search, setSearch] = useState(value || '')
  const [suppliers, setSuppliers] = useState([])
  const [loaded, setLoaded] = useState(false)
+ const [showNewModal, setShowNewModal] = useState(false)
  const ref = useRef(null)
 
  useEffect(() => {
@@ -60,7 +142,7 @@ function SupplierPicker({ value, onChange, placeholder = 'Search supplier...' })
      ))}
      {search.trim() && !exactMatch && (
       <button type="button"
-       onClick={() => { onChange(search.trim(), null); setOpen(false) }}
+       onClick={() => { setOpen(false); setShowNewModal(true) }}
        className="w-full text-left px-3 py-2 text-sm text-[#B8960B] font-medium hover:bg-[#FFF8E1] transition border-t border-[#E2E8F0]">
        + Add "{search.trim()}" as new supplier
       </button>
@@ -69,6 +151,18 @@ function SupplierPicker({ value, onChange, placeholder = 'Search supplier...' })
       <div className="px-3 py-2 text-xs text-[#94A3B8]">Type to search...</div>
      )}
     </div>
+   )}
+   {showNewModal && (
+    <NewSupplierModal
+     initialName={search.trim()}
+     onClose={() => setShowNewModal(false)}
+     onCreated={(sup) => {
+      setSuppliers(prev => [...prev, { id: sup.id, name: sup.name }].sort((a, b) => a.name.localeCompare(b.name)))
+      setSearch(sup.name)
+      onChange(sup.name, sup.id)
+      setShowNewModal(false)
+     }}
+    />
    )}
   </div>
  )
