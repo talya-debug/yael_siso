@@ -10,6 +10,70 @@ import {
 } from 'lucide-react'
 import * as XLSX from 'xlsx'
 
+// ── בוחר ספק — dropdown מרשימת ספקים קיימים + הוספת חדש ──
+function SupplierPicker({ value, onChange, placeholder = 'Search supplier...' }) {
+ const [open, setOpen] = useState(false)
+ const [search, setSearch] = useState(value || '')
+ const [suppliers, setSuppliers] = useState([])
+ const [loaded, setLoaded] = useState(false)
+ const ref = useRef(null)
+
+ useEffect(() => {
+  if (open && !loaded) {
+   supabase.from('suppliers').select('id, name').order('name').then(({ data }) => {
+    setSuppliers(data || [])
+    setLoaded(true)
+   })
+  }
+ }, [open])
+
+ useEffect(() => { setSearch(value || '') }, [value])
+
+ // סגירת dropdown בלחיצה בחוץ
+ useEffect(() => {
+  if (!open) return
+  const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+  document.addEventListener('mousedown', handler)
+  return () => document.removeEventListener('mousedown', handler)
+ }, [open])
+
+ const filtered = suppliers.filter(s => s.name.toLowerCase().includes(search.toLowerCase()))
+ const exactMatch = suppliers.some(s => s.name.toLowerCase() === search.toLowerCase())
+
+ return (
+  <div ref={ref} className="relative">
+   <input
+    value={search}
+    onChange={e => { setSearch(e.target.value); setOpen(true); onChange(e.target.value, null) }}
+    onFocus={() => setOpen(true)}
+    placeholder={placeholder}
+    className="w-full bg-white rounded-lg px-3 py-2 text-sm border border-[#E2E8F0] focus:ring-2 focus:ring-[#B8960B]/30 focus:outline-none"
+   />
+   {open && (search || loaded) && (
+    <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border border-[#E2E8F0] max-h-48 overflow-y-auto">
+     {filtered.map(s => (
+      <button key={s.id} type="button"
+       onClick={() => { setSearch(s.name); onChange(s.name, s.id); setOpen(false) }}
+       className="w-full text-left px-3 py-2 text-sm hover:bg-[#F8F9FC] transition truncate">
+       {s.name}
+      </button>
+     ))}
+     {search.trim() && !exactMatch && (
+      <button type="button"
+       onClick={() => { onChange(search.trim(), null); setOpen(false) }}
+       className="w-full text-left px-3 py-2 text-sm text-[#B8960B] font-medium hover:bg-[#FFF8E1] transition border-t border-[#E2E8F0]">
+       + Add "{search.trim()}" as new supplier
+      </button>
+     )}
+     {filtered.length === 0 && !search.trim() && (
+      <div className="px-3 py-2 text-xs text-[#94A3B8]">Type to search...</div>
+     )}
+    </div>
+   )}
+  </div>
+ )
+}
+
 // ── קבועים ──
 const STATUS = {
  pending:   { label: 'Pending', color: 'bg-[#F3F3F3] text-[#6B7A90]',   dot: 'bg-[#6B7A90]',  bar: '#94a3b8' },
@@ -1153,7 +1217,7 @@ function QuotesView({ project }) {
  const [showAddCat, setShowAddCat] = useState(false)
  const [newCatName, setNewCatName] = useState('')
  const [showAddEntry, setShowAddEntry] = useState(null)
- const [entryForm, setEntryForm] = useState({ supplier_name: '', amount: '', notes: '', drive_link: '', vat_included: false })
+ const [entryForm, setEntryForm] = useState({ supplier_name: '', supplier_id: null, amount: '', notes: '', drive_link: '', vat_included: false })
 
  useEffect(() => { fetchQuotes() }, [project.id])
 
@@ -1194,13 +1258,14 @@ function QuotesView({ project }) {
   if (!entryForm.supplier_name.trim() && !entryForm.amount) return
   await supabase.from('quote_entries').insert({
    category_id: categoryId,
+   supplier_id: entryForm.supplier_id || null,
    supplier_name: entryForm.supplier_name.trim(),
    amount: entryForm.amount ? Number(entryForm.amount) : null,
    vat_included: entryForm.vat_included,
    notes: entryForm.notes,
    drive_link: entryForm.drive_link,
   })
-  setEntryForm({ supplier_name: '', amount: '', notes: '', drive_link: '', vat_included: false })
+  setEntryForm({ supplier_name: '', supplier_id: null, amount: '', notes: '', drive_link: '', vat_included: false })
   setShowAddEntry(null)
   fetchQuotes()
  }
@@ -1337,8 +1402,9 @@ function QuotesView({ project }) {
       {showAddEntry === cat.id && (
        <div className="px-5 py-4 border-t border-[#E2E8F0] bg-[#F8F9FC]">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-         <input value={entryForm.supplier_name} onChange={e => setEntryForm(f => ({ ...f, supplier_name: e.target.value }))}
-          placeholder="Supplier name" className="bg-white rounded-lg px-3 py-2 text-sm border border-[#E2E8F0] focus:ring-2 focus:ring-[#B8960B]/30 focus:outline-none" />
+         <SupplierPicker value={entryForm.supplier_name}
+          onChange={(name, id) => setEntryForm(f => ({ ...f, supplier_name: name, supplier_id: id }))}
+          placeholder="Search supplier..." />
          <input type="number" value={entryForm.amount} onChange={e => setEntryForm(f => ({ ...f, amount: e.target.value }))}
           placeholder="Amount" className="bg-white rounded-lg px-3 py-2 text-sm border border-[#E2E8F0] focus:ring-2 focus:ring-[#B8960B]/30 focus:outline-none" />
          <input value={entryForm.notes} onChange={e => setEntryForm(f => ({ ...f, notes: e.target.value }))}
@@ -1383,6 +1449,7 @@ function TenderView({ project }) {
  const [cells, setCells] = useState([])
  const [newRowName, setNewRowName] = useState('')
  const [newSupName, setNewSupName] = useState('')
+ const [newSupId, setNewSupId] = useState(null)
 
  useEffect(() => { fetchTables() }, [project.id])
 
@@ -1423,8 +1490,8 @@ function TenderView({ project }) {
 
  async function addSupplier() {
   if (!newSupName.trim() || !activeTable) return
-  await supabase.from('tender_suppliers').insert({ table_id: activeTable.id, supplier_name: newSupName.trim(), sort_order: tenderSuppliers.length })
-  setNewSupName('')
+  await supabase.from('tender_suppliers').insert({ table_id: activeTable.id, supplier_id: newSupId || null, supplier_name: newSupName.trim(), sort_order: tenderSuppliers.length })
+  setNewSupName(''); setNewSupId(null)
   openTable(activeTable)
  }
 
@@ -1524,11 +1591,13 @@ function TenderView({ project }) {
       placeholder="Add item..." className="bg-white rounded-lg px-3 py-2 text-sm border border-[#E2E8F0] focus:ring-2 focus:ring-[#B8960B]/30 focus:outline-none w-48" />
      <button onClick={addRow} className="bg-[#091426] text-white px-3 py-2 rounded-lg text-xs font-medium">+ Row</button>
     </div>
-    <div className="flex gap-2">
-     <input value={newSupName} onChange={e => setNewSupName(e.target.value)}
-      onKeyDown={e => e.key === 'Enter' && addSupplier()}
-      placeholder="Add supplier..." className="bg-white rounded-lg px-3 py-2 text-sm border border-[#E2E8F0] focus:ring-2 focus:ring-[#B8960B]/30 focus:outline-none w-48" />
-     <button onClick={addSupplier} className="bg-[#B8960B] text-white px-3 py-2 rounded-lg text-xs font-medium">+ Supplier</button>
+    <div className="flex gap-2 items-end">
+     <div className="w-48">
+      <SupplierPicker value={newSupName}
+       onChange={(name, id) => { setNewSupName(name); setNewSupId(id) }}
+       placeholder="Add supplier..." />
+     </div>
+     <button onClick={addSupplier} className="bg-[#B8960B] text-white px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap">+ Supplier</button>
     </div>
    </div>
 
