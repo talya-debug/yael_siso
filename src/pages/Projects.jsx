@@ -1144,6 +1144,468 @@ function fmtCurrency(n) {
 }
 
 // ── רכיב תקציב פרויקט ──
+// ── הצעות מחיר ──
+function QuotesView({ project }) {
+ const [categories, setCategories] = useState([])
+ const [entries, setEntries] = useState([])
+ const [suppliers, setSuppliers] = useState([])
+ const [loading, setLoading] = useState(true)
+ const [showAddCat, setShowAddCat] = useState(false)
+ const [newCatName, setNewCatName] = useState('')
+ const [showAddEntry, setShowAddEntry] = useState(null)
+ const [entryForm, setEntryForm] = useState({ supplier_name: '', amount: '', notes: '', drive_link: '', vat_included: false })
+
+ useEffect(() => { fetchQuotes() }, [project.id])
+
+ async function fetchQuotes() {
+  const [{ data: cats }, { data: ents }, { data: sups }] = await Promise.all([
+   supabase.from('quote_categories').select('*').eq('project_id', project.id).order('sort_order'),
+   supabase.from('quote_entries').select('*').eq('category_id', null).is('category_id', null),
+   supabase.from('suppliers').select('id, name').order('name'),
+  ])
+  // שליפת entries לכל הקטגוריות
+  const catIds = (cats || []).map(c => c.id)
+  let allEntries = []
+  if (catIds.length > 0) {
+   const { data: e } = await supabase.from('quote_entries').select('*').in('category_id', catIds).order('created_at')
+   allEntries = e || []
+  }
+  setCategories(cats || [])
+  setEntries(allEntries)
+  setSuppliers(sups || [])
+  setLoading(false)
+ }
+
+ async function addCategory() {
+  if (!newCatName.trim()) return
+  await supabase.from('quote_categories').insert({ project_id: project.id, name: newCatName.trim(), sort_order: categories.length })
+  setNewCatName(''); setShowAddCat(false)
+  fetchQuotes()
+ }
+
+ async function deleteCategory(id) {
+  if (!confirm('Delete this category and all its quotes?')) return
+  await supabase.from('quote_entries').delete().eq('category_id', id)
+  await supabase.from('quote_categories').delete().eq('id', id)
+  fetchQuotes()
+ }
+
+ async function addEntry(categoryId) {
+  if (!entryForm.supplier_name.trim() && !entryForm.amount) return
+  await supabase.from('quote_entries').insert({
+   category_id: categoryId,
+   supplier_name: entryForm.supplier_name.trim(),
+   amount: entryForm.amount ? Number(entryForm.amount) : null,
+   vat_included: entryForm.vat_included,
+   notes: entryForm.notes,
+   drive_link: entryForm.drive_link,
+  })
+  setEntryForm({ supplier_name: '', amount: '', notes: '', drive_link: '', vat_included: false })
+  setShowAddEntry(null)
+  fetchQuotes()
+ }
+
+ async function toggleSelected(entryId, current) {
+  await supabase.from('quote_entries').update({ selected: !current }).eq('id', entryId)
+  setEntries(prev => prev.map(e => e.id === entryId ? { ...e, selected: !current } : e))
+ }
+
+ async function deleteEntry(id) {
+  await supabase.from('quote_entries').delete().eq('id', id)
+  setEntries(prev => prev.filter(e => e.id !== id))
+ }
+
+ async function transferToBudget(entry, categoryName) {
+  const amount = entry.vat_included ? entry.amount / (1 + VAT_RATE) : entry.amount
+  const { data } = await supabase.from('budget_items').insert({
+   project_id: project.id,
+   category: categoryName,
+   supplier_id: entry.supplier_id,
+   planned_amount: Math.round(amount),
+   vat_rate: Math.round(VAT_RATE * 100),
+   notes: entry.notes,
+   drive_link: entry.drive_link,
+  }).select().single()
+  if (data) {
+   await supabase.from('quote_entries').update({ transferred: true, budget_item_id: data.id }).eq('id', entry.id)
+   fetchQuotes()
+  }
+ }
+
+ const vatRate = VAT_RATE
+
+ if (loading) return <div className="flex items-center justify-center p-8"><div className="w-6 h-6 border-2 border-[#091426] border-t-transparent rounded-full animate-spin" /></div>
+
+ return (
+  <div className="space-y-4">
+   <div className="flex items-center justify-between">
+    <h3 className="font-bold text-lg text-[#091426] font-[Manrope]">Quotes — Price Proposals</h3>
+    <button onClick={() => setShowAddCat(true)}
+     className="bg-[#091426] text-white px-4 py-2 rounded-xl text-xs font-medium hover:bg-[#1E293B] transition flex items-center gap-1.5">
+     <Plus size={14} strokeWidth={1.8} /> Add Category
+    </button>
+   </div>
+
+   {categories.length === 0 && !showAddCat && (
+    <div className="bg-white rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-[#E2E8F0] p-12 text-center">
+     <FileText size={32} className="text-[#94A3B8] mx-auto mb-3" strokeWidth={1.5} />
+     <p className="text-sm text-[#64748B] mb-3">No quotes yet</p>
+     <button onClick={() => setShowAddCat(true)}
+      className="text-sm text-[#B8960B] font-medium hover:text-[#9A7D09]">+ Add your first category</button>
+    </div>
+   )}
+
+   {showAddCat && (
+    <div className="bg-white rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-[#E2E8F0] p-4 flex gap-3">
+     <input value={newCatName} onChange={e => setNewCatName(e.target.value)}
+      onKeyDown={e => e.key === 'Enter' && addCategory()}
+      placeholder="Category name (e.g. A.C., Lighting, Carpentry...)" autoFocus
+      className="flex-1 bg-[#F3F3F3] rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#B8960B]/30 focus:outline-none" />
+     <button onClick={addCategory} className="bg-[#091426] text-white px-4 py-2 rounded-lg text-xs font-medium">Add</button>
+     <button onClick={() => { setShowAddCat(false); setNewCatName('') }} className="text-[#6B7A90] px-3 py-2 rounded-lg text-xs hover:bg-[#F3F3F3]">Cancel</button>
+    </div>
+   )}
+
+   {categories.map(cat => {
+    const catEntries = entries.filter(e => e.category_id === cat.id)
+    return (
+     <div key={cat.id} className="bg-white rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-[#E2E8F0] overflow-hidden">
+      {/* Category header */}
+      <div className="bg-[#F8F9FC] px-5 py-3 flex items-center justify-between border-b border-[#E2E8F0]">
+       <h4 className="font-bold text-sm text-[#091426]">{cat.name}</h4>
+       <div className="flex items-center gap-2">
+        <button onClick={() => setShowAddEntry(cat.id)}
+         className="text-xs text-[#B8960B] font-medium hover:text-[#9A7D09]">+ Add Supplier</button>
+        <button onClick={() => deleteCategory(cat.id)}
+         className="text-[#94A3B8] hover:text-red-500 transition"><X size={14} strokeWidth={1.8} /></button>
+       </div>
+      </div>
+
+      {/* Entries table */}
+      {catEntries.length > 0 && (
+       <table className="w-full text-sm">
+        <thead>
+         <tr className="text-[10px] font-semibold tracking-widest uppercase text-[#64748B] border-b border-[#E2E8F0]">
+          <th className="text-left px-5 py-2">Supplier</th>
+          <th className="text-right px-3 py-2">Excl. VAT</th>
+          <th className="text-right px-3 py-2">Incl. VAT</th>
+          <th className="text-left px-3 py-2">Notes</th>
+          <th className="text-center px-3 py-2">Link</th>
+          <th className="text-center px-3 py-2"></th>
+         </tr>
+        </thead>
+        <tbody>
+         {catEntries.map(entry => {
+          const exclVat = entry.vat_included ? Math.round(entry.amount / (1 + vatRate)) : entry.amount
+          const inclVat = entry.vat_included ? entry.amount : Math.round(entry.amount * (1 + vatRate))
+          return (
+           <tr key={entry.id} className={`border-b border-[#E2E8F0] hover:bg-[#F8F9FC] transition ${entry.selected ? 'bg-emerald-50' : ''}`}>
+            <td className="px-5 py-3 font-medium text-[#091426]">{entry.supplier_name || '—'}</td>
+            <td className="px-3 py-3 text-right text-[#091426]">{entry.amount ? `₪${Math.round(exclVat).toLocaleString()}` : '—'}</td>
+            <td className="px-3 py-3 text-right font-semibold text-[#091426]">{entry.amount ? `₪${Math.round(inclVat).toLocaleString()}` : '—'}</td>
+            <td className="px-3 py-3 text-[#64748B] text-xs max-w-[200px] truncate">{entry.notes || ''}</td>
+            <td className="px-3 py-3 text-center">
+             {entry.drive_link && <a href={entry.drive_link} target="_blank" rel="noopener noreferrer" className="text-[#B8960B] hover:text-[#9A7D09]"><ExternalLink size={14} /></a>}
+            </td>
+            <td className="px-3 py-3">
+             <div className="flex items-center gap-1.5 justify-center">
+              <button onClick={() => toggleSelected(entry.id, entry.selected)}
+               className={`text-[10px] font-bold px-2 py-1 rounded ${entry.selected ? 'bg-emerald-100 text-emerald-700' : 'bg-[#F3F3F3] text-[#6B7A90] hover:bg-[#E2E8F0]'}`}>
+               {entry.selected ? '✓ Selected' : 'Select'}
+              </button>
+              {entry.selected && !entry.transferred && (
+               <button onClick={() => transferToBudget(entry, cat.name)}
+                className="text-[10px] font-bold px-2 py-1 rounded bg-[#B8960B] text-white hover:bg-[#9A7D09]">
+                → Budget
+               </button>
+              )}
+              {entry.transferred && (
+               <span className="text-[10px] font-bold text-emerald-600">✓ In Budget</span>
+              )}
+              <button onClick={() => deleteEntry(entry.id)}
+               className="text-[#94A3B8] hover:text-red-500 transition"><X size={13} strokeWidth={1.8} /></button>
+             </div>
+            </td>
+           </tr>
+          )
+         })}
+        </tbody>
+       </table>
+      )}
+
+      {/* Add entry form */}
+      {showAddEntry === cat.id && (
+       <div className="px-5 py-4 border-t border-[#E2E8F0] bg-[#F8F9FC]">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
+         <input value={entryForm.supplier_name} onChange={e => setEntryForm(f => ({ ...f, supplier_name: e.target.value }))}
+          placeholder="Supplier name" className="bg-white rounded-lg px-3 py-2 text-sm border border-[#E2E8F0] focus:ring-2 focus:ring-[#B8960B]/30 focus:outline-none" />
+         <input type="number" value={entryForm.amount} onChange={e => setEntryForm(f => ({ ...f, amount: e.target.value }))}
+          placeholder="Amount" className="bg-white rounded-lg px-3 py-2 text-sm border border-[#E2E8F0] focus:ring-2 focus:ring-[#B8960B]/30 focus:outline-none" />
+         <input value={entryForm.notes} onChange={e => setEntryForm(f => ({ ...f, notes: e.target.value }))}
+          placeholder="Notes" className="bg-white rounded-lg px-3 py-2 text-sm border border-[#E2E8F0] focus:ring-2 focus:ring-[#B8960B]/30 focus:outline-none" />
+         <input value={entryForm.drive_link} onChange={e => setEntryForm(f => ({ ...f, drive_link: e.target.value }))}
+          placeholder="Drive link" className="bg-white rounded-lg px-3 py-2 text-sm border border-[#E2E8F0] focus:ring-2 focus:ring-[#B8960B]/30 focus:outline-none" />
+        </div>
+        <div className="flex items-center gap-3">
+         <label className="flex items-center gap-1.5 text-xs text-[#64748B]">
+          <input type="checkbox" checked={entryForm.vat_included} onChange={e => setEntryForm(f => ({ ...f, vat_included: e.target.checked }))}
+           className="rounded border-[#CBD5E1]" /> Price includes VAT
+         </label>
+         <div className="flex-1" />
+         <button onClick={() => addEntry(cat.id)} className="bg-[#091426] text-white px-4 py-2 rounded-lg text-xs font-medium">Add</button>
+         <button onClick={() => setShowAddEntry(null)} className="text-[#6B7A90] px-3 py-2 rounded-lg text-xs hover:bg-white">Cancel</button>
+        </div>
+       </div>
+      )}
+
+      {catEntries.length === 0 && showAddEntry !== cat.id && (
+       <div className="px-5 py-6 text-center">
+        <button onClick={() => setShowAddEntry(cat.id)}
+         className="text-sm text-[#B8960B] font-medium hover:text-[#9A7D09]">+ Add first supplier quote</button>
+       </div>
+      )}
+     </div>
+    )
+   })}
+  </div>
+ )
+}
+
+// ── מכרז השוואתי ──
+function TenderView({ project }) {
+ const [tables, setTables] = useState([])
+ const [loading, setLoading] = useState(true)
+ const [showNew, setShowNew] = useState(false)
+ const [newName, setNewName] = useState('')
+ const [activeTable, setActiveTable] = useState(null)
+ const [rows, setRows] = useState([])
+ const [tenderSuppliers, setTenderSuppliers] = useState([])
+ const [cells, setCells] = useState([])
+ const [newRowName, setNewRowName] = useState('')
+ const [newSupName, setNewSupName] = useState('')
+
+ useEffect(() => { fetchTables() }, [project.id])
+
+ async function fetchTables() {
+  const { data } = await supabase.from('tender_tables').select('*').eq('project_id', project.id).order('created_at')
+  setTables(data || [])
+  setLoading(false)
+ }
+
+ async function createTable() {
+  if (!newName.trim()) return
+  const { data } = await supabase.from('tender_tables').insert({ project_id: project.id, name: newName.trim() }).select().single()
+  setNewName(''); setShowNew(false)
+  fetchTables()
+  if (data) openTable(data)
+ }
+
+ async function openTable(t) {
+  setActiveTable(t)
+  const [{ data: r }, { data: s }, { data: c }] = await Promise.all([
+   supabase.from('tender_rows').select('*').eq('table_id', t.id).order('sort_order'),
+   supabase.from('tender_suppliers').select('*').eq('table_id', t.id).order('sort_order'),
+   supabase.from('tender_cells').select('*'),
+  ])
+  setRows(r || [])
+  setTenderSuppliers(s || [])
+  // סינון cells רק לשורות של הטבלה הזו
+  const rowIds = (r || []).map(rr => rr.id)
+  setCells((c || []).filter(cc => rowIds.includes(cc.row_id)))
+ }
+
+ async function addRow() {
+  if (!newRowName.trim() || !activeTable) return
+  await supabase.from('tender_rows').insert({ table_id: activeTable.id, item_name: newRowName.trim(), sort_order: rows.length })
+  setNewRowName('')
+  openTable(activeTable)
+ }
+
+ async function addSupplier() {
+  if (!newSupName.trim() || !activeTable) return
+  await supabase.from('tender_suppliers').insert({ table_id: activeTable.id, supplier_name: newSupName.trim(), sort_order: tenderSuppliers.length })
+  setNewSupName('')
+  openTable(activeTable)
+ }
+
+ async function updateCell(rowId, supColId, amount) {
+  const existing = cells.find(c => c.row_id === rowId && c.supplier_col_id === supColId)
+  if (existing) {
+   await supabase.from('tender_cells').update({ amount: amount ? Number(amount) : null }).eq('id', existing.id)
+   setCells(prev => prev.map(c => c.id === existing.id ? { ...c, amount: amount ? Number(amount) : null } : c))
+  } else {
+   const { data } = await supabase.from('tender_cells').insert({ row_id: rowId, supplier_col_id: supColId, amount: amount ? Number(amount) : null }).select().single()
+   if (data) setCells(prev => [...prev, data])
+  }
+ }
+
+ async function toggleCellSelected(rowId, supColId) {
+  const existing = cells.find(c => c.row_id === rowId && c.supplier_col_id === supColId)
+  if (existing) {
+   await supabase.from('tender_cells').update({ selected: !existing.selected }).eq('id', existing.id)
+   setCells(prev => prev.map(c => c.id === existing.id ? { ...c, selected: !existing.selected } : c))
+  }
+ }
+
+ async function deleteTenderTable(id) {
+  if (!confirm('Delete this tender?')) return
+  await supabase.from('tender_tables').delete().eq('id', id)
+  setActiveTable(null)
+  fetchTables()
+ }
+
+ function getCellValue(rowId, supColId) {
+  return cells.find(c => c.row_id === rowId && c.supplier_col_id === supColId)
+ }
+
+ if (loading) return <div className="flex items-center justify-center p-8"><div className="w-6 h-6 border-2 border-[#091426] border-t-transparent rounded-full animate-spin" /></div>
+
+ if (!activeTable) {
+  return (
+   <div className="space-y-4">
+    <div className="flex items-center justify-between">
+     <h3 className="font-bold text-lg text-[#091426] font-[Manrope]">Tender — Comparative Quotes</h3>
+     <button onClick={() => setShowNew(true)}
+      className="bg-[#091426] text-white px-4 py-2 rounded-xl text-xs font-medium hover:bg-[#1E293B] transition flex items-center gap-1.5">
+      <Plus size={14} strokeWidth={1.8} /> New Tender
+     </button>
+    </div>
+
+    {showNew && (
+     <div className="bg-white rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-[#E2E8F0] p-4 flex gap-3">
+      <input value={newName} onChange={e => setNewName(e.target.value)}
+       onKeyDown={e => e.key === 'Enter' && createTable()}
+       placeholder="Tender name (e.g. Carpentry, Main Contractor...)" autoFocus
+       className="flex-1 bg-[#F3F3F3] rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#B8960B]/30 focus:outline-none" />
+      <button onClick={createTable} className="bg-[#091426] text-white px-4 py-2 rounded-lg text-xs font-medium">Create</button>
+      <button onClick={() => { setShowNew(false); setNewName('') }} className="text-[#6B7A90] px-3 py-2 rounded-lg text-xs hover:bg-[#F3F3F3]">Cancel</button>
+     </div>
+    )}
+
+    {tables.length === 0 && !showNew && (
+     <div className="bg-white rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-[#E2E8F0] p-12 text-center">
+      <BarChart2 size={32} className="text-[#94A3B8] mx-auto mb-3" strokeWidth={1.5} />
+      <p className="text-sm text-[#64748B] mb-3">No tenders yet</p>
+      <button onClick={() => setShowNew(true)}
+       className="text-sm text-[#B8960B] font-medium hover:text-[#9A7D09]">+ Create your first tender</button>
+     </div>
+    )}
+
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+     {tables.map(t => (
+      <div key={t.id} className="bg-white rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-[#E2E8F0] p-5 cursor-pointer hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] transition-all"
+       onClick={() => openTable(t)}>
+       <div className="flex items-center justify-between">
+        <h4 className="font-bold text-[#091426]">{t.name}</h4>
+        <button onClick={e => { e.stopPropagation(); deleteTenderTable(t.id) }}
+         className="text-[#94A3B8] hover:text-red-500 transition"><X size={14} strokeWidth={1.8} /></button>
+       </div>
+       <p className="text-xs text-[#64748B] mt-1">{new Date(t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+      </div>
+     ))}
+    </div>
+   </div>
+  )
+ }
+
+ // Active tender table view
+ return (
+  <div className="space-y-4">
+   <div className="flex items-center gap-3">
+    <button onClick={() => setActiveTable(null)} className="text-[#6B7A90] hover:text-[#091426] transition text-sm">← Back</button>
+    <h3 className="font-bold text-lg text-[#091426] font-[Manrope]">{activeTable.name}</h3>
+   </div>
+
+   {/* Add row / supplier */}
+   <div className="flex gap-3 flex-wrap">
+    <div className="flex gap-2">
+     <input value={newRowName} onChange={e => setNewRowName(e.target.value)}
+      onKeyDown={e => e.key === 'Enter' && addRow()}
+      placeholder="Add item..." className="bg-white rounded-lg px-3 py-2 text-sm border border-[#E2E8F0] focus:ring-2 focus:ring-[#B8960B]/30 focus:outline-none w-48" />
+     <button onClick={addRow} className="bg-[#091426] text-white px-3 py-2 rounded-lg text-xs font-medium">+ Row</button>
+    </div>
+    <div className="flex gap-2">
+     <input value={newSupName} onChange={e => setNewSupName(e.target.value)}
+      onKeyDown={e => e.key === 'Enter' && addSupplier()}
+      placeholder="Add supplier..." className="bg-white rounded-lg px-3 py-2 text-sm border border-[#E2E8F0] focus:ring-2 focus:ring-[#B8960B]/30 focus:outline-none w-48" />
+     <button onClick={addSupplier} className="bg-[#B8960B] text-white px-3 py-2 rounded-lg text-xs font-medium">+ Supplier</button>
+    </div>
+   </div>
+
+   {/* Tender table */}
+   {rows.length > 0 && tenderSuppliers.length > 0 && (
+    <div className="bg-white rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-[#E2E8F0] overflow-x-auto">
+     <table className="w-full text-sm">
+      <thead>
+       <tr className="border-b border-[#E2E8F0]">
+        <th className="text-left px-4 py-3 text-[10px] font-semibold tracking-widest uppercase text-[#64748B] bg-[#F8F9FC] sticky left-0 z-10 min-w-[160px]">Item</th>
+        {tenderSuppliers.map(s => (
+         <th key={s.id} className="text-center px-4 py-3 text-[10px] font-semibold tracking-widest uppercase text-[#64748B] bg-[#F8F9FC] min-w-[120px]">{s.supplier_name}</th>
+        ))}
+       </tr>
+      </thead>
+      <tbody>
+       {rows.map(row => (
+        <tr key={row.id} className="border-b border-[#E2E8F0] hover:bg-[#F8F9FC] transition">
+         <td className="px-4 py-2 font-medium text-[#091426] sticky left-0 bg-white z-10">{row.item_name}</td>
+         {tenderSuppliers.map(s => {
+          const cell = getCellValue(row.id, s.id)
+          return (
+           <td key={s.id} className={`px-2 py-1 text-center ${cell?.selected ? 'bg-emerald-50' : ''}`}>
+            <div className="flex flex-col items-center gap-0.5">
+             <input type="number"
+              defaultValue={cell?.amount || ''}
+              onBlur={e => updateCell(row.id, s.id, e.target.value)}
+              className="w-full text-center bg-transparent border-0 focus:bg-[#F3F3F3] focus:rounded px-1 py-1 text-sm focus:outline-none"
+              placeholder="—" />
+             <button onClick={() => toggleCellSelected(row.id, s.id)}
+              className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${cell?.selected ? 'text-emerald-700' : 'text-[#CBD5E1] hover:text-[#6B7A90]'}`}>
+              {cell?.selected ? '✓' : '○'}
+             </button>
+            </div>
+           </td>
+          )
+         })}
+        </tr>
+       ))}
+       {/* Totals row */}
+       <tr className="bg-[#F1F5F9] font-bold border-t-2 border-[#E2E8F0]">
+        <td className="px-4 py-3 text-[#091426] sticky left-0 bg-[#F1F5F9] z-10">Total (excl. VAT)</td>
+        {tenderSuppliers.map(s => {
+         const total = rows.reduce((sum, row) => {
+          const cell = getCellValue(row.id, s.id)
+          return sum + (cell?.amount || 0)
+         }, 0)
+         return <td key={s.id} className="px-4 py-3 text-center text-[#091426]">₪{total.toLocaleString()}</td>
+        })}
+       </tr>
+       <tr className="bg-[#F1F5F9] font-bold">
+        <td className="px-4 py-3 text-[#091426] sticky left-0 bg-[#F1F5F9] z-10">Total (incl. VAT)</td>
+        {tenderSuppliers.map(s => {
+         const total = rows.reduce((sum, row) => {
+          const cell = getCellValue(row.id, s.id)
+          return sum + (cell?.amount || 0)
+         }, 0)
+         return <td key={s.id} className="px-4 py-3 text-center text-[#091426]">₪{Math.round(total * (1 + VAT_RATE)).toLocaleString()}</td>
+        })}
+       </tr>
+      </tbody>
+     </table>
+    </div>
+   )}
+
+   {(rows.length === 0 || tenderSuppliers.length === 0) && (
+    <div className="bg-white rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-[#E2E8F0] p-8 text-center">
+     <p className="text-sm text-[#64748B]">
+      {rows.length === 0 && tenderSuppliers.length === 0 ? 'Add items and suppliers to start comparing' :
+       rows.length === 0 ? 'Add items to compare' : 'Add suppliers to compare'}
+     </p>
+    </div>
+   )}
+  </div>
+ )
+}
+
 function BudgetView({ project, client }) {
  const [items, setItems] = useState([])
  const [payments, setPayments] = useState([])
@@ -2503,8 +2965,8 @@ function ProjectDetail({ project, clients, onBack }) {
       </button>
       <button onClick={() => setView('budget')}
        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${
-        view === 'budget' ? 'bg-white text-[#091426] shadow-sm' : 'text-[#6B7A90] hover:text-[#091426]'}`}>
-       <CreditCard size={13} strokeWidth={1.8} /> Budget
+        (view === 'budget' || view === 'quotes' || view === 'tender') ? 'bg-white text-[#091426] shadow-sm' : 'text-[#6B7A90] hover:text-[#091426]'}`}>
+       <CreditCard size={13} strokeWidth={1.8} /> Budget & Quotes
       </button>
      </div>
 
@@ -2658,9 +3120,29 @@ function ProjectDetail({ project, clients, onBack }) {
     <ClientCard project={project} />
    )}
 
-   {/* ── תקציב ── */}
-   {view === 'budget' && (
-    <BudgetView project={project} client={client} />
+   {/* ── Budget & Quotes ── */}
+   {(view === 'budget' || view === 'quotes' || view === 'tender') && (
+    <div className="space-y-4">
+     {/* תתי-טאבים */}
+     <div className="flex gap-1 bg-[#F3F3F3] rounded-xl p-1 w-fit">
+      <button onClick={() => setView('quotes')}
+       className={`px-4 py-2 rounded-lg text-xs font-medium transition ${view === 'quotes' ? 'bg-white text-[#091426] shadow-sm' : 'text-[#6B7A90] hover:text-[#091426]'}`}>
+       Quotes
+      </button>
+      <button onClick={() => setView('tender')}
+       className={`px-4 py-2 rounded-lg text-xs font-medium transition ${view === 'tender' ? 'bg-white text-[#091426] shadow-sm' : 'text-[#6B7A90] hover:text-[#091426]'}`}>
+       Tender
+      </button>
+      <button onClick={() => setView('budget')}
+       className={`px-4 py-2 rounded-lg text-xs font-medium transition ${view === 'budget' ? 'bg-white text-[#091426] shadow-sm' : 'text-[#6B7A90] hover:text-[#091426]'}`}>
+       Budget
+      </button>
+     </div>
+
+     {view === 'quotes' && <QuotesView project={project} />}
+     {view === 'tender' && <TenderView project={project} />}
+     {view === 'budget' && <BudgetView project={project} client={client} />}
+    </div>
    )}
 
    {/* Modal משימה חדשה */}
