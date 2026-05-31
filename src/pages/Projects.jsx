@@ -1334,7 +1334,7 @@ function QuotesView({ project }) {
    {categories.map(cat => {
     const catEntries = entries.filter(e => e.category_id === cat.id)
     return (
-     <div key={cat.id} className="bg-white rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-[#E2E8F0] overflow-hidden">
+     <div key={cat.id} className="bg-white rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] border border-[#E2E8F0]">
       {/* Category header */}
       <div className="bg-[#F8F9FC] px-5 py-3 flex items-center justify-between border-b border-[#E2E8F0]">
        <h4 className="font-bold text-sm text-[#091426]">{cat.name}</h4>
