@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { CheckCircle2, Circle, Plus, X, ChevronRight, CalendarX, CalendarCheck, CalendarDays, FolderKanban, Pencil, Zap, ListChecks, Pin } from 'lucide-react'
+import { CheckCircle2, Circle, Plus, X, ChevronRight, CalendarX, CalendarCheck, CalendarDays, FolderKanban, Pencil, Zap, ListChecks } from 'lucide-react'
 
 function fmtDay(d) {
   if (!d) return ''

@@ -4,7 +4,7 @@ import { VAT_RATE } from '../lib/config'
 import {
  ChevronRight, ChevronDown, CheckCircle2, Circle, Clock, AlertCircle,
  Calendar, User, MessageSquare, Plus, X, Trash2, Send,
- LayoutList, BarChart2, Flag, Pencil,
+ LayoutList, BarChart2, Pencil,
  Users, FileText, MapPin, ExternalLink, Link2, ContactRound,
  Check, Download, CreditCard, Upload, Search,
 } from 'lucide-react'
