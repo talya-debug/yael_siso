@@ -424,9 +424,12 @@
   <h3>תוכן עניינים</h3>
   <a href="#welcome">ברוכה הבאה</a>
   <a href="#overview">סקירת המערכת</a>
+  <a href="#myday">My Day</a>
+  <a href="#google-tasks">Google Tasks</a>
   <a href="#dashboard">Dashboard</a>
   <a href="#clients">לקוחות</a>
   <a href="#projects">פרויקטים</a>
+  <a href="#budget-quotes">Budget & Quotes</a>
   <a href="#signatures">חתימות דיגיטליות</a>
   <a href="#scope">תכולות</a>
   <a href="#billing">גבייה מלקוחות</a>
@@ -473,9 +476,10 @@
   <table class="field-table">
     <thead><tr><th>מודול</th><th>תפקיד</th><th>הרשאה</th></tr></thead>
     <tbody>
+      <tr><td><strong>My Day</strong></td><td>דשבורד יומי אישי — משימות, Quick Tasks, סקירת פרויקטים</td><td><span class="access-badge access-all">All</span></td></tr>
       <tr><td><strong>Dashboard</strong></td><td>מסך ראשי — KPIs, פרויקטים אחרונים, משימות קרובות</td><td><span class="access-badge access-admin">Admin</span></td></tr>
       <tr><td><strong>Clients</strong></td><td>ניהול לקוחות, הצעות מחיר, אישור פרויקטים</td><td><span class="access-badge access-admin">Admin</span></td></tr>
-      <tr><td><strong>Projects</strong></td><td>ניהול פרויקטים — משימות, גאנט, כרטיס לקוח, חתימות</td><td><span class="access-badge access-all">All</span></td></tr>
+      <tr><td><strong>Projects</strong></td><td>ניהול פרויקטים — משימות, גאנט, כרטיס לקוח, חתימות, Budget & Quotes</td><td><span class="access-badge access-all">All</span></td></tr>
       <tr><td><strong>Client Billing</strong></td><td>גבייה מלקוחות — תשלומים, אבני דרך, מיילים</td><td><span class="access-badge access-admin">Admin</span></td></tr>
       <tr><td><strong>Supplier Billing</strong></td><td>מעקב הזמנות ספקים ועמלות</td><td><span class="access-badge access-admin">Admin</span></td></tr>
       <tr><td><strong>Supplier Directory</strong></td><td>ספר ספקים — חיפוש, קטגוריות, פרטי קשר</td><td><span class="access-badge access-all">All</span></td></tr>
@@ -486,6 +490,84 @@
       <tr><td><strong>Scope Templates</strong></td><td>קטלוג תכולות — שלבים, משימות, תתי-משימות</td><td><span class="access-badge access-admin">Admin</span></td></tr>
     </tbody>
   </table>
+</div>
+
+<!-- My Day -->
+<div class="section" id="myday" data-search="my day דשבורד יומי אישי משימות quick tasks רמזור overdue today week">
+  <div class="section-label">דשבורד יומי</div>
+  <h2>My Day — דשבורד יומי אישי</h2>
+  <p><span class="access-badge access-all">All</span> דף הבית של כל משתמשת — מציג את כל מה שרלוונטי אליה היום מכל הפרויקטים.</p>
+
+  <h3>מה מוצג</h3>
+  <ul>
+    <li><strong>רמזור משימות (KPIs)</strong> — שלושה מספרים צבעוניים:
+      <ul>
+        <li><span style="color:#dc2626;font-weight:700;">Overdue</span> — משימות שעבר הדדליין שלהן (אדום)</li>
+        <li><span style="color:#d97706;font-weight:700;">Today</span> — משימות שצריך לסיים היום (כתום)</li>
+        <li><span style="color:#16a34a;font-weight:700;">This Week</span> — משימות לשבוע הקרוב (ירוק)</li>
+      </ul>
+    </li>
+    <li><strong>Timeline משימות</strong> — כל המשימות מכל הפרויקטים, מחולקות לפי דחיפות עם באנרים צבעוניים</li>
+    <li><strong>Quick Tasks</strong> — משימות יומיות קטנות (פאנל ימין למעלה):
+      <ul>
+        <li>הוספה מהירה עם dropdown של פרויקטים</li>
+        <li>סימון Done / מחיקה</li>
+        <li>מסונכרנות ל-Google Tasks (ראו פרק Google Tasks)</li>
+      </ul>
+    </li>
+    <li><strong>My Projects</strong> — סקירת הפרויקטים שהיא מנהלת עם אחוז התקדמות ופירוט overdue/due soon</li>
+    <li><strong>Weekly Overview</strong> — סיכום שבועי: משימות שהושלמו, סה"כ, ציון יעילות</li>
+  </ul>
+
+  <h3>מנהלת פרויקט (Manager)</h3>
+  <p>My Day מציג רק משימות מפרויקטים שבהם הוגדרה כ-Manager. ראו פרק "פרויקטים" להגדרת מנהלת.</p>
+
+  <div class="warning">בלי הגדרת Manager לפרויקט — המשימות לא יופיעו ב-My Day של אף אחת!</div>
+
+  <div class="tip">לחיצה על חץ ליד משימה מעבירה ישירות לפרויקט. ניתן לסמן Done ישירות מ-My Day.</div>
+</div>
+
+<!-- Google Tasks -->
+<div class="section" id="google-tasks" data-search="google tasks גוגל סנכרון sync משימות נייד יומן calendar">
+  <div class="section-label">Google Tasks</div>
+  <h2>Google Tasks — סנכרון משימות</h2>
+  <p><span class="access-badge access-all">All</span> Quick Tasks מ-My Day מסתנכרנות אוטומטית ל-Google Tasks האישי — נראה ביומן גוגל ובנייד.</p>
+
+  <h3>חיבור (פעם אחת, חצי דקה)</h3>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">היכנסי למערכת <code>yaelsiso.vercel.app</code> ולחצי על <strong>My Day</strong></div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">בפאנל Quick Tasks למעלה מימין — לחצי על כפתור <strong>Google Tasks</strong> הירוק</div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">גוגל יבקש להתחבר — <strong>התחברי עם המייל האישי</strong></div>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">יופיע מסך "Google hasn't verified this app" — זה בסדר:
+      <br>→ לחצי <strong>Advanced</strong> (מתקדם) למטה
+      <br>→ לחצי <strong>Go to Yael Siso Studio (unsafe)</strong>
+      <br>→ זה בטוח לגמרי — זו האפליקציה שלנו</div>
+  </div>
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-content">לחצי <strong>Allow</strong> — זהו! הכפתור ישתנה לירוק עם "Synced"</div>
+  </div>
+
+  <h3>מה מסתנכרן</h3>
+  <ul>
+    <li>Quick Task חדשה במערכת → מופיעה אוטומטית ב-Google Tasks</li>
+    <li>Done במערכת → Done בגוגל</li>
+    <li>מחיקה במערכת → נמחקת מגוגל</li>
+    <li>כפתור <strong>Sync</strong> ידני → מושך שינויים מגוגל חזרה למערכת (למשל אם סימנת Done ישירות בגוגל)</li>
+  </ul>
+
+  <div class="tip">החיבור נותן גישה רק ל-Google Tasks. לא למיילים, לא ליומן, לא לשום דבר אישי.</div>
+  <div class="tip">רק Quick Tasks מסתנכרנות — לא משימות פרויקט.</div>
 </div>
 
 <!-- 3. Dashboard -->
@@ -635,10 +717,140 @@
     <div class="step-content">לחצי Save — המשימה מופיעה ברשימה ובגאנט</div>
   </div>
 
+  <h3>מנהלת פרויקט (Manager)</h3>
+  <p>כל פרויקט צריך מנהלת אחראית — זה מה שמפעיל את My Day ואת ה-CC במיילים.</p>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">פתחי פרויקט → בסרגל העליון, ליד Deadline, יש dropdown <strong>Manager</strong></div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">בחרי את בת הצוות האחראית</div>
+  </div>
+  <p>מה זה עושה:</p>
+  <ul>
+    <li>כל המשימות בפרויקט מופיעות ב-<strong>My Day</strong> שלה</li>
+    <li>היא יכולה לסמן Done ישירות מ-My Day</li>
+    <li>מיילי <strong>חתימה ותקציב</strong> ללקוח — היא מקבלת <strong>CC</strong> (העתק)</li>
+    <li><strong>Reply-To</strong> כולל אותה — כשהלקוח לוחץ "השב", המייל חוזר גם אליה</li>
+    <li>משימות חדשות בפרויקט משויכות אליה אוטומטית</li>
+  </ul>
+  <div class="warning">בלי Manager — המשימות לא מופיעות ב-My Day של אף אחת, ואין CC במיילים. הגדירי לכל פרויקט פעיל!</div>
+
+  <h3>דדליין לפרויקט</h3>
+  <p>בסרגל העליון של הפרויקט ניתן להגדיר <strong>Deadline</strong>. התאריך מופיע כקו כתום בתצוגת גאנט.</p>
+
+  <h3>שם פרויקט</h3>
+  <p>שם הפרויקט ניתן לעריכה — לחצי על העיפרון ליד השם בסרגל העליון.</p>
+
+  <h3>קיבוץ לפי לקוח</h3>
+  <p>ברשימת הפרויקטים — הפרויקטים מקובצים לפי לקוח בתיקיות. לחיצה על תיקייה פותחת את כל הפרויקטים של אותו לקוח.</p>
+
   <h3>כרטיס לקוח (Client Card)</h3>
-  <p>בפרויקט מוצג כרטיס לקוח בראש העמוד עם פרטי הלקוח, מייל, טלפון וכתובת.</p>
+  <p>בפרויקט מוצג כרטיס לקוח עם פרטי הלקוח, מייל, טלפון וכתובת.</p>
+  <ul>
+    <li><strong>כפתור Copy</strong> — ליד כל איש קשר. מעתיק שם, כתובת, ת.ז, טלפון ומייל — מוכן להדבקה בוואטסאפ</li>
+    <li><strong>Google Drive Link</strong> — שדה ללינק לתיקיית הלקוח ב-Drive</li>
+    <li><strong>סכום + מע"מ (18%)</strong> — מוצג בכרטיס</li>
+  </ul>
 
   <div class="tip">כשמשנים סטטוס משימה ל-Completed, אחוז ההתקדמות של הפרויקט מתעדכן אוטומטית בכל המערכת.</div>
+</div>
+
+<!-- Budget & Quotes -->
+<div class="section" id="budget-quotes" data-search="budget quotes תקציב הצעות מחיר מכרז tender השוואה ספקים קטגוריה">
+  <div class="section-label">תקציב והצעות מחיר</div>
+  <h2>Budget & Quotes — הצעות מחיר ומכרזים</h2>
+  <p><span class="access-badge access-all">All</span> מודול שמרכז את כל תהליך הצעות המחיר, מכרזים השוואתיים והתקציב המאושר. <strong>פנימי בלבד — הלקוח לא רואה.</strong></p>
+
+  <h3>איפה</h3>
+  <p>בתוך כל פרויקט → לחצי על <strong>Budget & Quotes</strong> בסרגל העליון. בתוכו 3 טאבים:</p>
+
+  <h3>טאב 1: Quotes — הצעות מחיר</h3>
+  <p>כשיש קטגוריה (מזגנים, תאורה, סניטריה) עם כמה ספקים שהציעו מחיר.</p>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">לחצי <strong>+ Add Category</strong> — הזיני שם (למשל "מזגנים", "תאורה")</div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">בכל קטגוריה לחצי <strong>+ Add Supplier</strong> — בוחר ספק חכם (ראו למטה)</div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">מלאי: <strong>מחיר</strong> (ללא מע"מ — כולל מע"מ מחושב אוטומטית 18%), <strong>הערות</strong>, <strong>לינק להצעה ב-Drive</strong></div>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">לחצי <strong>Select</strong> ליד הספק שנבחר</div>
+  </div>
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-content">לחצי <strong>→ Budget</strong> — השורה עוברת לטאב Budget</div>
+  </div>
+
+  <table class="field-table">
+    <thead><tr><th>שדה</th><th>תיאור</th></tr></thead>
+    <tbody>
+      <tr><td>Supplier</td><td>שם הספק (נבחר מרשימה או חדש)</td></tr>
+      <tr><td>Excl. VAT</td><td>מחיר ללא מע"מ</td></tr>
+      <tr><td>Incl. VAT</td><td>מחיר כולל מע"מ (חישוב אוטומטי 18%)</td></tr>
+      <tr><td>Notes</td><td>הערות חופשיות</td></tr>
+      <tr><td>Link</td><td>לינק להצעת מחיר ב-Drive</td></tr>
+    </tbody>
+  </table>
+
+  <h3>טאב 2: Tender — מכרז השוואתי</h3>
+  <p>כשיש הרבה פריטים וצריך להשוות כמה ספקים על כולם. למשל: נגרות — 17 פריטים × 5 נגרים.</p>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">לחצי <strong>New Tender</strong> — הזיני שם (למשל "נגרות", "קבלן ראשי")</div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">הוסיפי <strong>שורות (פריטים)</strong>: מטבח, מסדרון, ארון מעילים...</div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">הוסיפי <strong>עמודות (ספקים)</strong>: יבגני, אנטון, רוברט...</div>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">הזיני <strong>מחירים</strong> בכל תא (ללא מע"מ). שורת סיכום אוטומטית למטה</div>
+  </div>
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-content">לחצי <strong>✓</strong> לבחירה: פר תא (ספק שונה לכל פריט) או פר עמודה (ספק אחד לכולם)</div>
+  </div>
+
+  <h3>טאב 3: Budget — תקציב מאושר</h3>
+  <p>מקבל שורות מ-Quotes ומ-Tender. כל שורה: קטגוריה, ספק, ללא מע"מ, כולל מע"מ, שולם, יתרה, סטטוס.</p>
+  <ul>
+    <li><strong>Budget Folder</strong> — לינק לתיקיית Drive כללית (נשלח בכל מייל תקציב ללקוח)</li>
+    <li>שינוי מחיר בהצעה → מתעדכן אוטומטית בתקציב</li>
+  </ul>
+  <div class="tip">ההצעה (Quotes/Tender) היא מקור האמת — התקציב משקף אותה. שנו מחיר בהצעה ולא ישירות בתקציב.</div>
+
+  <h3>בוחר ספקים חכם</h3>
+  <p>בכל מקום שמוסיפים ספק (ב-Quotes וב-Tender):</p>
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">התחילי להקליד שם ספק — נפתח <strong>dropdown</strong> עם ספקים מה-Supplier Directory</div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content"><strong>ספק קיים?</strong> לחצי עליו ברשימה — נבחר ומקושר אוטומטית</div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content"><strong>ספק חדש?</strong> לחצי <strong>+ Add as new supplier</strong> — נפתח כרטיס ספק מלא</div>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">מלאי: שם, קטגוריה, טלפון, מייל, כתובת, אתר, פרטי בנק → <strong>Save & Select</strong></div>
+  </div>
+  <p>הספק נוסף ל-Supplier Directory ונבחר אוטומטית בהצעה/מכרז.</p>
+  <div class="tip">זה מונע כפילויות ומבטיח שכל ספק שנכנס דרך הצעה — מגיע עם פרטים מלאים ל-Supplier Directory.</div>
 </div>
 
 <!-- 6. Signatures -->
@@ -843,49 +1055,56 @@
 <div class="section" id="suppliers" data-search="ספר ספקים supplier directory קטגוריה חיפוש טלפון purchase">
   <div class="section-label">ספר ספקים</div>
   <h2>ספר ספקים (Supplier Directory)</h2>
-  <p>מאגר ספקים מרכזי עם פרטי קשר, קטגוריות, אחוז עמלה ואפשרות חיפוש.</p>
+  <p>מאגר ספקים מרכזי עם פרטי קשר, קטגוריות, אייקונים צבעוניים, מועדפים ואפשרות חיפוש.</p>
 
   <h3>הוספת ספק חדש</h3>
   <div class="step">
     <div class="step-num">1</div>
-    <div class="step-content">לחצי <strong>+ New Supplier</strong> (Admin בלבד)</div>
+    <div class="step-content">לחצי <strong>+ New Supplier</strong></div>
   </div>
   <div class="step">
     <div class="step-num">2</div>
-    <div class="step-content">מלאי: שם (חובה), קטגוריה, טלפון, מייל, כתובת, אתר, אחוז עמלה, הערות</div>
+    <div class="step-content">מלאי: שם (חובה), קטגוריה, טלפון, מייל, כתובת, אתר, אחוז עמלה, פרטי בנק, הערות</div>
   </div>
   <div class="step">
     <div class="step-num">3</div>
     <div class="step-content"><strong>Add Supplier</strong></div>
   </div>
 
-  <h3>קטגוריות ספקים</h3>
-  <p>הקטגוריות הקיימות במערכת:</p>
+  <h3>תצוגת כרטיסים</h3>
+  <ul>
+    <li>כל ספק מוצג ככרטיס עם <strong>אייקון קטגוריה צבעוני</strong></li>
+    <li>לחיצה על כרטיס → נפתח <strong>חלון צידי (drawer)</strong> עם כל הפרטים</li>
+    <li><strong>כוכב מועדף</strong> — לחיצה על הכוכב מסמנת ספק כמועדף (פתוח לכל הצוות)</li>
+    <li>כפתור <strong>Favorites</strong> — מסנן רק ספקים מועדפים</li>
+    <li><strong>תגיות פרויקטים</strong> — רואים באילו פרויקטים הספק עבד</li>
+  </ul>
+
+  <h3>קטגוריות ספקים (31 קטגוריות)</h3>
+  <p>8 קטגוריות ראשיות מוצגות כברירת מחדל + כפתור <strong>See More</strong> לכל השאר:</p>
   <div style="display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0;">
-    <span class="chip chip-gray">Renovation Contractor</span>
-    <span class="chip chip-gray">Electrician</span>
-    <span class="chip chip-gray">Plumber</span>
-    <span class="chip chip-gray">Carpenter</span>
-    <span class="chip chip-gray">HVAC Technician</span>
-    <span class="chip chip-gray">Painter</span>
-    <span class="chip chip-gray">Drywall</span>
-    <span class="chip chip-gray">Flooring</span>
+    <span class="chip chip-gray">General Contractor</span>
+    <span class="chip chip-gray">A.C.</span>
+    <span class="chip chip-gray">Aluminum & Windows</span>
+    <span class="chip chip-gray">Carpentry</span>
+    <span class="chip chip-gray">Ceramics & Tiles</span>
+    <span class="chip chip-gray">Electrical</span>
     <span class="chip chip-gray">Furniture</span>
+    <span class="chip chip-gray">Kitchen</span>
     <span class="chip chip-gray">Lighting</span>
-    <span class="chip chip-gray">Curtains & Blinds</span>
-    <span class="chip chip-gray">Countertops & Kitchens</span>
-    <span class="chip chip-gray">Tiles & Cladding</span>
-    <span class="chip chip-gray">Landscaping</span>
-    <span class="chip chip-gray">Other</span>
+    <span class="chip chip-gray">Plumbing</span>
+    <span class="chip chip-gray">Smart Home</span>
+    <span class="chip chip-gray">Sanitary</span>
+    <span class="chip chip-gray">+ Custom Category</span>
   </div>
 
   <h3>חיפוש וסינון</h3>
-  <p>שדה חיפוש חופשי (שם, טלפון, מייל) + כפתורי סינון לפי קטגוריה.</p>
+  <p>שדה חיפוש חופשי (שם, טלפון, מייל) + כפתורי סינון לפי קטגוריה + סינון מועדפים.</p>
 
   <h3>הוספת רכישה (Team)</h3>
-  <p>חברי צוות (לא Admin) רואים כפתור <strong>+ Purchase</strong> בכל כרטיס ספק. הם יכולים לדווח על רכישה (פרויקט, תיאור, סכום, לינק הצעת מחיר ב-Drive).</p>
+  <p>בנות צוות יכולות לדווח על רכישה (פרויקט, תיאור, סכום, לינק הצעת מחיר ב-Drive). רואות פרטי בנק של הספק.</p>
 
-  <div class="tip">אחוז העמלה של הספק מוצג ב-Admin בלבד ולא נראה לחברי צוות.</div>
+  <div class="tip">אחוז העמלה של הספק מוצג ב-Admin בלבד ולא נראה לחברי צוות. פרטי בנק גלויים לכולם.</div>
 </div>
 
 <!-- 11. Work Log -->
@@ -1054,9 +1273,10 @@
   <h3>Team</h3>
   <p>גישה מוגבלת ל:</p>
   <ul>
-    <li><strong>Projects</strong> — ניהול משימות</li>
-    <li><strong>Supplier Directory</strong> — חיפוש ספקים + הוספת רכישות</li>
-    <li><strong>Work Log</strong> — רישום שעות (ללא צפייה בנתוני Admin)</li>
+    <li><strong>My Day</strong> — דשבורד יומי אישי (דף ברירת מחדל)</li>
+    <li><strong>Projects</strong> — ניהול משימות, Budget & Quotes, Client Card</li>
+    <li><strong>Supplier Directory</strong> — חיפוש ספקים + הוספת רכישות + מועדפים (הכל חוץ מעמלה)</li>
+    <li><strong>Work Log</strong> — רישום שעות</li>
     <li><strong>Knowledge Base</strong> — גישה למאגר הידע</li>
   </ul>
 
@@ -1099,6 +1319,13 @@
     <li>ניתן לערוך את כל השדות</li>
     <li>לוחצים Send — המייל יוצא</li>
   </ol>
+
+  <h3>CC ו-Reply-To — מנהלת הפרויקט</h3>
+  <ul>
+    <li><strong>מיילי חתימה ותקציב</strong> — מנהלת הפרויקט (Manager) מקבלת העתק (CC) אוטומטית</li>
+    <li><strong>Reply-To</strong> — כשהלקוח לוחץ "השב", המייל חוזר גם למנהלת הפרויקט (בנוסף ל-hello@yaelsiso.com)</li>
+    <li><strong>מיילי גבייה</strong> — רק קלואי (hello@yaelsiso.com), בלי CC למנהלת</li>
+  </ul>
 
   <div class="tip">כתובת המייל של הנמען נמשכת אוטומטית מפרטי הלקוח/ספק. ודאי שיש מייל מעודכן בכרטיס הלקוח.</div>
 </div>
@@ -1176,6 +1403,48 @@
   </div>
 
   <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">איך מחברים Google Tasks?</div>
+    <div class="faq-a">
+      My Day → כפתור "Google Tasks" הירוק → התחברי עם המייל האישי → Advanced → Go to Yael Siso Studio → Allow. פעם אחת, חצי דקה. ראו פרק <strong>Google Tasks</strong> למעלה.
+    </div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">למה אני לא רואה משימות ב-My Day?</div>
+    <div class="faq-a">
+      צריך שתהיי מוגדרת כ-<strong>Manager</strong> בפרויקט. לכי ל-Projects → פתחי את הפרויקט → בסרגל העליון ליד Deadline → dropdown Manager → בחרי את עצמך.
+    </div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">איך מוסיפים הצעת מחיר מספק?</div>
+    <div class="faq-a">
+      Projects → פתחי פרויקט → <strong>Budget & Quotes</strong> → טאב Quotes → <strong>+ Add Category</strong> (למשל "מזגנים") → <strong>+ Add Supplier</strong> → חפשי ספק קיים או הוסיפי חדש → הזיני מחיר והערות.
+    </div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">איך מעבירים הצעה שנבחרה לתקציב?</div>
+    <div class="faq-a">
+      בטאב Quotes, ליד ההצעה שנבחרה לחצי <strong>Select</strong> ואז <strong>→ Budget</strong>. השורה תעבור אוטומטית לטאב Budget עם כל הפרטים.
+    </div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">איך מסמנים ספק כמועדף?</div>
+    <div class="faq-a">
+      ב-Supplier Directory, לחצי על הכוכב בפינת כרטיס הספק. הכוכב הופך לצהוב. לסינון מועדפים — לחצי על כפתור <strong>Favorites</strong> בראש העמוד.
+    </div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">איך מעתיקים פרטי לקוח לוואטסאפ?</div>
+    <div class="faq-a">
+      בפרויקט → Client Card → ליד כל איש קשר יש כפתור <strong>Copy</strong>. הוא מעתיק שם, כתובת, ת.ז, טלפון ומייל — מוכן להדבקה בוואטסאפ.
+    </div>
+  </div>
+
+  <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">איך מייצאים נתונים מהמערכת?</div>
     <div class="faq-a">
       <strong>Client Billing</strong> — כפתור "Download CSV" בראש העמוד<br>
@@ -1189,7 +1458,7 @@
 <!-- Footer -->
 <div style="text-align: center; padding: 40px 0 60px; color: var(--gray); font-size: 11px; letter-spacing: 3px; text-transform: uppercase;">
   Yael Siso — Interior Design Studio<br>
-  <span style="color: var(--gold); margin-top: 4px; display: inline-block;">Admin Training Manual v1.0</span>
+  <span style="color: var(--gold); margin-top: 4px; display: inline-block;">Admin Training Manual v2.0 — June 2026</span>
 </div>
 
 </div><!-- /main-content -->
